@@ -10,7 +10,7 @@ function App() {
       <ListUser/>
       <AddUser/>
       <CreateRoutine/>
-
+      {console.log("Hola")}
 
     </div>
   );
