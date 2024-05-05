@@ -1,16 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
-import ListUser from './components/ListUser'
-import AddUser from './components/AddUser';
-import CreateRoutine from './components/CreateRoutine'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginForm from './components/auth/loginForm';
+import RegisterForm from './components/auth/registerForm';
 
 function App() {
   return (
-    <div className="App">
-      <ListUser/>
-      <AddUser/>
-      <CreateRoutine/>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginForm />} />
+        <Route path="/register" element={<RegisterForm />} />
+      </Routes>
+    </Router>
   );
 }
 
