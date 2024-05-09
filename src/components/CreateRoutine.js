@@ -26,7 +26,6 @@ const EjercicioForm = () => {
             }));
             setCategorias(categoriasData);
         };
-
         obtenerCategorias();
     }, []);
 
