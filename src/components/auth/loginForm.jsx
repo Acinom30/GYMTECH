@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import gymLogo from '../../image/Logo.png';
+import gymLogo from '../../image/logo.jpg';
 import { Link } from 'react-router-dom';
 
 const LoginForm = () => {
@@ -39,7 +39,7 @@ const LoginForm = () => {
         className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-16 text-center" // Centra el placeholder y el valor del input
       />
       <button onClick={handleSubmit} className="w-full sm:w-80 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full mb-16">Entrar</button>
-      <Link to="/register" className="w-full sm:w-80 border text-gray-700 font-bold py-3 px-6 rounded-full mb-6 text-center hover:border-gray-400"> {/* Cambia el borde al poner el cursor encima */}
+      <Link to="/viewListClients" className="w-full sm:w-80 border text-gray-700 font-bold py-3 px-6 rounded-full mb-6 text-center hover:border-gray-400"> {/* Cambia el borde al poner el cursor encima */}
         Registrar
       </Link>
     </div>

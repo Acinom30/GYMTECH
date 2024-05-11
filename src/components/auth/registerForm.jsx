@@ -213,7 +213,7 @@ const RegisterForm = () => {
                                     Entrenador
                                 </label>
                             </div>
-                            <label htmlFor="observaciones" className="block font-semibold">Observaciones</label>
+                            <label htmlFor="observaciones" className="block font-semibold">Observaciones/Enfermedades</label>
                             <textarea
                                 id="observaciones"
                                 name="observaciones"
