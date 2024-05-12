@@ -6,36 +6,61 @@ import Header from '../general/navigationMenu';
 const ViewClients = () => {
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
   
     useEffect(() => {
-      const fetchClients = async () => {
-        const querySnapshot = await getDocs(collection(db, 'usuarios'));
-        const clientsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setClients(clientsData);
-      };
-  
-      fetchClients();
-    }, []);
-  
+        const fetchClients = async () => {
+          const querySnapshot = await getDocs(collection(db, 'usuarios'));
+          const clientsData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          const filteredClients = clientsData.filter(client => {
+            const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const fullName = normalize(`${client.primerNombre} ${client.primerApellido}`).toLowerCase();
+            const cedula = normalize(client.cedula).toLowerCase();
+            const searchTermLower = normalize(searchTerm).toLowerCase();
+            return fullName.includes(searchTermLower) || cedula.includes(searchTermLower);
+          });
+          setClients(filteredClients);
+        };
+      
+        fetchClients();
+      }, [searchTerm]);
+          
+
     const handleShowDetails = (client) => {
       setSelectedClient(client);
     };
 
     const handleEditClient = (client) => {
-      // Lógica para editar el cliente
+      // editar cliente
     };
 
     const handleDeleteClient = (client) => {
-      // Lógica para eliminar el cliente
+      // eliminar cliente
     };
   
     return (
       <div className="container mx-auto p-4">
         <Header/>
         <h1 className="text-3xl font-bold text-center mb-4">Clientes</h1>
+        <div className="flex items-center justify-between mb-4">
+        <input
+            type="text"
+            placeholder="Buscar por nombre, apellido o cédula"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border border-gray-300 p-2 rounded-md w-full"
+        />
+        <button
+            onClick={() => setSearchTerm('')}
+            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
+        >
+            Limpiar
+        </button>
+        </div>
         <div className="overflow-x-auto">
           <table className="table-fixed w-full">
             <thead>

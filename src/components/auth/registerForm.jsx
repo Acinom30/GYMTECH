@@ -5,6 +5,7 @@ import { db } from '../../firebase/config';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 import bcrypt from 'bcryptjs';
+import Header from '../general/navigationMenu';
 
 const RegisterForm = () => {
     const [formData, setFormData] = useState({
@@ -76,6 +77,8 @@ const RegisterForm = () => {
     };
 
     return (
+        <div>
+        <Header/>    
         <div className="flex flex-col items-center justify-center min-h-screen">
             <div className="md:w-2/3 px-4 py-8">
                 <h1 className="text-3xl font-bold mb-4">Registrar Cliente</h1>
@@ -233,6 +236,7 @@ const RegisterForm = () => {
                     </div>
                 </form>
             </div>
+        </div>
         </div>
     );
 };
