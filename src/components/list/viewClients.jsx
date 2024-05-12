@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import Header from '../general/navigationMenu';
 
 const ViewClients = () => {
     const [clients, setClients] = useState([]);
@@ -33,6 +34,7 @@ const ViewClients = () => {
   
     return (
       <div className="container mx-auto p-4">
+        <Header/>
         <h1 className="text-3xl font-bold text-center mb-4">Clientes</h1>
         <div className="overflow-x-auto">
           <table className="table-fixed w-full">
