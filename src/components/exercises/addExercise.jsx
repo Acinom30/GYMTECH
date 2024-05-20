@@ -6,8 +6,7 @@ import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 import Header from '../general/navigationMenu';
 
-
-const ExercisesForm = () => {
+const AddExercise = () => {
     const [categorias, setCategorias] = useState([]);
     const [formData, setFormData] = useState({
         nombre: '',
@@ -28,7 +27,6 @@ const ExercisesForm = () => {
         obtenerCategorias();
     }, []);
 
-
     const handleChange = (event) => {
         const { name, value } = event.target;
         setFormData({
@@ -40,7 +38,6 @@ const ExercisesForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.nombre || !formData.descripcion || !formData.categoria) {
-            console.log("Entró if")
             ToastifyError("Por favor, complete todos los campos obligatorios");
             return;
         }
@@ -125,4 +122,4 @@ const ExercisesForm = () => {
     );
 };
 
-export default ExercisesForm;
+export default AddExercise;
