@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../general/navigationMenu';
 import { db } from '../../firebase/config';
-import { collection, getDocs, query, where, doc, addDoc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, addDoc } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
 
 
@@ -18,17 +18,27 @@ const AddRoutine = () => {
     const [ejercicios, setEjercicios] = useState([]);
     const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState(null);
     const [rutina, setRutina] = useState([]);
-    const [selectedOption, setSelectedOption] = useState(""); // Estado para almacenar la opción seleccionada
+    const [seleccionFechaCambio, setSeleccionFechaCambio] = useState("");
 
-    const predefinedColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#C0C0C0', 'transparent'];
-    // Estado para almacenar el color seleccionado por el usuario
+    const predefinedColors = [
+        '#FFD1DC',
+        '#FFD700',
+        '#90EE90',
+        '#ADD8E6',
+        '#9370DB', 
+        '#FFA500', 
+        '#D8BFD8', 
+        '#4B0082', 
+        '#FF00FF',
+        '#32CD32',
+        '#FF1493', 
+        'transparent',
+    ];
     const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
 
 
     const [rutinaGuardada, setRutinaGuardada] = useState(false);
     const navigate = useNavigate();
-
-
 
     const [formData, setFormData] = useState({
         categoria: '',
@@ -65,7 +75,6 @@ const AddRoutine = () => {
             }
         };
 
-
         if (client && client.id) {
             obtenerValoracionMasReciente();
         }
@@ -92,7 +101,6 @@ const AddRoutine = () => {
     const toggleVentana = () => {
         setMostrarVentana(!mostrarVentana);
     };
-
 
     const calcularEdad = (fechaNacimiento) => {
         const diferenciaFechas = Date.now() - fechaNacimiento.getTime();
@@ -131,7 +139,6 @@ const AddRoutine = () => {
         console.log(formData)
     };
 
-
     const handleChangeEjercicio = (e, ejercicio) => {
         setEjercicioSeleccionado(ejercicio);
         setFormData((prevFormData) => ({
@@ -142,13 +149,7 @@ const AddRoutine = () => {
 
     const handleAddExercise = async () => {
         if (formData.ejercicio && formData.series) {
-           /* const ejerciciosRef = doc(db, 'ejercicios', formData.ejercicio.id);
-            const ejercicioDoc = (await getDoc(ejerciciosRef)).data();
-            console.log(ejercicioDoc)
-            const categoriaId = ejercicioDoc.categoria;*/
-
             const nuevoEjercicio = {
-                //categoria: categoriaId,
                 id: formData.ejercicio,
                 nombre: ejercicioSeleccionado.nombre,
                 series: formData.series,
@@ -168,20 +169,7 @@ const AddRoutine = () => {
 
     const handleEditExercise = async (index) => {
         const ejercicio = rutina[index];
-        /*const categoriaId = ejercicio.categoria;
-        const obtenerEjercicios = async () => {
-            const ejerciciosRef = collection(db, "ejercicios");
-            const q = query(ejerciciosRef, where('categoria', '==', categoriaId));
-            const ejerciciosSnapshot = await getDocs(q);
-            const ejerciciosData = ejerciciosSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setEjercicios(ejerciciosData);
-        };*/
-        //obtenerEjercicios();
         setFormData({
-            // categoria: categoriaId,
             ejercicio: ejercicio.id,
             series: ejercicio.series,
             observaciones: ejercicio.observaciones,
@@ -190,7 +178,6 @@ const AddRoutine = () => {
         handleDeleteExercise(index);
     };
 
-
     const handleDeleteExercise = (index) => {
         const nuevaRutina = rutina.filter((_, i) => i !== index);
         setRutina(nuevaRutina);
@@ -198,12 +185,9 @@ const AddRoutine = () => {
 
     const handleSaveRoutine = async () => {
         try {
-            console.log(formData)
-            const fechaCambio = calcularFechaCambio(selectedOption);
+            const fechaCambio = calcularFechaCambio(seleccionFechaCambio);
             const rutinaRef = collection(db, "rutinas");
             const usuarioRef = doc(db, "usuarios", client.id);
-            // const valoracionRef = valoracionMasRecient
-            console.log("Rutina", rutina)
             await addDoc(rutinaRef, {
                 clientId: usuarioRef,
                 valoracion: IDValoracionMasReciente,
@@ -219,25 +203,22 @@ const AddRoutine = () => {
             console.error("Error guardando la rutina: ", error);
         }
         if (rutinaGuardada) {
-
-            navigate('/selectUserEvaluation')
+            navigate('/selectUserRoutine')
         }
     };
 
     const handleOptionChange = (event) => {
-        setSelectedOption(event.target.value);
+        setSeleccionFechaCambio(event.target.value);
     };
 
     const calcularFechaCambio = (opcion) => {
-        let fechaCambio = new Date(); // Obtenemos la fecha actual
+        let fechaCambio = new Date();
 
-        // Calculamos la fecha de cambio dependiendo de la selección
         switch (opcion) {
             case '1 mes':
                 fechaCambio.setMonth(fechaCambio.getMonth() + 1);
                 break;
             case '1 mes y medio':
-                // Sumamos un mes y medio correctamente
                 fechaCambio.setMonth(fechaCambio.getMonth() + 1);
                 fechaCambio.setDate(fechaCambio.getDate() + 15);
                 break;
@@ -249,7 +230,6 @@ const AddRoutine = () => {
                 return null;
         }
 
-        // Formateamos la fecha en el formato YYYY-MM-DD
         const formattedDate = fechaCambio.toISOString().split('T')[0];
         return formattedDate;
     };
@@ -264,7 +244,20 @@ const AddRoutine = () => {
         setRutina(updatedRutina);
     };
 
+    //Tal vez se pueda implemtentar.
+    const onDragEnd = (result) => {
+        if (!result.destination) return;
 
+        const items = Array.from(rutina);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+
+        setRutina(items);
+    };
+
+    const limpiarRutina = () => {
+        setRutina([]);
+    };
 
     return (
         <div>
@@ -467,20 +460,23 @@ const AddRoutine = () => {
                         <h3 className="text-lg font-semibold mb-2 mt-12">Seleccionar Color</h3>
                         {predefinedColors.map((color, index) => (
                             <button
-                            key={index}
-                            onClick={() => handleColorSelection(color)}
-                            style={{
-                                backgroundColor: color,
-                                width: '30px',
-                                height: '30px',
-                                borderRadius: '50%',
-                                marginRight: '10px',
-                                border: selectedColor === color ? '4px solid #000' : '1px solid #ccc',
-                                cursor: 'pointer'
-                            }}
-                        />
+                                key={index}
+                                onClick={() => handleColorSelection(color)}
+                                style={{
+                                    backgroundColor: color,
+                                    width: '30px',
+                                    height: '30px',
+                                    borderRadius: '50%',
+                                    marginRight: '10px',
+                                    border: selectedColor === color ? '4px solid #000' : '1px solid #ccc',
+                                    cursor: 'pointer'
+                                }}
+                            />
                         ))}
                     </div>
+                    <button onClick={limpiarRutina} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4 mr-5">
+                        Limpiar
+                    </button>
                     <button onClick={handleSaveRoutine} type="button" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
                         Guardar Rutina
                     </button>

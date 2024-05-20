@@ -5,17 +5,14 @@ import Header from '../general/navigationMenu';
 import { useNavigate } from 'react-router-dom';
 
 
-const SelectUserEvaluation = () => {
+const SelectUserRoutine = () => {
     const navigate = useNavigate();
 
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    //Para verificar si el componente está montado en caso de que el usuario tenga más de 
-    //3 días de registro.
+    
     const isMounted = useRef(false);
-
-
 
     useEffect(() => {       
         isMounted.current = true;
@@ -58,7 +55,7 @@ const SelectUserEvaluation = () => {
     const handleClick = () => {
         if (isMounted.current) {
             //Para pruebas de rutina
-            navigate('/assignEvaluation', {state: { client: selectedClient } });
+            navigate('/addRoutine', {state: { client: selectedClient } });
             //Este de abajo es el que va
             //navigate('/assignEvaluation', { state: { client: selectedClient } });
         }
@@ -106,7 +103,7 @@ const SelectUserEvaluation = () => {
                                             onClick={() => handleEvaluation(client)}
                                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
                                         >
-                                            Agregar Valoración
+                                            Agregar Rutina
                                         </button>
                                     </div>
                                 </td>
@@ -116,19 +113,18 @@ const SelectUserEvaluation = () => {
                 </table>
             </div>
             {selectedClient ? (
-                calculateDays(selectedClient) < 3 ? (
+                calculateDays(selectedClient) < 7 ? (
                     <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                         <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
                             <h2 className="text-2xl font-bold mb-4 text-center">ATENCIÓN</h2>
                             <p>
                                 {selectedClient.primerNombre} {selectedClient.primerApellido} no tiene
-                                los tres días de acondicionamiento para la toma de la valoración
-                                física.
+                                la semana de acondicionamiento para el registro de la rutina.
                             </p>
                             <br />
                             <p>
                                 <strong>
-                                    ¿Quiere agregar una valoración a {selectedClient.primerNombre}?
+                                    ¿Quiere agregar una rutina a {selectedClient.primerNombre}?
                                 </strong>
                             </p>
                             <div className="mt-4 flex justify-center gap-5">
@@ -139,7 +135,7 @@ const SelectUserEvaluation = () => {
                                 <button
                                     onClick={handleClick}
                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-                                >Agregar Valoración</button>
+                                >Agregar Rutina</button>
                             </div>
                         </div>
                     </div>
@@ -151,4 +147,4 @@ const SelectUserEvaluation = () => {
     );
 };
 
-export default SelectUserEvaluation;
+export default SelectUserRoutine;

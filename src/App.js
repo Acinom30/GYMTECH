@@ -8,6 +8,7 @@ import SelectUserEvaluation from './components/evaluations/selectUserEvaluation'
 import AssignEvaluation from './components/evaluations/assignEvaluation';
 import AddExercise from './components/exercises/addExercise';
 import AddRoutine from './components/routine/addRoutine'
+import SelectUserRoutine from './components/routine/selectUserRoutine';
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
         <Route path="/assignEvaluation" element={<AssignEvaluation />} />
         <Route path='/addExercise' element={<AddExercise />} />
         <Route path='/addRoutine' element={<AddRoutine />} />
-
+        <Route path='/selectUserRoutine' element={<SelectUserRoutine />} />
       </Routes>
     </Router>
   );
