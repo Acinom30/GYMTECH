@@ -67,8 +67,6 @@ const Header = () => {
                             <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                 <div className="py-1" role="none">
                                     <Link to="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Agregar Cliente</Link>
-                                    <Link to="/editClient" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Editar Cliente</Link>
-                                    <Link to="/deleteClient" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Eliminar cliente</Link>
                                     <Link to="/viewListClients" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ver lista de clientes</Link>
 
                                 </div>
@@ -103,7 +101,7 @@ const Header = () => {
                         {showRutinaMenu && (
                             <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                 <div className="py-1" role="none">
-                                    <Link to="/createRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Crear Rutina</Link>
+                                    <Link to="/selectUserRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Crear Rutina</Link>
                                     <Link to="/editRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Editar Rutina</Link>
                                     <Link to="/listRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ver Historial de Rutinas</Link>
                                 </div>
@@ -121,8 +119,7 @@ const Header = () => {
                             <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                 <div className="py-1" role="none">
                                     <Link to="/addExercises" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Agregar Ejercicios</Link>
-                                    <Link to="/editExercises" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Editar Ejercicios</Link>
-                                    <Link to="/deleteExercises" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Eliminar Ejercicios</Link>
+                                    <Link to="/editExercises" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Listar Ejercicios</Link>
                                 </div>
                             </div>
                         )}

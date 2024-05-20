@@ -1,33 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
+import { useNavigate } from 'react-router-dom';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import ToastifyError from '../ui/toastify/toastifyError';
+import ToastifySuccess from '../ui/toastify/toastifySuccess';
 
 const ViewClients = () => {
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
+    const [triggerRefresh, setTriggerRefresh] = useState(false); 
+
 
   
     useEffect(() => {
-        const fetchClients = async () => {
-          const querySnapshot = await getDocs(collection(db, 'usuarios'));
-          const clientsData = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          const filteredClients = clientsData.filter(client => {
-            const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const fullName = normalize(`${client.primerNombre} ${client.primerApellido}`).toLowerCase();
-            const cedula = normalize(client.cedula).toLowerCase();
-            const searchTermLower = normalize(searchTerm).toLowerCase();
-            return fullName.includes(searchTermLower) || cedula.includes(searchTermLower);
-          });
-          setClients(filteredClients);
-        };
-      
-        fetchClients();
-      }, [searchTerm]);
+      fetchClients();
+    }, [searchTerm]);
+  
+    const fetchClients = async () => {
+      const querySnapshot = await getDocs(collection(db, 'usuarios'));
+      const clientsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      const filteredClients = clientsData.filter(client => {
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const fullName = normalize(`${client.primerNombre} ${client.primerApellido}`).toLowerCase();
+        const cedula = normalize(client.cedula).toLowerCase();
+        const searchTermLower = normalize(searchTerm).toLowerCase();
+        return fullName.includes(searchTermLower) || cedula.includes(searchTermLower);
+      });
+      setClients(filteredClients);
+    };
           
 
     const handleShowDetails = (client) => {
@@ -35,11 +43,37 @@ const ViewClients = () => {
     };
 
     const handleEditClient = (client) => {
-      // editar cliente
+      //setSelectedClient(client);
+      navigate('/userUpdate', { state: { client } });
     };
 
-    const handleDeleteClient = (client) => {
-      // eliminar cliente
+    const handleDeleteClient = async (client) => {
+      console.log(client)
+      const nombre = client.primerNombre + ' ' + client.primerApellido
+      confirmAlert({
+        title: 'Confirmar Eliminación',
+        message: '¿Estás seguro de que deseas eliminar el cliente ' + nombre + '?',
+        buttons: [
+          {
+            label: 'Sí',
+            onClick: async () => {
+              try {
+                await deleteDoc(doc(db, 'usuarios', client.id));
+                ToastifySuccess('Cliente eliminado correctamente');
+                fetchClients(); // Llamamos a fetchClients directamente
+                navigate('/viewListClients');
+              } catch (error) {
+                ToastifyError('Error al eliminar el cliente');
+                console.error('Error al eliminar el cliente: ', error);
+              }
+            }
+          },
+          {
+            label: 'No',
+            onClick: () => {}
+          }
+        ]
+      });
     };
   
     return (
@@ -91,14 +125,12 @@ const ViewClients = () => {
                       >
                         Editar
                       </button>
-                      {client.rol === "administrador" && (
                         <button
                           onClick={() => handleDeleteClient(client)}
                           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
                         >
                           Eliminar
                         </button>
-                      )}
                     </div>
                   </td>
                 </tr>
