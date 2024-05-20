@@ -57,7 +57,10 @@ const AddEvaluation = () => {
 
     const handleClick = () => {
         if (isMounted.current) {
-            navigate('/assignEvaluation', { state: { client: selectedClient } });
+            //Para pruebas de rutina
+            navigate('/addRoutine', {state: { client: selectedClient } });
+            //Este de abajo es el que va
+            //navigate('/assignEvaluation', { state: { client: selectedClient } });
         }
     };
 

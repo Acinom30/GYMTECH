@@ -6,9 +6,12 @@ import ViewClients from './components/list/viewClients';
 import Home from './components/general/home';
 import SelectUserEvaluation from './components/evaluations/selectUserEvaluation';
 import AssignEvaluation from './components/evaluations/assignEvaluation';
+import AddExercise from './components/exercises/addExercise';
+import AddRoutine from './components/routine/addRoutine'
 
 function App() {
   return (
+    
     <Router>
       <Routes>
         <Route path="/" element={<LoginForm />} />
@@ -17,8 +20,9 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/selectUserEvaluation" element={<SelectUserEvaluation />} />
         <Route path="/assignEvaluation" element={<AssignEvaluation />} />
+        <Route path='/addExercise' element={<AddExercise />} />
+        <Route path='/addRoutine' element={<AddRoutine />} />
 
-        assignEvaluation
       </Routes>
     </Router>
   );

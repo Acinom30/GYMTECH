@@ -9,7 +9,7 @@ import { addDoc, collection, doc } from 'firebase/firestore';
 
 
 
-const AssignEvaluation = ({cliente}) => {
+const AssignEvaluation = () => {
   const location = useLocation();
   const client = location.state?.client;
 
