@@ -20,6 +20,11 @@ const AddRoutine = () => {
     const [rutina, setRutina] = useState([]);
     const [selectedOption, setSelectedOption] = useState(""); // Estado para almacenar la opción seleccionada
 
+    const predefinedColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#C0C0C0', 'transparent'];
+    // Estado para almacenar el color seleccionado por el usuario
+    const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
+
+
     const [rutinaGuardada, setRutinaGuardada] = useState(false);
     const navigate = useNavigate();
 
@@ -30,6 +35,7 @@ const AddRoutine = () => {
         ejercicio: '',
         series: '',
         observaciones: '',
+        color: '',
     });
 
     useEffect(() => {
@@ -38,7 +44,7 @@ const AddRoutine = () => {
                 const valoracionesRef = collection(db, "valoraciones");
                 const snapshot = await getDocs(valoracionesRef);
                 const valoraciones = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
+
                 if (valoraciones.length > 0) {
                     const valoracionMasReciente = valoraciones.reduce((max, val) => {
                         const fechaMax = new Date(max.fechaValoracion);
@@ -58,7 +64,7 @@ const AddRoutine = () => {
                 console.error("Error al obtener la valoración más reciente:", error);
             }
         };
-        
+
 
         if (client && client.id) {
             obtenerValoracionMasReciente();
@@ -125,29 +131,29 @@ const AddRoutine = () => {
         console.log(formData)
     };
 
-    /* const handleChangeEjercicio = (e) => {
-         const ejercicioId = e.target.value;
-         setFormData({
-             ...formData,
-             ejercicio: ejercicioId
-         });
-     };*/
+
     const handleChangeEjercicio = (e, ejercicio) => {
         setEjercicioSeleccionado(ejercicio);
         setFormData((prevFormData) => ({
             ...prevFormData,
-            ejercicio: ejercicio.id // O el valor relevante del ejercicio que deseas guardar
+            ejercicio: ejercicio.id,
         }));
     };
 
-    const handleAddExercise = () => {
+    const handleAddExercise = async () => {
         if (formData.ejercicio && formData.series) {
+           /* const ejerciciosRef = doc(db, 'ejercicios', formData.ejercicio.id);
+            const ejercicioDoc = (await getDoc(ejerciciosRef)).data();
+            console.log(ejercicioDoc)
+            const categoriaId = ejercicioDoc.categoria;*/
+
             const nuevoEjercicio = {
-                //categoria: formData.categoria,
+                //categoria: categoriaId,
                 id: formData.ejercicio,
                 nombre: ejercicioSeleccionado.nombre,
                 series: formData.series,
                 observaciones: formData.observaciones,
+                color: '',
             };
             setRutina([...rutina, nuevoEjercicio]);
             setFormData({
@@ -192,11 +198,12 @@ const AddRoutine = () => {
 
     const handleSaveRoutine = async () => {
         try {
+            console.log(formData)
             const fechaCambio = calcularFechaCambio(selectedOption);
             const rutinaRef = collection(db, "rutinas");
             const usuarioRef = doc(db, "usuarios", client.id);
-           // const valoracionRef = valoracionMasReciente
-
+            // const valoracionRef = valoracionMasRecient
+            console.log("Rutina", rutina)
             await addDoc(rutinaRef, {
                 clientId: usuarioRef,
                 valoracion: IDValoracionMasReciente,
@@ -212,8 +219,9 @@ const AddRoutine = () => {
             console.error("Error guardando la rutina: ", error);
         }
         if (rutinaGuardada) {
+
             navigate('/selectUserEvaluation')
-        } 
+        }
     };
 
     const handleOptionChange = (event) => {
@@ -222,7 +230,7 @@ const AddRoutine = () => {
 
     const calcularFechaCambio = (opcion) => {
         let fechaCambio = new Date(); // Obtenemos la fecha actual
-    
+
         // Calculamos la fecha de cambio dependiendo de la selección
         switch (opcion) {
             case '1 mes':
@@ -240,12 +248,23 @@ const AddRoutine = () => {
                 console.error('Selección de fecha de cambio inválida');
                 return null;
         }
-    
+
         // Formateamos la fecha en el formato YYYY-MM-DD
         const formattedDate = fechaCambio.toISOString().split('T')[0];
         return formattedDate;
     };
-    
+
+    const handleColorSelection = (color) => {
+        setSelectedColor(color);
+    };
+
+    const handleExerciseColorSelect = async (index, color) => {
+        const updatedRutina = [...rutina];
+        updatedRutina[index].color = color;
+        setRutina(updatedRutina);
+    };
+
+
 
     return (
         <div>
@@ -380,8 +399,11 @@ const AddRoutine = () => {
                     {rutina.length > 0 ? (
                         <ul>
                             {rutina.map((ejercicio, index) => (
-                                <li key={index} className="mb-4 p-2 bg-gray-100 rounded-md shadow-sm">
-                                    <div className="flex justify-between items-center">
+                                <li
+                                    key={index}
+                                    className="mb-4 p-2 rounded-md shadow-sm"
+                                    style={{ backgroundColor: ejercicio.color || 'transparent' }}
+                                >       <div className="flex justify-between items-center">
                                         <div>
                                             <p><strong>Ejercicio:</strong> {ejercicio.nombre}</p>
                                             <p><strong>Series:</strong> {ejercicio.series}</p>
@@ -391,8 +413,11 @@ const AddRoutine = () => {
                                             <button onClick={() => handleEditExercise(index)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2">
                                                 Editar
                                             </button>
-                                            <button onClick={() => handleDeleteExercise(index)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded">
+                                            <button onClick={() => handleDeleteExercise(index)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded mr-2">
                                                 Eliminar
+                                            </button>
+                                            <button onClick={() => handleExerciseColorSelect(index, selectedColor)} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 rounded">
+                                                Aplicar Color
                                             </button>
                                         </div>
                                     </div>
@@ -437,6 +462,24 @@ const AddRoutine = () => {
                             />
                             <label htmlFor="cambioDosMeses">2 meses</label>
                         </div>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold mb-2 mt-12">Seleccionar Color</h3>
+                        {predefinedColors.map((color, index) => (
+                            <button
+                            key={index}
+                            onClick={() => handleColorSelection(color)}
+                            style={{
+                                backgroundColor: color,
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '50%',
+                                marginRight: '10px',
+                                border: selectedColor === color ? '4px solid #000' : '1px solid #ccc',
+                                cursor: 'pointer'
+                            }}
+                        />
+                        ))}
                     </div>
                     <button onClick={handleSaveRoutine} type="button" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
                         Guardar Rutina
