@@ -25,19 +25,18 @@ const AddRoutine = () => {
         '#FFD700',
         '#90EE90',
         '#ADD8E6',
-        '#9370DB', 
-        '#FFA500', 
-        '#D8BFD8', 
-        '#4B0082', 
+        '#9370DB',
+        '#FFA500',
+        '#D8BFD8',
+        '#4B0082',
         '#FF00FF',
         '#32CD32',
-        '#FF1493', 
+        '#FF1493',
         'transparent',
     ];
     const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
 
 
-    const [rutinaGuardada, setRutinaGuardada] = useState(false);
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -148,24 +147,30 @@ const AddRoutine = () => {
     };
 
     const handleAddExercise = async () => {
-        if (formData.ejercicio && formData.series) {
-            const nuevoEjercicio = {
-                id: formData.ejercicio,
-                nombre: ejercicioSeleccionado.nombre,
-                series: formData.series,
-                observaciones: formData.observaciones,
-                color: '',
-            };
-            setRutina([...rutina, nuevoEjercicio]);
-            setFormData({
-                categoria: '',
-                ejercicio: '',
-                series: '',
-                observaciones: '',
-            });
-            setEjercicioSeleccionado(null);
+        if (!formData.ejercicio || !formData.series || !formData.observaciones) {
+            console.log("Tiene que ingresar todos los campos obligatorios")
+            return;
         }
+        const nuevoEjercicio = {
+            id: formData.ejercicio,
+            nombre: ejercicioSeleccionado.nombre,
+            series: formData.series,
+            observaciones: formData.observaciones,
+            color: '',
+        };
+        setRutina([...rutina, nuevoEjercicio]);
+        setFormData({
+            categoria: '',
+            ejercicio: '',
+            series: '',
+            observaciones: '',
+            color: '',
+        });
+        setEjercicios([]);
+        setEjercicioSeleccionado(null);
     };
+
+
 
     const handleEditExercise = async (index) => {
         const ejercicio = rutina[index];
@@ -185,6 +190,10 @@ const AddRoutine = () => {
 
     const handleSaveRoutine = async () => {
         try {
+            if (seleccionFechaCambio === "") {
+                console.log("Tiene que ingresar todos los campos obligatorios")
+                return;
+            }
             const fechaCambio = calcularFechaCambio(seleccionFechaCambio);
             const rutinaRef = collection(db, "rutinas");
             const usuarioRef = doc(db, "usuarios", client.id);
@@ -195,15 +204,13 @@ const AddRoutine = () => {
                 fechaCreacion: new Date().toISOString().split('T')[0],
                 fechaCambio: fechaCambio,
             });
-            setRutinaGuardada(true);
             alert("Rutina guardada exitosamente.");
+            navigate('/selectUserRoutine')
+
             setRutina([]);
 
         } catch (error) {
             console.error("Error guardando la rutina: ", error);
-        }
-        if (rutinaGuardada) {
-            navigate('/selectUserRoutine')
         }
     };
 
@@ -257,6 +264,7 @@ const AddRoutine = () => {
 
     const limpiarRutina = () => {
         setRutina([]);
+        //setSeleccionFechaCambio = ""
     };
 
     return (
@@ -382,10 +390,14 @@ const AddRoutine = () => {
                         />
                     </div>
                     <div className="flex justify-end">
+                        <button onClick={() => navigate('/selectUserRoutine')} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
+                            Atrás
+                        </button>
                         <button onClick={handleAddExercise} type="button" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
                             Agregar
                         </button>
                     </div>
+
                 </div>
                 <div className="bg-white rounded-md shadow-md p-4">
                     <h3 className="text-lg font-semibold mb-2">Rutina</h3>
@@ -477,6 +489,7 @@ const AddRoutine = () => {
                     <button onClick={limpiarRutina} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4 mr-5">
                         Limpiar
                     </button>
+
                     <button onClick={handleSaveRoutine} type="button" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
                         Guardar Rutina
                     </button>

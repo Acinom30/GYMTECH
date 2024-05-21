@@ -3,48 +3,70 @@ import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import ToastifyError from '../ui/toastify/toastifyError';
+import ToastifySuccess from '../ui/toastify/toastifySuccess';
 
 const ExercisesList = () => {
     const [exercises, setExercises] = useState([]);
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState({});
-
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchExercises = async () => {
-            try {
-                const exercisesRef = collection(db, "ejercicios");
-                const exercisesSnapshot = await getDocs(exercisesRef);
-                const exercisesData = exercisesSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-
-                const categoriesRef = collection(db, "categorias");
-                const categoriesSnapshot = await getDocs(categoriesRef);
-                const categoriesData = categoriesSnapshot.docs.reduce((acc, doc) => {
-                    acc[doc.id] = doc.data().nombre;
-                    return acc;
-                }, {});
-                setExercises(exercisesData);
-                setCategories(categoriesData);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error al obtener los ejercicios y categorías:", error);
-                setLoading(false);
-            }
-        };
         fetchExercises();
     }, []);
 
-
-    const handleDeleteExercise = async (exerciseId) => {
+    const fetchExercises = async () => {
         try {
-            await deleteDoc(doc(db, "ejercicios", exerciseId));
-            setExercises(prevExercises => prevExercises.filter(exercise => exercise.id !== exerciseId));
+            const exercisesRef = collection(db, "ejercicios");
+            const exercisesSnapshot = await getDocs(exercisesRef);
+            const exercisesData = exercisesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            const categoriesRef = collection(db, "categorias");
+            const categoriesSnapshot = await getDocs(categoriesRef);
+            const categoriesData = categoriesSnapshot.docs.reduce((acc, doc) => {
+                acc[doc.id] = doc.data().nombre;
+                return acc;
+            }, {});
+            setExercises(exercisesData);
+            setCategories(categoriesData);
+            setLoading(false);
         } catch (error) {
-            console.error("Error al eliminar el ejercicio:", error);
+            console.error("Error al obtener los ejercicios y categorías:", error);
+            setLoading(false);
         }
+    };
+
+    const handleDeleteExercise = async (exercise) => {
+        confirmAlert({
+            title: 'Confirmar Eliminación',
+            message: `¿Estás seguro de que deseas eliminar el ejercicio ${exercise.nombre}?`,
+            buttons: [
+                {
+                    label: 'Sí',
+                    onClick: async () => {
+                        try {
+                            await deleteDoc(doc(db, 'ejercicios', exercise.id));
+                            ToastifySuccess('Ejercicio eliminado correctamente');
+                            fetchExercises();
+                        } catch (error) {
+                            ToastifyError('Error al eliminar el ejercicio');
+                            console.error('Error al eliminar el ejercicio: ', error);
+                        }
+                    }
+                },
+                {
+                    label: 'No',
+                    onClick: () => { }
+                }
+            ]
+        });
     };
 
     return (
@@ -61,7 +83,7 @@ const ExercisesList = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -70,11 +92,17 @@ const ExercisesList = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">{exercise.nombre}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{exercise.descripcion}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{categories[exercise.categoria.id]}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <Link to={`/editExercise/${exercise.id}`} className="text-indigo-600 hover:text-indigo-900 mr-2">
+                                    <td className="px-6 py-4 flex justify-center">
+                                        <Link
+                                            to={`/editExercise/${exercise.id}`}
+                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded mr-2"
+                                        >
                                             Editar
                                         </Link>
-                                        <button onClick={() => handleDeleteExercise(exercise.id)} className="text-red-600 hover:text-red-900">
+                                        <button
+                                            onClick={() => handleDeleteExercise(exercise)}
+                                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
+                                        >
                                             Eliminar
                                         </button>
                                     </td>
