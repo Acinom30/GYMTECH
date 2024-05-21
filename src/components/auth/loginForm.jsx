@@ -29,20 +29,20 @@ const LoginForm = () => {
         placeholder="Cédula"
         value={cedula}
         onChange={handleChangeCedula}
-        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8 text-center" // Centra el placeholder y el valor del input
+        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8 text-center"
       />
       <input
         type="password"
         placeholder="Contraseña"
         value={contraseña}
         onChange={handleChangeContraseña}
-        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-16 text-center" // Centra el placeholder y el valor del input
+        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-16 text-center"
       />
       <Link to='/home'>
         <button onClick={handleSubmit} className="w-full sm:w-80 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full mb-16">Entrar</button>
       </Link>
 
-      <Link to="/addRoutine" className="w-full sm:w-80 border text-gray-700 font-bold py-3 px-6 rounded-full mb-6 text-center hover:border-gray-400"> {/* Cambia el borde al poner el cursor encima */}
+      <Link to="/customerRegistration" className="w-full sm:w-80 border text-gray-700 font-bold py-3 px-6 rounded-full mb-6 text-center hover:border-gray-400">
         Registrar
       </Link>
     </div>
