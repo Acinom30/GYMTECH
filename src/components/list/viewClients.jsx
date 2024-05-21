@@ -48,7 +48,6 @@ const ViewClients = () => {
     };
 
     const handleDeleteClient = async (client) => {
-      console.log(client)
       const nombre = client.primerNombre + ' ' + client.primerApellido
       confirmAlert({
         title: 'Confirmar Eliminación',
