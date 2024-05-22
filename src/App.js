@@ -13,7 +13,7 @@ import UserUpdate from './components/user/userUpdate';
 import AddExercise from './components/exercises/addExercise';
 import EditExercise from './components/exercises/editExercise';
 import ExercisesList from './components/exercises/exerciseList';
-import CustomerRegistration from './components/customers/customerRegistration';
+import CustomerRegistration from './components/Customers/CustomerRegistration';
 
 function App() {
   return (
