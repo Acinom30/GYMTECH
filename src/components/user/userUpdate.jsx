@@ -6,12 +6,14 @@ import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 import bcrypt from 'bcryptjs';
 import Header from '../general/navigationMenu';
+import { useNavigate } from 'react-router-dom';
 
 
 const UserUpdate = () => {
     const location = useLocation();
     const clientToUpdate = location.state?.client || {};
-
+    const navigate = useNavigate();
+    
     const [formData, setFormData] = useState({
         cedula: clientToUpdate.cedula || '',
         primerNombre: clientToUpdate.primerNombre || '',
@@ -24,10 +26,8 @@ const UserUpdate = () => {
         rol: clientToUpdate.rol || '',
         observaciones: clientToUpdate.observaciones || '',
         estado: clientToUpdate.estado || 'ACTIVO',
-        contrasena: '',
+        resetPassword: 'no',
     });
-
-    const [confirmContra, setConfirmContra] = useState('');
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -35,10 +35,6 @@ const UserUpdate = () => {
             ...formData,
             [name]: value
         });
-    };
-
-    const handleChangeConfirmContra = (event) => {
-        setConfirmContra(event.target.value);
     };
 
     const handleSubmit = async (e) => {
@@ -51,24 +47,23 @@ const UserUpdate = () => {
             !formData.telefono ||
             !formData.email ||
             !formData.rol ||
-            !formData.observaciones ||
-            !formData.contrasena
+            !formData.observaciones
         ) {
             ToastifyError("Por favor, complete todos los campos obligatorios");
             return;
         }
-        if (confirmContra !== formData.contrasena) {
-            ToastifyError("Las contraseñas son diferentes");
-            return;
-        }
-        const hashedPassword = bcrypt.hashSync(formData.contrasena, 10);
-        try {
-            const userRef = doc(db, "usuarios", clientToUpdate.id);
-            await setDoc(userRef, { ...formData, contrasena: hashedPassword }, { merge: true });
-            ToastifySuccess("Se ha actualizado el cliente correctamente");
-        } catch (error) {
-            ToastifyError("Error al actualizar el cliente");
-            console.error("Error al actualizar el cliente: ", error);
+
+        if (formData.resetPassword === 'si') {
+            const hashedPassword = bcrypt.hashSync('12345678', 10);
+            try {
+                const userRef = doc(db, "usuarios", clientToUpdate.id);
+                await setDoc(userRef, { ...formData, contrasena: hashedPassword }, { merge: true });
+                ToastifySuccess("Se ha actualizado el cliente correctamente");
+                navigate('/home')
+            } catch (error) {
+                ToastifyError("Error al actualizar el cliente");
+                console.error("Error al actualizar el cliente: ", error);
+            }
         }
         setFormData({
             cedula: '',
@@ -81,9 +76,8 @@ const UserUpdate = () => {
             email: '',
             rol: '',
             observaciones: '',
-            contrasena: ''
+            resetPassword: ''
         });
-        setConfirmContra('');
     };
 
     return (
@@ -169,24 +163,16 @@ const UserUpdate = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-                                <label htmlFor="contrasena" className="block font-semibold">Contraseña</label>
-                                <input
-                                    type="password"
-                                    id="contrasena"
-                                    name="contrasena"
-                                    value={formData.contrasena}
+                                <label className="block font-semibold">Restablecer contraseña por defecto</label>
+                                <select
+                                    name="resetPassword"
+                                    value={formData.resetPassword}
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
-                                />
-                                <label htmlFor="confirmarContrasena" className="block font-semibold">Confirmar Contraseña</label>
-                                <input
-                                    type="password"
-                                    id="confirmarContrasena"
-                                    name="confirmarContrasena"
-                                    value={confirmContra}
-                                    onChange={handleChangeConfirmContra}
-                                    className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
-                                />
+                                >
+                                    <option value="no">No</option>
+                                    <option value="si">Sí</option>
+                                </select>
                                 <label className="block font-semibold">Rol</label>
                                 <div>
                                     <label>

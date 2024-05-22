@@ -1,11 +1,13 @@
-import { addDoc, collection } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../../firebase/config';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
-import bcrypt from 'bcryptjs';
 import Header from '../general/navigationMenu';
+import { addDoc, doc, updateDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import bcrypt from 'bcryptjs';
+
+
 
 const RegisterForm = () => {
     const [formData, setFormData] = useState({
@@ -20,13 +22,13 @@ const RegisterForm = () => {
         rol: '',
         observaciones: '',
         estado: 'ACTIVO',
-        contrasena: '',
+        contrasena: "12345678",
         altura: '',
         fechaRegistro: new Date().toISOString().split('T')[0],
-        asitencia: '0'
+        asistencia: '0'
     });
 
-    const [confirmContra, setConfirmContra] = useState('');
+    //const [confirmContra, setConfirmContra] = useState('');
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -35,9 +37,9 @@ const RegisterForm = () => {
             [name]: value
         });
     };
-    const handleChangeConfirmContra = (event) => {
-        setConfirmContra(event.target.value)
-    };
+    /* const handleChangeConfirmContra = (event) => {
+         setConfirmContra(event.target.value)
+     };*/
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -50,18 +52,21 @@ const RegisterForm = () => {
             !formData.email ||
             !formData.rol ||
             !formData.observaciones ||
-            !formData.contrasena ||
-            !formData.altura 
+            !formData.altura
         ) {
             ToastifyError("Por favor, complete todos los campos obligatorios");
             return;
         }
-        if (confirmContra !== formData.contrasena) {
-            ToastifyError("Las contraseñas son diferentes");
+
+        const registerUsiario = collection(db, "usuarios");
+        const q = query(collection(db, 'usuarios'), where("cedula", "==", formData.cedula));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            console.log('Ya existe un usuario con esa cédula');
             return;
         }
         const hashedPassword = bcrypt.hashSync(formData.contrasena, 10);
-        const registerUsiario = collection(db, "usuarios");
         await addDoc(registerUsiario, { ...formData, contrasena: hashedPassword });
         ToastifySuccess("Se ha registrado el cliente correctamente");
         setFormData({
@@ -75,11 +80,11 @@ const RegisterForm = () => {
             email: '',
             rol: '',
             observaciones: '',
-            contrasena: '',
+            //contrasena: '',
             altura: '',
             fechaRegistro: '',
         });
-        setConfirmContra('')
+        //setConfirmContra('')
     };
 
     return (
@@ -146,6 +151,11 @@ const RegisterForm = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
+                            </div>
+
+                            {/* Columna derecha */}
+                            <div className="flex flex-col space-y-4">
+
                                 <label htmlFor="altura" className="block font-semibold">Altura</label>
                                 <input
                                     type="altura"
@@ -155,10 +165,6 @@ const RegisterForm = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-                            </div>
-
-                            {/* Columna derecha */}
-                            <div className="flex flex-col space-y-4">
                                 <label htmlFor="telefono" className="block font-semibold">Teléfono</label>
                                 <input
                                     type="tel"
@@ -177,24 +183,7 @@ const RegisterForm = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-                                <label htmlFor="contrasena" className="block font-semibold">Contraseña</label>
-                                <input
-                                    type="password"
-                                    id="contrasena"
-                                    name="contrasena"
-                                    value={formData.contrasena}
-                                    onChange={handleChange}
-                                    className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
-                                />
-                                <label htmlFor="confirmarContrasena" className="block font-semibold">Confirmar Contraseña</label>
-                                <input
-                                    type="password"
-                                    id="confirmarContrasena"
-                                    name="confirmarContrasena"
-                                    value={confirmContra}
-                                    onChange={handleChangeConfirmContra}
-                                    className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
-                                />
+
                                 <label className="block font-semibold">Rol</label>
                                 <div>
                                     <label>
@@ -239,7 +228,7 @@ const RegisterForm = () => {
                                     onChange={handleChange}
                                     className="w-full bg-gray-200 rounded-md px-4 py-2"
                                 />
-                                
+
                             </div>
                         </div>
                         <div className="flex justify-center md:justify-end">

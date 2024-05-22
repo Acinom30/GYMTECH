@@ -8,12 +8,15 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
+import { useUser } from '../../userContext'
 
 const ExercisesList = () => {
     const [exercises, setExercises] = useState([]);
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState({});
     const navigate = useNavigate();
+    const { user } = useUser();
+
 
     useEffect(() => {
         fetchExercises();
@@ -99,12 +102,14 @@ const ExercisesList = () => {
                                         >
                                             Editar
                                         </Link>
-                                        <button
-                                            onClick={() => handleDeleteExercise(exercise)}
-                                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
-                                        >
-                                            Eliminar
-                                        </button>
+                                        {user.rol === 'administrador' && (
+                                            <button
+                                                onClick={() => handleDeleteExercise(exercise)}
+                                                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
