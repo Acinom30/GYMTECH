@@ -17,7 +17,7 @@ const SelectUserEvaluation = () => {
 
 
 
-    useEffect(() => {       
+    useEffect(() => {
         isMounted.current = true;
         const fetchClients = async () => {
             const querySnapshot = await getDocs(collection(db, 'usuarios'));
@@ -58,7 +58,7 @@ const SelectUserEvaluation = () => {
     const handleClick = () => {
         if (isMounted.current) {
             //Para pruebas de rutina
-            navigate('/assignEvaluation', {state: { client: selectedClient } });
+            navigate('/assignEvaluation', { state: { client: selectedClient } });
             //Este de abajo es el que va
             //navigate('/assignEvaluation', { state: { client: selectedClient } });
         }
@@ -97,19 +97,23 @@ const SelectUserEvaluation = () => {
                     <tbody>
                         {clients.map(client => (
                             <tr key={client.id} className='text-center'>
-                                <td className="border px-4 py-2">{client.primerNombre}</td>
-                                <td className="border px-4 py-2">{client.primerApellido}</td>
-                                <td className="border px-4 py-2">{client.cedula}</td>
-                                <td className="border px-4 py-2">
-                                    <div className="inline-flex gap-5">
-                                        <button
-                                            onClick={() => handleEvaluation(client)}
-                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-                                        >
-                                            Agregar Valoración
-                                        </button>
-                                    </div>
-                                </td>
+                                {client.cedula !== '1' && (
+                                    <>
+                                        <td className="border px-4 py-2">{client.primerNombre}</td>
+                                        <td className="border px-4 py-2">{client.primerApellido}</td>
+                                        <td className="border px-4 py-2">{client.cedula}</td>
+                                        <td className="border px-4 py-2">
+                                            <div className="inline-flex gap-5">
+                                                <button
+                                                    onClick={() => handleEvaluation(client)}
+                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+                                                >
+                                                    Agregar Valoración
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </>
+                                )}
                             </tr>
                         ))}
                     </tbody>

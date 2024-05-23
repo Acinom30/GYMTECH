@@ -11,10 +11,10 @@ const SelectUserRoutine = () => {
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     const isMounted = useRef(false);
 
-    useEffect(() => {       
+    useEffect(() => {
         isMounted.current = true;
         const fetchClients = async () => {
             const querySnapshot = await getDocs(collection(db, 'usuarios'));
@@ -55,7 +55,7 @@ const SelectUserRoutine = () => {
     const handleClick = () => {
         if (isMounted.current) {
             //Para pruebas de rutina
-            navigate('/addRoutine', {state: { client: selectedClient } });
+            navigate('/addRoutine', { state: { client: selectedClient } });
             //Este de abajo es el que va
             //navigate('/assignEvaluation', { state: { client: selectedClient } });
         }
@@ -94,19 +94,23 @@ const SelectUserRoutine = () => {
                     <tbody>
                         {clients.map(client => (
                             <tr key={client.id} className='text-center'>
-                                <td className="border px-4 py-2">{client.primerNombre}</td>
-                                <td className="border px-4 py-2">{client.primerApellido}</td>
-                                <td className="border px-4 py-2">{client.cedula}</td>
-                                <td className="border px-4 py-2">
-                                    <div className="inline-flex gap-5">
-                                        <button
-                                            onClick={() => handleEvaluation(client)}
-                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-                                        >
-                                            Agregar Rutina
-                                        </button>
-                                    </div>
-                                </td>
+                                {client.cedula !== '1' && (
+                                    <>
+                                        <td className="border px-4 py-2">{client.primerNombre}</td>
+                                        <td className="border px-4 py-2">{client.primerApellido}</td>
+                                        <td className="border px-4 py-2">{client.cedula}</td>
+                                        <td className="border px-4 py-2">
+                                            <div className="inline-flex gap-5">
+                                                <button
+                                                    onClick={() => handleEvaluation(client)}
+                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+                                                >
+                                                    Agregar Rutina
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </>
+                                )}
                             </tr>
                         ))}
                     </tbody>
