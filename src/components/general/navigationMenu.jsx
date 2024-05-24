@@ -110,7 +110,7 @@ const Header = () => {
                                         <div className="py-1" role="none">
                                             <Link to="/selectUserRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Crear Rutina</Link>
                                             <Link to="/editRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Editar Rutina</Link>
-                                            <Link to="/listRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ver Historial de Rutinas</Link>
+                                            <Link to="/selectUserRoutineToEdit" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ver Historial de Rutinas</Link>
                                         </div>
                                     </div>
                                 )}

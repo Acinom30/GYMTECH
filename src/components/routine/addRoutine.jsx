@@ -21,18 +21,8 @@ const AddRoutine = () => {
     const [seleccionFechaCambio, setSeleccionFechaCambio] = useState("");
 
     const predefinedColors = [
-        '#FFD1DC',
-        '#FFD700',
-        '#90EE90',
-        '#ADD8E6',
-        '#9370DB',
-        '#FFA500',
-        '#D8BFD8',
-        '#4B0082',
-        '#FF00FF',
-        '#32CD32',
-        '#FF1493',
-        'transparent',
+        '#FFD1DC', '#FFD700', '#90EE90', '#ADD8E6', '#9370DB', '#FFA500', '#D8BFD8', '#4B0082', '#FF00FF',
+        '#32CD32', '#FF1493', 'transparent',
     ];
     const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
 

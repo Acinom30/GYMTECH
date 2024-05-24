@@ -14,6 +14,8 @@ import AddExercise from './components/exercises/addExercise';
 import EditExercise from './components/exercises/editExercise';
 import ExercisesList from './components/exercises/exerciseList';
 import CustomerRegistration from './components/customers/customerRegistration';
+import EditRoutine from './components/routine/editRoutine';
+import SelectRoutineToEdit from './components/routine/selectUserRoutineToEdit';
 
 function App() {
   return (
@@ -33,6 +35,11 @@ function App() {
           <Route path="/editExercises" element={<ExercisesList />} />
           <Route path="/editExercise/:id" element={<EditExercise />} />
           <Route path="/customerRegistration" element={<CustomerRegistration />} />
+          <Route path="/editRoutine" element={<EditRoutine />} />
+          <Route path="/selectUserRoutineToEdit" element={<SelectRoutineToEdit />} />
+
+
+
         </Routes>
       </Router>
     </UserProvider>
