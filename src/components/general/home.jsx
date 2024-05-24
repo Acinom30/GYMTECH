@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Header from './navigationMenu';
 import gymLogo from '../../image/logo.jpg';
 import { useLocation } from 'react-router-dom';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase/config';
 
 const Home = () => {
     const location = useLocation();

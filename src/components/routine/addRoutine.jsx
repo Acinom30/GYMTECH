@@ -160,8 +160,6 @@ const AddRoutine = () => {
         setEjercicioSeleccionado(null);
     };
 
-
-
     const handleEditExercise = async (index) => {
         const ejercicio = rutina[index];
         setFormData({
@@ -254,7 +252,6 @@ const AddRoutine = () => {
 
     const limpiarRutina = () => {
         setRutina([]);
-        //setSeleccionFechaCambio = ""
     };
 
     return (
@@ -325,23 +322,25 @@ const AddRoutine = () => {
                     </div>
                 </div>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                <div className="bg-white rounded-md shadow-md p-4">
-                    <h3 className="text-lg font-semibold mb-2">Categoría</h3>
-                    <select
-                        id="categoria"
-                        name="categoria"
-                        className="w-full bg-gray-200 rounded-md px-4 py-3 mb-8 text-center"
-                        value={formData.categoria}
-                        onChange={handleChangeCategoria}
-                    >
-                        <option value="">Seleccionar categoría</option>
-                        {categorias.map(categoria => (
-                            <option key={categoria.id} value={categoria.id}>
-                                {categoria.nombre}
-                            </option>
-                        ))}
-                    </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div className="bg-white rounded-md shadow-md p-4">
+                        <h3 className="text-lg font-semibold mb-2">Categoría</h3>
+                        <select
+                            id="categoria"
+                            name="categoria"
+                            className="w-full bg-gray-200 rounded-md px-4 py-3 mb-8 text-center"
+                            value={formData.categoria}
+                            onChange={handleChangeCategoria}
+                        >
+                            <option value="">Seleccionar categoría</option>
+                            {categorias.map(categoria => (
+                                <option key={categoria.id} value={categoria.id}>
+                                    {categoria.nombre}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="bg-white rounded-md shadow-md p-4">
                         <h3 className="text-lg font-semibold mb-2">Seleccionar ejercicio</h3>
                         <ul className="list-none">
@@ -359,14 +358,14 @@ const AddRoutine = () => {
                             ))}
                         </ul>
                     </div>
-                    <div className="bg-white rounded-md shadow-md p-4 mt-5">
+                    <div className="bg-white rounded-md shadow-md p-4">
                         <h3 className="text-lg font-semibold mb-2">Series</h3>
                         <textarea
                             id="series"
                             name="series"
                             value={formData.series}
                             onChange={handleChange}
-                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8" // Centra el placeholder y el valor del input
+                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8" 
                         />
                     </div>
                     <div className="bg-white rounded-md shadow-md p-4 mt-5">
@@ -376,35 +375,29 @@ const AddRoutine = () => {
                             name="observaciones"
                             value={formData.observaciones}
                             onChange={handleChange}
-                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8" // Centra el placeholder y el valor del input
+                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8" 
                         />
+                        <div className="flex justify-end">
+                            <button onClick={() => navigate('/selectUserRoutine')} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
+                                Atrás
+                            </button>
+                            <button onClick={handleAddExercise} type="button" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
+                                Agregar
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex justify-end">
-                        <button onClick={() => navigate('/selectUserRoutine')} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
-                            Atrás
-                        </button>
-                        <button onClick={handleAddExercise} type="button" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
-                            Agregar
-                        </button>
-                    </div>
-
                 </div>
                 <div className="bg-white rounded-md shadow-md p-4">
                     <h3 className="text-lg font-semibold mb-2">Rutina</h3>
                     {rutina.length > 0 ? (
-                        <ul>
+                        <div>
                             {rutina.map((ejercicio, index) => (
-                                <li
-                                    key={index}
-                                    className="mb-4 p-2 rounded-md shadow-sm"
-                                    style={{ backgroundColor: ejercicio.color || 'transparent' }}
-                                >       <div className="flex justify-between items-center">
-                                        <div>
-                                            <p><strong>Ejercicio:</strong> {ejercicio.nombre}</p>
-                                            <p><strong>Series:</strong> {ejercicio.series}</p>
-                                            <p><strong>Observaciones:</strong> {ejercicio.observaciones}</p>
-                                        </div>
-                                        <div>
+                                <div key={index} className="mb-4">
+                                    <div className="p-4 rounded-md shadow-md" style={{ backgroundColor: ejercicio.color || '#f0f0f0' }}>
+                                        <h4 className="text-lg font-bold mb-2">{ejercicio.nombre}</h4>
+                                        <p className="mb-2">Series: {ejercicio.series}</p>
+                                        <p className="mb-2">Observaciones: {ejercicio.observaciones}</p>
+                                        <div className='align-items-left'>
                                             <button onClick={() => handleEditExercise(index)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2">
                                                 Editar
                                             </button>
@@ -416,48 +409,12 @@ const AddRoutine = () => {
                                             </button>
                                         </div>
                                     </div>
-                                </li>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     ) : (
                         <p>No hay ejercicios en la rutina.</p>
                     )}
-                    <div>
-                        <h3 className="text-lg font-semibold mb-2 mt-12">Fecha de cambio</h3>
-                        <div className="flex items-center space-x-4">
-                            <input
-                                type="radio"
-                                id="cambioUnMes"
-                                name="cambioFecha"
-                                value="1 mes"
-                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                                onChange={handleOptionChange}
-                            />
-                            <label htmlFor="cambioUnMes">1 mes</label>
-
-                            <input
-                                type="radio"
-                                id="cambioUnMesMedio"
-                                name="cambioFecha"
-                                value="1 mes y medio"
-                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                                onChange={handleOptionChange}
-
-                            />
-                            <label htmlFor="cambioUnMesMedio">1 mes y medio</label>
-
-                            <input
-                                type="radio"
-                                id="cambioDosMeses"
-                                name="cambioFecha"
-                                value="2 meses"
-                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                                onChange={handleOptionChange}
-
-                            />
-                            <label htmlFor="cambioDosMeses">2 meses</label>
-                        </div>
-                    </div>
                     <div>
                         <h3 className="text-lg font-semibold mb-2 mt-12">Seleccionar Color</h3>
                         {predefinedColors.map((color, index) => (
@@ -476,13 +433,50 @@ const AddRoutine = () => {
                             />
                         ))}
                     </div>
-                    <button onClick={limpiarRutina} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4 mr-5">
-                        Limpiar
-                    </button>
 
-                    <button onClick={handleSaveRoutine} type="button" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
-                        Guardar Rutina
-                    </button>
+                    <h3 className="text-lg font-semibold mb-2 mt-12">Fecha de cambio</h3>
+                    <div className="flex items-center space-x-4">
+                        <input
+                            type="radio"
+                            id="cambioUnMes"
+                            name="cambioFecha"
+                            value="1 mes"
+                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                            onChange={handleOptionChange}
+                        />
+                        <label htmlFor="cambioUnMes">1 mes</label>
+
+                        <input
+                            type="radio"
+                            id="cambioUnMesMedio"
+                            name="cambioFecha"
+                            value="1 mes y medio"
+                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                            onChange={handleOptionChange}
+
+                        />
+                        <label htmlFor="cambioUnMesMedio">1 mes y medio</label>
+
+                        <input
+                            type="radio"
+                            id="cambioDosMeses"
+                            name="cambioFecha"
+                            value="2 meses"
+                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                            onChange={handleOptionChange}
+                        />
+                        <label htmlFor="cambioDosMeses">2 meses</label>
+                    </div>
+                    <div className="flex justify-end mt-8">
+
+                        <button onClick={limpiarRutina} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4 mr-5">
+                            Limpiar
+                        </button>
+
+                        <button onClick={handleSaveRoutine} type="button" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
+                            Guardar Rutina
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

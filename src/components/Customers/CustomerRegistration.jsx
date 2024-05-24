@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { doc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 import { db } from '../../firebase/config';
@@ -37,7 +37,6 @@ const CustomerRegistration = () => {
             const userDocRef = userDocSnapshot.ref;
             const userData = userDocSnapshot.data();
 
-            // Compara la contraseña temporal proporcionada con la almacenada
             const isMatch = await bcrypt.compare(tempPassword, userData.contrasena);
             if (!isMatch) {
                 setError('Contraseña temporal incorrecta.');

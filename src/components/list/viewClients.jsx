@@ -79,7 +79,6 @@ const ViewClients = () => {
   const deleteClientData = async (clientId) => {
     const userRef = doc(db, 'usuarios', clientId);
 
-    // Eliminar valoraciones del cliente
     try {
       const valoracionesQuery = query(collection(db, 'valoraciones'), where('usuario', '==', userRef));
       const valoracionesSnapshot = await getDocs(valoracionesQuery);
@@ -91,7 +90,6 @@ const ViewClients = () => {
       throw error;
     }
 
-    // Eliminar rutinas del cliente
     try {
       const rutinasQuery = query(collection(db, 'rutinas'), where('clientId', '==', userRef));
       const rutinasSnapshot = await getDocs(rutinasQuery);
@@ -103,7 +101,6 @@ const ViewClients = () => {
       throw error;
     }
 
-    // Eliminar el documento del cliente
     try {
       await deleteDoc(doc(db, 'usuarios', clientId));
     } catch (error) {
