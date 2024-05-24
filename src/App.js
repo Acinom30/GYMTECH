@@ -16,6 +16,7 @@ import ExercisesList from './components/exercises/exerciseList';
 import CustomerRegistration from './components/customers/customerRegistration';
 import EditRoutine from './components/routine/editRoutine';
 
+
 function App() {
   return (
     <UserProvider>
