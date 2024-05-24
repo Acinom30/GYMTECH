@@ -11,7 +11,7 @@ const ToastifySuccess = (message) => {
     draggable: true,
     progress: undefined,
     theme: "light",
-    transition:  typeof Bounce,
+    transition: Bounce,
   });
 };
 
