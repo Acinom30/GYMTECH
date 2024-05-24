@@ -12,7 +12,7 @@ import { addDoc, collection, doc } from 'firebase/firestore';
 const AssignEvaluation = () => {
   const location = useLocation();
   const client = location.state?.client;
-
+  console.log(client)
   const [formData, setFormData] = useState({
     objetivo: '',
     diasSemana: '',
