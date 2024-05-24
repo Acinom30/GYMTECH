@@ -65,8 +65,7 @@ const SelectUserRoutine = () => {
     const handleClientSelect = async (client) => {
         setSelectedClient(client);
         const clientId = client.id;
-        console.log(selectedClient)
-        setModalType('2')
+        setModalType('2');
         setShowModal(true);
         const rutinasRef = collection(db, 'rutinas');
         const q = query(rutinasRef, orderBy('fechaCreacion', 'desc'));
