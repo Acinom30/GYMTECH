@@ -73,14 +73,15 @@ const ExercisesList = () => {
     };
 
     return (
-        <div>
-            <Header />
+        <div >
+        <Header />
             <div className="flex flex-col items-center justify-center relative mr-5 ml-5">
                 <h1 className="text-3xl font-bold mb-10">Lista de Ejercicios</h1>
                 {loading ? (
                     <p>Cargando ejercicios...</p>
                 ) : (
-                    <table className="min-w-full divide-y divide-gray-200">
+                    
+                    <table className="min-w-full divide-y divide-gray-200 p-10">
                         <thead>
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { useNavigate } from 'react-router-dom';
@@ -11,10 +11,13 @@ const SelectUserRoutine = () => {
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    
+    const [rutinas, setRutinas] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState(null)
+
     const isMounted = useRef(false);
 
-    useEffect(() => {       
+    useEffect(() => {
         isMounted.current = true;
         const fetchClients = async () => {
             const querySnapshot = await getDocs(collection(db, 'usuarios'));
@@ -40,6 +43,7 @@ const SelectUserRoutine = () => {
 
     const handleEvaluation = (client) => {
         setSelectedClient(client);
+        setModalType('1')
     };
 
     const calculateDays = (client) => {
@@ -54,11 +58,30 @@ const SelectUserRoutine = () => {
 
     const handleClick = () => {
         if (isMounted.current) {
-            //Para pruebas de rutina
-            navigate('/addRoutine', {state: { client: selectedClient } });
-            //Este de abajo es el que va
-            //navigate('/assignEvaluation', { state: { client: selectedClient } });
+            navigate('/addRoutine', { state: { client: selectedClient } });
         }
+    };
+
+    const handleClientSelect = async (client) => {
+        setSelectedClient(client);
+        const clientId = client.id;
+        console.log(selectedClient)
+        setModalType('2')
+        setShowModal(true);
+        const rutinasRef = collection(db, 'rutinas');
+        const q = query(rutinasRef, orderBy('fechaCreacion', 'desc'));
+        const rutinasSnapshot = await getDocs(q);
+        const rutinasList = rutinasSnapshot.docs
+            .filter(doc => doc.data().clientId.id === clientId)
+            .map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+        setRutinas(rutinasList);
+    };
+
+    const handleEditRoutine = (routineId) => {
+        navigate('/editRoutine', { state: { routineId, clientId: selectedClient } });
     };
 
     return (
@@ -94,25 +117,86 @@ const SelectUserRoutine = () => {
                     <tbody>
                         {clients.map(client => (
                             <tr key={client.id} className='text-center'>
-                                <td className="border px-4 py-2">{client.primerNombre}</td>
-                                <td className="border px-4 py-2">{client.primerApellido}</td>
-                                <td className="border px-4 py-2">{client.cedula}</td>
-                                <td className="border px-4 py-2">
-                                    <div className="inline-flex gap-5">
-                                        <button
-                                            onClick={() => handleEvaluation(client)}
-                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-                                        >
-                                            Agregar Rutina
-                                        </button>
-                                    </div>
-                                </td>
+                                {client.cedula !== '1' && (
+                                    <>
+                                        <td className="border px-4 py-2">{client.primerNombre}</td>
+                                        <td className="border px-4 py-2">{client.primerApellido}</td>
+                                        <td className="border px-4 py-2">{client.cedula}</td>
+                                        <td className="border px-4 py-2">
+                                            <div className="inline-flex gap-5">
+                                                <button
+                                                    onClick={() => handleEvaluation(client)}
+                                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
+                                                >
+                                                    Agregar Rutina
+                                                </button>
+                                                <button
+                                                    onClick={() => handleClientSelect(client)}
+                                                    className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-2"
+                                                >
+                                                    Editar Rutina
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </>
+                                )}
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-            {selectedClient ? (
+            {modalType === '2' && showModal && (
+                <div className="fixed inset-0 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black opacity-50"></div>
+                    <div className="bg-white rounded-lg p-8 z-10">
+                        <h3 className="text-xl font-semibold mb-2">Rutinas del {selectedClient.primerNombre} {selectedClient.primerApellido}</h3>
+                        <ul>
+                            {rutinas.length > 0 ? (
+                                <>
+                                    <ul>
+                                        {rutinas.slice(0, 2).map(rutina => (
+                                            <li key={rutina.id} className="mb-2">
+                                                <div className="bg-white p-4 rounded shadow">
+                                                    <p><strong>Fecha de Creación:</strong> {rutina.fechaCreacion}</p>
+                                                    <p><strong>Fecha de Cambio:</strong> {rutina.fechaCambio}</p>
+
+                                                    <button
+                                                        onClick={() => handleEditRoutine(rutina.id)}
+                                                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
+                                                    >
+                                                        Editar Rutina
+                                                    </button>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <div className="mt-4 flex justify-center gap-5">
+                                        <button
+                                            onClick={() => setShowModal(false)}
+                                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                        >
+                                            Cerrar
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p>No hay rutinas disponibles para mostrar.</p>
+                                    <div className="mt-4 flex justify-center gap-5">
+                                        <button
+                                            onClick={() => setShowModal(false)}
+                                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                        >
+                                            Cerrar
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </ul>
+                    </div>
+                </div>
+            )}
+            {modalType === '1' && selectedClient ? (
                 calculateDays(selectedClient) < 7 ? (
                     <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                         <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">

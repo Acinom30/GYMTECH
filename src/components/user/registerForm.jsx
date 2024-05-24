@@ -4,8 +4,9 @@ import { db } from '../../firebase/config';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 import Header from '../general/navigationMenu';
-import { addDoc, doc, updateDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -28,7 +29,7 @@ const RegisterForm = () => {
         asistencia: '0'
     });
 
-    //const [confirmContra, setConfirmContra] = useState('');
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -37,9 +38,6 @@ const RegisterForm = () => {
             [name]: value
         });
     };
-    /* const handleChangeConfirmContra = (event) => {
-         setConfirmContra(event.target.value)
-     };*/
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -68,6 +66,7 @@ const RegisterForm = () => {
         }
         const hashedPassword = bcrypt.hashSync(formData.contrasena, 10);
         await addDoc(registerUsiario, { ...formData, contrasena: hashedPassword });
+        navigate('/viewListClients')
         ToastifySuccess("Se ha registrado el cliente correctamente");
         setFormData({
             cedula: '',
@@ -80,11 +79,9 @@ const RegisterForm = () => {
             email: '',
             rol: '',
             observaciones: '',
-            //contrasena: '',
             altura: '',
             fechaRegistro: '',
         });
-        //setConfirmContra('')
     };
 
     return (
@@ -95,7 +92,6 @@ const RegisterForm = () => {
                     <h1 className="text-3xl font-bold mb-4">Registrar Cliente</h1>
                     <form className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Columna izquierda */}
                             <div className="flex flex-col space-y-4">
                                 <label htmlFor="cedula" className="block font-semibold">Cédula</label>
                                 <input
@@ -153,7 +149,6 @@ const RegisterForm = () => {
                                 />
                             </div>
 
-                            {/* Columna derecha */}
                             <div className="flex flex-col space-y-4">
 
                                 <label htmlFor="altura" className="block font-semibold">Altura</label>

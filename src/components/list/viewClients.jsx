@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc, query, where } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { useNavigate } from 'react-router-dom';
@@ -7,8 +7,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
-import { useUser } from '../../userContext'
-
+import { useUser } from '../../userContext';
 
 const ViewClients = () => {
   const [clients, setClients] = useState([]);
@@ -17,51 +16,51 @@ const ViewClients = () => {
   const navigate = useNavigate();
   const { user } = useUser();
 
-
-
   useEffect(() => {
     fetchClients();
   }, [searchTerm]);
 
   const fetchClients = async () => {
-    const querySnapshot = await getDocs(collection(db, 'usuarios'));
-    const clientsData = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    const filteredClients = clientsData.filter(client => {
-      const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      const fullName = normalize(`${client.primerNombre} ${client.primerApellido}`).toLowerCase();
-      const cedula = normalize(client.cedula).toLowerCase();
-      const searchTermLower = normalize(searchTerm).toLowerCase();
-      return fullName.includes(searchTermLower) || cedula.includes(searchTermLower);
-    });
-    setClients(filteredClients);
+    try {
+      const querySnapshot = await getDocs(collection(db, 'usuarios'));
+      const clientsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      const filteredClients = clientsData.filter(client => {
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const fullName = normalize(`${client.primerNombre} ${client.primerApellido}`).toLowerCase();
+        const cedula = normalize(client.cedula).toLowerCase();
+        const searchTermLower = normalize(searchTerm).toLowerCase();
+        return fullName.includes(searchTermLower) || cedula.includes(searchTermLower);
+      });
+      setClients(filteredClients);
+    } catch (error) {
+      console.error('Error fetching clients: ', error);
+    }
   };
-
 
   const handleShowDetails = (client) => {
     setSelectedClient(client);
   };
 
   const handleEditClient = (client) => {
-    //setSelectedClient(client);
     navigate('/userUpdate', { state: { client } });
   };
 
   const handleDeleteClient = async (client) => {
-    const nombre = client.primerNombre + ' ' + client.primerApellido
+    const nombre = client.primerNombre + ' ' + client.primerApellido;
     confirmAlert({
       title: 'Confirmar Eliminación',
-      message: '¿Estás seguro de que deseas eliminar el cliente ' + nombre + '?',
+      message: `¿Estás seguro de que deseas eliminar el cliente ${nombre}?`,
       buttons: [
         {
           label: 'Sí',
           onClick: async () => {
             try {
-              await deleteDoc(doc(db, 'usuarios', client.id));
+              await deleteClientData(client.id);
               ToastifySuccess('Cliente eliminado correctamente');
-              fetchClients(); // Llamamos a fetchClients directamente
+              fetchClients();
               navigate('/viewListClients');
             } catch (error) {
               ToastifyError('Error al eliminar el cliente');
@@ -75,6 +74,39 @@ const ViewClients = () => {
         }
       ]
     });
+  };
+
+  const deleteClientData = async (clientId) => {
+    const userRef = doc(db, 'usuarios', clientId);
+
+    try {
+      const valoracionesQuery = query(collection(db, 'valoraciones'), where('usuario', '==', userRef));
+      const valoracionesSnapshot = await getDocs(valoracionesQuery);
+
+      const deleteValoracionesPromises = valoracionesSnapshot.docs.map((doc) => deleteDoc(doc.ref));
+      await Promise.all(deleteValoracionesPromises);
+    } catch (error) {
+      console.error('Error eliminando valoraciones: ', error);
+      throw error;
+    }
+
+    try {
+      const rutinasQuery = query(collection(db, 'rutinas'), where('clientId', '==', userRef));
+      const rutinasSnapshot = await getDocs(rutinasQuery);
+
+      const deleteRutinasPromises = rutinasSnapshot.docs.map((doc) => deleteDoc(doc.ref));
+      await Promise.all(deleteRutinasPromises);
+    } catch (error) {
+      console.error('Error eliminando rutinas: ', error);
+      throw error;
+    }
+
+    try {
+      await deleteDoc(doc(db, 'usuarios', clientId));
+    } catch (error) {
+      console.error('Error eliminando usuario: ', error);
+      throw error;
+    }
   };
 
   return (
