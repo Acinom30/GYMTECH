@@ -26,7 +26,6 @@ const RegisterForm = () => {
         contrasena: "12345678",
         altura: '',
         fechaRegistro: new Date().toISOString().split('T')[0],
-        asistencia: '0'
     });
 
     const navigate = useNavigate();
@@ -54,6 +53,12 @@ const RegisterForm = () => {
         ) {
             ToastifyError("Por favor, complete todos los campos obligatorios");
             return;
+        } else {
+            const cedulaFormat = /^(?:\d{9}|\d{11,12}|[A-Za-z0-9]{5,20})$/;
+            if (!cedulaFormat.test(formData.cedula)) {
+                ToastifyError('Formato de cédula incorrecto.');
+                return;
+            }
         }
 
         const registerUsiario = collection(db, "usuarios");
@@ -61,7 +66,7 @@ const RegisterForm = () => {
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-            console.log('Ya existe un usuario con esa cédula');
+            ToastifyError('Ya existe un usuario con esa cédula');
             return;
         }
         const hashedPassword = bcrypt.hashSync(formData.contrasena, 10);

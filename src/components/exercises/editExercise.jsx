@@ -4,10 +4,9 @@ import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore"
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
-
+import ToastifyError from '../ui/toastify/toastifyError';
+import ToastifySuccess from '../ui/toastify/toastifySuccess';
 
 const EditExercise = () => {
     const { id } = useParams();
@@ -29,11 +28,11 @@ const EditExercise = () => {
                     setExercise({ id: exerciseDoc.id, ...exerciseDoc.data() });
                     setFormData({ ...exerciseDoc.data() });
                 } else {
-                    console.error("No se encontró el ejercicio.");
+                    ToastifyError("No se encontró el ejercicio.");
                 }
                 setLoading(false);
             } catch (error) {
-                console.error("Error al obtener el ejercicio:", error);
+                ToastifyError("Error al obtener el ejercicio:", error);
                 setLoading(false);
             }
         };
@@ -70,13 +69,13 @@ const EditExercise = () => {
                     ...formData,
                     categoria: categoriaRef
                 });
-                toast.success('Los cambios se guardaron exitosamente.');
+                ToastifySuccess('Los cambios se guardaron exitosamente.');
                 navigate('/editExercises')
             } else {
-                toast.error('Hubo un error al guardar los cambios. La categoría seleccionada no existe.');
+                ToastifyError('Hubo un error al guardar los cambios. La categoría seleccionada no existe.');
             }
         } catch (error) {
-            toast.error('Hubo un error al guardar los cambios. Por favor, inténtalo de nuevo más tarde.');
+            ToastifyError('Hubo un error al guardar los cambios. Por favor inténtalo de nuevo más tarde.');
         }
     };
 
@@ -113,7 +112,6 @@ const EditExercise = () => {
                     </div>
                 </form>
             </div>
-            <ToastContainer />
         </div>
     );
 };

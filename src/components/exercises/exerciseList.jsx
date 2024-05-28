@@ -41,7 +41,7 @@ const ExercisesList = () => {
             setCategories(categoriesData);
             setLoading(false);
         } catch (error) {
-            console.error("Error al obtener los ejercicios y categorías:", error);
+            ToastifyError("Error al obtener los ejercicios y categorías:");
             setLoading(false);
         }
     };
@@ -60,7 +60,6 @@ const ExercisesList = () => {
                             fetchExercises();
                         } catch (error) {
                             ToastifyError('Error al eliminar el ejercicio');
-                            console.error('Error al eliminar el ejercicio: ', error);
                         }
                     }
                 },

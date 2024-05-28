@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 import { db } from '../../firebase/config';
 import { useUser } from '../../userContext'; 
+import ToastifyError from '../ui/toastify/toastifyError';
 
 
 const LoginForm = () => {
@@ -27,18 +28,18 @@ const LoginForm = () => {
     const q = query(collection(db, 'usuarios'), where("cedula", "==", cedula));
     const querySnapshot = await getDocs(q);
     if (!cedula || !contraseña) {
-      console.log('Ingrese los datos de cedula y contraseña')
+      ToastifyError('Ingrese los datos de cedula y contraseña')
       return;
     }
     if (querySnapshot.empty) {
-      console.log('Usuario no encontrado.');
+      ToastifyError('Usuario no encontrado.');
       return;
     } else {
       const userDocSnapshot = querySnapshot.docs[0];
       const userData = userDocSnapshot.data();
       const isMatch = await bcrypt.compare(contraseña, userData.contrasena);
       if (!isMatch) {
-        console.log('La contraseña no coincide');
+        ToastifyError('La contraseña no coincide');
         return;
       }
       setUser({ rol: userData.rol }); 

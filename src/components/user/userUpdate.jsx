@@ -51,6 +51,12 @@ const UserUpdate = () => {
         ) {
             ToastifyError("Por favor, complete todos los campos obligatorios");
             return;
+        } else {
+            const cedulaFormat = /^(?:\d{9}|\d{11,12}|[A-Za-z0-9]{5,20})$/;
+            if (!cedulaFormat.test(formData.cedula)) {
+                ToastifyError('Formato de cédula incorrecto.');
+                return;
+            }
         }
 
         if (formData.resetPassword === 'si') {
@@ -62,7 +68,6 @@ const UserUpdate = () => {
                 navigate('/home')
             } catch (error) {
                 ToastifyError("Error al actualizar el cliente");
-                console.error("Error al actualizar el cliente: ", error);
             }
         }
         setFormData({

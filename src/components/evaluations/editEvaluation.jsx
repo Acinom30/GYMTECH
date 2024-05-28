@@ -151,11 +151,10 @@ const EditEvaluation = () => {
             const docRef = doc(db, "valoraciones", valoracionId);
             await updateDoc(docRef, dataWithUserRef);
 
-            console.log("Se ha actualizado la valoración correctamente");
+            ToastifySuccess("Se ha actualizado la valoración correctamente");
             navigate('/selectUserEvaluation')
         } catch (error) {
-            console.log('error')
-            console.log("Ocurrió un error al actualizar la valoración. Por favor, inténtelo de nuevo.");
+            ToastifyError("Ocurrió un error al actualizar la valoración. Por favor, inténtelo de nuevo.");
         }
     };
     return (

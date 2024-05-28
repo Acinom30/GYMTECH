@@ -110,7 +110,7 @@ const AssignEvaluation = () => {
       !formData.circunfCintura ||
       !formData.circunfCadera
     )  {
-      ToastifyError("Por favor, complete todos los campos obligatorios");
+      ToastifyError("Por favor complete todos los campos obligatorios");
       return;
     }
 
