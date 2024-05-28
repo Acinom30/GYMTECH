@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../general/navigationMenu';
 import { db } from '../../firebase/config';
-import { collection, getDocs, query, where, doc, addDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, addDoc, getDoc } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
+import ToastifyError from '../ui/toastify/toastifyError';
+import ToastifySuccess from '../ui/toastify/toastifySuccess';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+
 
 
 const AddRoutine = () => {
@@ -19,6 +24,8 @@ const AddRoutine = () => {
     const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState(null);
     const [rutina, setRutina] = useState([]);
     const [seleccionFechaCambio, setSeleccionFechaCambio] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
+
 
     const predefinedColors = [
         '#FFD1DC', '#FFD700', '#90EE90', '#ADD8E6', '#9370DB', '#FFA500', '#D8BFD8', '#4B0082', '#FF00FF',
@@ -35,6 +42,7 @@ const AddRoutine = () => {
         series: '',
         observaciones: '',
         color: '',
+        dia: '',
     });
 
     useEffect(() => {
@@ -54,17 +62,21 @@ const AddRoutine = () => {
                     if (valoracionMasReciente && valoracionMasReciente.id) {
                         setIDValoracionMasReciente(valoracionMasReciente.id);
                     } else {
-                        console.error("ID de valoración más reciente no encontrado.");
+                        ToastifyError("ID de valoración más reciente no encontrado.");
                     }
                 } else {
-                    console.log("No se encontraron valoraciones.");
+                    ToastifyError("No se encontraron valoraciones.");
                 }
+                setIsLoading(false);
+
             } catch (error) {
-                console.error("Error al obtener la valoración más reciente:", error);
+                setIsLoading(false);
+                ToastifyError("Error al obtener la valoración más reciente:");
             }
         };
 
         if (client && client.id) {
+            setIsLoading(true);
             obtenerValoracionMasReciente();
         }
 
@@ -74,6 +86,7 @@ const AddRoutine = () => {
             const edadCalculada = calcularEdad(fechaNacimiento);
             setEdad(edadCalculada);
         }
+
         const obtenerCategorias = async () => {
             const categoriasRef = collection(db, "categorias");
             const categoriasSnapshot = await getDocs(categoriasRef);
@@ -125,7 +138,6 @@ const AddRoutine = () => {
             ...prevFormData,
             [name]: value
         }));
-        console.log(formData)
     };
 
     const handleChangeEjercicio = (e, ejercicio) => {
@@ -137,8 +149,8 @@ const AddRoutine = () => {
     };
 
     const handleAddExercise = async () => {
-        if (!formData.ejercicio || !formData.series || !formData.observaciones) {
-            console.log("Tiene que ingresar todos los campos obligatorios")
+        if (!formData.ejercicio || !formData.series || !formData.observaciones || !formData.dia) {
+            ToastifyError("Tiene que ingresar todos los campos obligatorios")
             return;
         }
         const nuevoEjercicio = {
@@ -146,7 +158,8 @@ const AddRoutine = () => {
             nombre: ejercicioSeleccionado.nombre,
             series: formData.series,
             observaciones: formData.observaciones,
-            color: '',
+            color: formData.color,
+            dia: formData.dia,
         };
         setRutina([...rutina, nuevoEjercicio]);
         setFormData({
@@ -155,6 +168,7 @@ const AddRoutine = () => {
             series: '',
             observaciones: '',
             color: '',
+            dia: null,
         });
         setEjercicios([]);
         setEjercicioSeleccionado(null);
@@ -162,12 +176,20 @@ const AddRoutine = () => {
 
     const handleEditExercise = async (index) => {
         const ejercicio = rutina[index];
+        const ejercicioRef = doc(db, 'ejercicios', ejercicio.id);
+        const ejercicioSnapshot = await getDoc(ejercicioRef);
+        const ejercicioData = ejercicioSnapshot.data();
+        const ejercicioSeleccionado = await obtenerEjerciciosSeleccionado(ejercicioData.categoria);
+        setEjercicios(ejercicioSeleccionado);
         setFormData({
             ejercicio: ejercicio.id,
             series: ejercicio.series,
             observaciones: ejercicio.observaciones,
+            dia: ejercicio.dia,
+            color: ejercicio.color
         });
         setEjercicioSeleccionado(ejercicio);
+        //setDiaSeleccionado(ejercicio.dia);
         handleDeleteExercise(index);
     };
 
@@ -179,7 +201,7 @@ const AddRoutine = () => {
     const handleSaveRoutine = async () => {
         try {
             if (seleccionFechaCambio === "") {
-                console.log("Tiene que ingresar todos los campos obligatorios")
+                ToastifyError("Selecciona una fecha de cambio")
                 return;
             }
             const fechaCambio = calcularFechaCambio(seleccionFechaCambio);
@@ -192,13 +214,13 @@ const AddRoutine = () => {
                 fechaCreacion: new Date().toISOString().split('T')[0],
                 fechaCambio: fechaCambio,
             });
-            alert("Rutina guardada exitosamente.");
+            ToastifySuccess("Rutina guardada exitosamente.");
             navigate('/selectUserRoutine')
 
             setRutina([]);
 
         } catch (error) {
-            console.error("Error guardando la rutina: ", error);
+            ToastifyError("Error guardando la rutina: ", error);
         }
     };
 
@@ -239,7 +261,6 @@ const AddRoutine = () => {
         setRutina(updatedRutina);
     };
 
-    //Tal vez se pueda implemtentar.
     const onDragEnd = (result) => {
         if (!result.destination) return;
 
@@ -250,8 +271,26 @@ const AddRoutine = () => {
         setRutina(items);
     };
 
+    const obtenerEjerciciosSeleccionado = async (categoriaId) => {
+        const ejerciciosRef = collection(db, "ejercicios");
+        const q = query(ejerciciosRef, where('categoria', '==', categoriaId));
+        const ejerciciosSnapshot = await getDocs(q);
+        return ejerciciosSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    };
+
     const limpiarRutina = () => {
         setRutina([]);
+    };
+
+    const handleDiaChange = (e) => {
+        const diaSeleccionado = parseInt(e.target.value);
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            dia: diaSeleccionado,
+        }));
     };
 
     return (
@@ -365,7 +404,7 @@ const AddRoutine = () => {
                             name="series"
                             value={formData.series}
                             onChange={handleChange}
-                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8" 
+                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8"
                         />
                     </div>
                     <div className="bg-white rounded-md shadow-md p-4 mt-5">
@@ -375,8 +414,33 @@ const AddRoutine = () => {
                             name="observaciones"
                             value={formData.observaciones}
                             onChange={handleChange}
-                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8" 
+                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8"
                         />
+                        <h3 className="text-lg font-semibold mb-2">Día correspondiente</h3>
+                        <div className="flex items-center space-x-4">
+                            {isLoading ? (
+                                <p>Cargando...</p>
+                            ) : valoracionMasReciente ? (
+                                Array.from({ length: valoracionMasReciente.diasSemana }, (_, i) => (
+                                    <div key={i} className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            id={`dia-${i + 1}`}
+                                            name="dia"
+                                            value={i + 1}
+                                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                                            onChange={handleDiaChange}
+                                            checked={formData.dia === i + 1}
+                                        />
+                                        <label htmlFor={`dia-${i + 1}`} className="ml-2">
+                                            {i + 1}
+                                        </label>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No se encontró la valoración más reciente.</p>
+                            )}
+                        </div>
                         <div className="flex justify-end">
                             <button onClick={() => navigate('/selectUserRoutine')} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
                                 Atrás
@@ -389,32 +453,47 @@ const AddRoutine = () => {
                 </div>
                 <div className="bg-white rounded-md shadow-md p-4">
                     <h3 className="text-lg font-semibold mb-2">Rutina</h3>
-                    {rutina.length > 0 ? (
-                        <div>
-                            {rutina.map((ejercicio, index) => (
-                                <div key={index} className="mb-4">
-                                    <div className="p-4 rounded-md shadow-md" style={{ backgroundColor: ejercicio.color || '#f0f0f0' }}>
-                                        <h4 className="text-lg font-bold mb-2">{ejercicio.nombre}</h4>
-                                        <p className="mb-2">Series: {ejercicio.series}</p>
-                                        <p className="mb-2">Observaciones: {ejercicio.observaciones}</p>
-                                        <div className='align-items-left'>
-                                            <button onClick={() => handleEditExercise(index)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2">
-                                                Editar
-                                            </button>
-                                            <button onClick={() => handleDeleteExercise(index)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded mr-2">
-                                                Eliminar
-                                            </button>
-                                            <button onClick={() => handleExerciseColorSelect(index, selectedColor)} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 rounded">
-                                                Aplicar Color
-                                            </button>
-                                        </div>
-                                    </div>
+                    <DragDropContext onDragEnd={onDragEnd}>
+                        <Droppable droppableId="droppable">
+                            {(provided) => (
+                                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                                    {rutina.map((ejercicio, index) => (
+                                        <Draggable key={index} draggableId={index.toString()} index={index}>
+                                            {(provided) => (
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    className="bg-white rounded-md shadow-md p-4 flex items-center justify-between"
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <p className="text-lg font-bold underline">Día: {ejercicio.dia}</p>
+                                                        <p className="text-lg font-semibold">{ejercicio.nombre}</p>
+                                                        <p className="max-w-xs overflow-ellipsis overflow-hidden">Series: {ejercicio.series}</p>
+                                                        <p className="max-w-xs overflow-ellipsis overflow-hidden">Obs: {ejercicio.observaciones}</p>
+                                                    </div>
+
+                                                    <div className="flex items-center space-x-4">
+
+                                                        <button onClick={() => handleEditExercise(index)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Editar</button>
+                                                        <button onClick={() => handleDeleteExercise(index)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Eliminar</button>
+                                                        <button onClick={() => handleExerciseColorSelect(index, selectedColor)} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Asignar color</button>
+                                                        <div
+                                                            className="w-4 h-4 rounded-full border border-black"
+                                                            style={{
+                                                                backgroundColor: ejercicio.color || 'transparent',
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder}
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No hay ejercicios en la rutina.</p>
-                    )}
+                            )}
+                        </Droppable>
+                    </DragDropContext>
                     <div>
                         <h3 className="text-lg font-semibold mb-2 mt-12">Seleccionar Color</h3>
                         {predefinedColors.map((color, index) => (

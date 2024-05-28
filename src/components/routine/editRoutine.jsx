@@ -3,6 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../general/navigationMenu';
 import { db } from '../../firebase/config';
 import { collection, getDocs, query, where, doc, getDoc, updateDoc } from "firebase/firestore";
+import ToastifyError from '../ui/toastify/toastifyError';
+import ToastifySuccess from '../ui/toastify/toastifySuccess';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const EditRoutine = () => {
     const location = useLocation();
@@ -12,13 +15,17 @@ const EditRoutine = () => {
     const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState(null);
     const [rutina, setRutina] = useState([]);
     const [selectedColor, setSelectedColor] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+
     const predefinedColors = [
         '#FFD1DC', '#FFD700', '#90EE90', '#ADD8E6', '#9370DB', '#FFA500', '#D8BFD8', '#4B0082', '#FF00FF',
         '#32CD32', '#FF1493', 'transparent',
     ];
     const [fechaCambio, setFechaCambio] = useState("");
-
     const navigate = useNavigate();
+    const [cantidadDias, setCantidadDias] = useState(null);
+    const [diaSeleccionado, setDiaSeleccionado] = useState();
+    const [valoracionMasReciente, setValoracionMasReciente] = useState(null);
 
     const [formData, setFormData] = useState({
         categoria: '',
@@ -26,6 +33,7 @@ const EditRoutine = () => {
         series: '',
         observaciones: '',
         color: '',
+        dia: '',
     });
 
     useEffect(() => {
@@ -37,10 +45,13 @@ const EditRoutine = () => {
                 ...doc.data()
             }));
             setCategorias(categoriasData);
+            obtenerRutina();
+            setIsLoading(false)
         };
 
         const obtenerRutina = async () => {
             if (routineId) {
+                setIsLoading(true);
                 const rutinaRef = doc(db, "rutinas", routineId);
                 const rutinaSnapshot = await getDoc(rutinaRef);
                 if (rutinaSnapshot.exists()) {
@@ -48,17 +59,32 @@ const EditRoutine = () => {
                     setRutina(rutinaData.ejercicios);
                     setSelectedColor(rutinaData.color);
                     setFechaCambio(rutinaData.fechaCambio);
+                    const valoracionRef = doc(db, 'valoraciones', rutinaData.valoracion);
+                    const snapShotValoracion = await getDoc(valoracionRef);
+                    if (snapShotValoracion.exists()) {
+                        const valoracionData = snapShotValoracion.data();
+                        setCantidadDias(valoracionData.diasSemana);
+                        //setDiaSeleccionado(rutina.diasSemana)
+                        // Inicializar diaSeleccionado si hay datos de ejercicios
+                        /*if (rutinaData.ejercicios.length > 0) {
+                            setDiaSeleccionado(rutinaData.ejercicios[0].dia);
+                            setFormData((prevFormData) => ({
+                                ...prevFormData,
+                                dia: rutinaData.ejercicios[0].dia,
+                            }));
+                        }*/
+                    }
                 }
             }
         };
-
         obtenerCategorias();
         obtenerRutina();
     }, [routineId]);
 
+
+
     const handleChangeCategoria = async (e) => {
         const categoriaId = e.target.value;
-        console.log(categoriaId)
         setFormData({
             ...formData,
             categoria: categoriaId
@@ -79,7 +105,6 @@ const EditRoutine = () => {
         }
     };
 
-
     const handleChange = (event) => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({
@@ -97,8 +122,8 @@ const EditRoutine = () => {
     };
 
     const handleAddExercise = async () => {
-        if (!formData.ejercicio || !formData.series || !formData.observaciones) {
-            console.log("Tiene que ingresar todos los campos obligatorios");
+        if (!formData.ejercicio || !formData.series || !formData.observaciones || !formData.dia) {
+            ToastifyError("Tiene que ingresar todos los campos obligatorios");
             return;
         }
         const nuevoEjercicio = {
@@ -106,7 +131,8 @@ const EditRoutine = () => {
             nombre: ejercicioSeleccionado.nombre,
             series: formData.series,
             observaciones: formData.observaciones,
-            color: '',
+            color: formData.color,
+            dia: formData.dia,
         };
         setRutina([...rutina, nuevoEjercicio]);
         setFormData({
@@ -115,10 +141,12 @@ const EditRoutine = () => {
             series: '',
             observaciones: '',
             color: '',
+            dia: null,
         });
         setEjercicios([]);
         setEjercicioSeleccionado(null);
     };
+
 
     const handleEditExercise = async (index) => {
         const ejercicio = rutina[index];
@@ -127,14 +155,22 @@ const EditRoutine = () => {
         const ejercicioData = ejercicioSnapshot.data();
         const ejercicioSeleccionado = await obtenerEjerciciosSeleccionado(ejercicioData.categoria);
         setEjercicios(ejercicioSeleccionado);
+        console.log(ejercicio);
+        console.log(ejercicio.nombre)
+        console.log(ejercicio.observaciones)
+
         setFormData({
             ejercicio: ejercicio.id,
             series: ejercicio.series,
             observaciones: ejercicio.observaciones,
+            dia: ejercicio.dia,
+            color: ejercicio.color
         });
         setEjercicioSeleccionado(ejercicio);
+        //setDiaSeleccionado(diaSeleccionado); // Si es necesario, establece el día seleccionado en el estado
         handleDeleteExercise(index);
     };
+
 
     const obtenerEjerciciosSeleccionado = async (categoriaId) => {
         const ejerciciosRef = collection(db, "ejercicios");
@@ -156,13 +192,13 @@ const EditRoutine = () => {
             const rutinaRef = doc(db, "rutinas", routineId);
             await updateDoc(rutinaRef, {
                 ejercicios: rutina,
-                color: selectedColor,
                 fechaCambio: fechaCambio
             });
-            alert("Rutina actualizada exitosamente.");
+            ToastifySuccess("Rutina actualizada exitosamente.");
             navigate('/selectUserRoutine');
         } catch (error) {
-            console.error("Error actualizando la rutina: ", error);
+            ToastifyError("Error actualizando la rutina");
+            console.log(error)
         }
     };
 
@@ -180,24 +216,39 @@ const EditRoutine = () => {
         setFechaCambio(event.target.value);
     };
 
-    return (
-        <div>
-            <Header />
-            <h1 className="text-3xl font-bold mb-2 ml-5">Editar Rutina</h1>
-            <h3 className="mb-2 ml-5"><strong>Nombre: </strong> {clientId.primerNombre} {clientId.primerApellido}</h3>
+    const onDragEnd = (result) => {
+        if (!result.destination) return;
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        const items = Array.from(rutina);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+
+        setRutina(items);
+    };
+
+    const handleDiaChange = (e) => {
+        const diaSeleccionado = parseInt(e.target.value);
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            dia: diaSeleccionado,
+        }));
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-100 p-8">
+            <Header />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div>
                     <div className="bg-white rounded-md shadow-md p-4">
-                        <h3 className="text-lg font-semibold mb-2">Categoría</h3>
+                        <h3 className="text-lg font-semibold mb-2">Seleccionar categoría</h3>
                         <select
                             id="categoria"
                             name="categoria"
                             value={formData.categoria}
                             onChange={handleChangeCategoria}
-                            className="w-full bg-gray-200 rounded-md px-4 py-3 mb-8 text-center"
+                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8"
                         >
-                            <option value="">Seleccione una categoría</option>
+                            <option value="">Seleccionar categoría</option>
                             {categorias.map((categoria) => (
                                 <option key={categoria.id} value={categoria.id}>
                                     {categoria.nombre}
@@ -241,6 +292,27 @@ const EditRoutine = () => {
                             onChange={handleChange}
                             className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8"
                         />
+                        <h3 className="text-lg font-semibold mb-2">Día correspondiente</h3>
+                        <div className="flex items-center space-x-4">
+                            {
+                                Array.from({ length: cantidadDias }, (_, i) => (
+                                    <div key={i} className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            id={`dia-${i + 1}`}
+                                            name="dia"
+                                            value={i + 1}
+                                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                                            onChange={handleDiaChange}
+                                            checked={formData.dia === i + 1}
+                                        />
+                                        <label htmlFor={`dia-${i + 1}`} className="ml-2">
+                                            {i + 1}
+                                        </label>
+                                    </div>
+                                ))
+                            }
+                        </div>
                         <div className="flex justify-end">
                             <button onClick={() => navigate('/selectUserRoutine')} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
                                 Atrás
@@ -254,30 +326,47 @@ const EditRoutine = () => {
                 <div>
                     <div className="bg-white rounded-md shadow-md p-4">
                         <h3 className="text-lg font-semibold mb-4">Rutina Actual</h3>
-                        {rutina.length === 0 ? (
-                            <p>No hay ejercicios en la rutina.</p>
-                        ) : (
-                            rutina.map((ejercicio, index) => (
-                                <div key={index} className="mb-4">
-                                    <div className="p-4 rounded-md shadow-md" style={{ backgroundColor: ejercicio.color || '#f0f0f0' }}>
-                                        <h4 className="text-lg font-bold mb-2">{ejercicio.nombre}</h4>
-                                        <p className="mb-2">Series: {ejercicio.series}</p>
-                                        <p className="mb-2">Observaciones: {ejercicio.observaciones}</p>
-                                        <div className='align-items-left'>
-                                            <button onClick={() => handleEditExercise(index)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2">
-                                                Editar
-                                            </button>
-                                            <button onClick={() => handleDeleteExercise(index)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded mr-2">
-                                                Eliminar
-                                            </button>
-                                            <button onClick={() => handleExerciseColorSelect(index, selectedColor)} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 rounded">
-                                                Aplicar Color
-                                            </button>
-                                        </div>
+                        <DragDropContext onDragEnd={onDragEnd}>
+                            <Droppable droppableId="droppable">
+                                {(provided) => (
+                                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                                        {rutina.map((ejercicio, index) => (
+                                            <Draggable key={index} draggableId={index.toString()} index={index}>
+                                                {(provided) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        className="bg-white rounded-md shadow-md p-4 flex items-center justify-between"
+                                                    >
+                                                        <div className="flex flex-col">
+                                                            <p className="text-lg font-bold underline">Día: {ejercicio.dia}</p>
+                                                            <p className="text-lg font-semibold">{ejercicio.nombre}</p>
+                                                            <p className="max-w-xs overflow-ellipsis overflow-hidden">Series: {ejercicio.series}</p>
+                                                            <p className="max-w-xs overflow-ellipsis overflow-hidden">Obs: {ejercicio.observaciones}</p>
+                                                        </div>
+                                                        <div className="flex items-center space-x-4">
+
+                                                            <button onClick={() => handleEditExercise(index)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Editar</button>
+                                                            <button onClick={() => handleDeleteExercise(index)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Eliminar</button>
+                                                            <button onClick={() => handleExerciseColorSelect(index, selectedColor)} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Asignar color</button>
+                                                            <div
+                                                                className="w-4 h-4 rounded-full border border-black"
+                                                                style={{
+                                                                    backgroundColor: ejercicio.color || 'transparent',
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                        {provided.placeholder}
                                     </div>
-                                </div>
-                            ))
-                        )}
+                                )}
+                            </Droppable>
+                        </DragDropContext>
+
                         <div>
                             <h3 className="text-lg font-semibold mb-2 mt-12">Seleccionar Color</h3>
                             {predefinedColors.map((color, index) => (

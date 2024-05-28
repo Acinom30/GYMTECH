@@ -62,7 +62,6 @@ const UserUpdate = () => {
                 navigate('/home')
             } catch (error) {
                 ToastifyError("Error al actualizar el cliente");
-                console.error("Error al actualizar el cliente: ", error);
             }
         }
         setFormData({

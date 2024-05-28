@@ -36,7 +36,7 @@ const ViewClients = () => {
       });
       setClients(filteredClients);
     } catch (error) {
-      console.error('Error fetching clients: ', error);
+      ToastifyError('Error obteniendo los usuarios');
     }
   };
 
@@ -86,7 +86,7 @@ const ViewClients = () => {
       const deleteValoracionesPromises = valoracionesSnapshot.docs.map((doc) => deleteDoc(doc.ref));
       await Promise.all(deleteValoracionesPromises);
     } catch (error) {
-      console.error('Error eliminando valoraciones: ', error);
+      ToastifyError('Error eliminando las valoraciones');
       throw error;
     }
 
@@ -97,14 +97,14 @@ const ViewClients = () => {
       const deleteRutinasPromises = rutinasSnapshot.docs.map((doc) => deleteDoc(doc.ref));
       await Promise.all(deleteRutinasPromises);
     } catch (error) {
-      console.error('Error eliminando rutinas: ', error);
+      ToastifyError('Error eliminando las rutinas');
       throw error;
     }
 
     try {
       await deleteDoc(doc(db, 'usuarios', clientId));
     } catch (error) {
-      console.error('Error eliminando usuario: ', error);
+      ToastifyError('Error eliminando el usuario');
       throw error;
     }
   };

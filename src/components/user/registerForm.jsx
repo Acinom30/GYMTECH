@@ -61,7 +61,7 @@ const RegisterForm = () => {
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-            console.log('Ya existe un usuario con esa cédula');
+            ToastifyError('Ya existe un usuario con esa cédula');
             return;
         }
         const hashedPassword = bcrypt.hashSync(formData.contrasena, 10);
