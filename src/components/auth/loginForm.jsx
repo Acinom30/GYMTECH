@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 import { db } from '../../firebase/config';
 import { useUser } from '../../userContext'; 
-import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 
 

@@ -24,8 +24,6 @@ const EditRoutine = () => {
     const [fechaCambio, setFechaCambio] = useState("");
     const navigate = useNavigate();
     const [cantidadDias, setCantidadDias] = useState(null);
-    const [diaSeleccionado, setDiaSeleccionado] = useState();
-    const [valoracionMasReciente, setValoracionMasReciente] = useState(null);
 
     const [formData, setFormData] = useState({
         categoria: '',
@@ -59,20 +57,15 @@ const EditRoutine = () => {
                     setRutina(rutinaData.ejercicios);
                     setSelectedColor(rutinaData.color);
                     setFechaCambio(rutinaData.fechaCambio);
-                    const valoracionRef = doc(db, 'valoraciones', rutinaData.valoracion);
-                    const snapShotValoracion = await getDoc(valoracionRef);
-                    if (snapShotValoracion.exists()) {
-                        const valoracionData = snapShotValoracion.data();
-                        setCantidadDias(valoracionData.diasSemana);
-                        //setDiaSeleccionado(rutina.diasSemana)
-                        // Inicializar diaSeleccionado si hay datos de ejercicios
-                        /*if (rutinaData.ejercicios.length > 0) {
-                            setDiaSeleccionado(rutinaData.ejercicios[0].dia);
-                            setFormData((prevFormData) => ({
-                                ...prevFormData,
-                                dia: rutinaData.ejercicios[0].dia,
-                            }));
-                        }*/
+                    if (rutinaData.valoracion != null) {
+                        const valoracionRef = doc(db, 'valoraciones', rutinaData.valoracion);
+                        const snapShotValoracion = await getDoc(valoracionRef);
+                        if (snapShotValoracion.exists()) {
+                            const valoracionData = snapShotValoracion.data();
+                            setCantidadDias(valoracionData.diasSemana);
+                        }
+                    } else {
+                        setCantidadDias(6);
                     }
                 }
             }

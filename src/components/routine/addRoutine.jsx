@@ -25,6 +25,7 @@ const AddRoutine = () => {
     const [rutina, setRutina] = useState([]);
     const [seleccionFechaCambio, setSeleccionFechaCambio] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+    const [cantidadDias, setCantidadDias] = useState();
 
 
     const predefinedColors = [
@@ -46,10 +47,15 @@ const AddRoutine = () => {
     });
 
     useEffect(() => {
-        const obtenerValoracionMasReciente = async () => {
+        const obtenerValoracionMasReciente = async (clienteId) => {
             try {
                 const valoracionesRef = collection(db, "valoraciones");
-                const snapshot = await getDocs(valoracionesRef);
+
+                const usuarioRef = doc(db, "usuarios", clienteId);
+
+                const q = query(valoracionesRef, where("usuario", "==", usuarioRef));
+
+                const snapshot = await getDocs(q);
                 const valoraciones = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 if (valoraciones.length > 0) {
@@ -58,29 +64,28 @@ const AddRoutine = () => {
                         const fechaVal = new Date(val.fechaValoracion);
                         return fechaVal > fechaMax ? val : max;
                     });
+
                     setValoracionMasReciente(valoracionMasReciente);
-                    if (valoracionMasReciente && valoracionMasReciente.id) {
-                        setIDValoracionMasReciente(valoracionMasReciente.id);
-                    } else {
-                        ToastifyError("ID de valoración más reciente no encontrado.");
-                    }
+                    setIDValoracionMasReciente(valoracionMasReciente.id);
+                    setCantidadDias(valoracionMasReciente.diasSemana)
                 } else {
+                    setCantidadDias(6);
+                    setValoracionMasReciente(null);
+                    setIDValoracionMasReciente(null);
                     ToastifyError("No se encontraron valoraciones.");
                 }
-                setIsLoading(false);
-
             } catch (error) {
+                ToastifyError("Error al obtener la valoración más reciente:", error);
+            } finally {
                 setIsLoading(false);
-                ToastifyError("Error al obtener la valoración más reciente:");
             }
         };
 
         if (client && client.id) {
             setIsLoading(true);
-            obtenerValoracionMasReciente();
+            obtenerValoracionMasReciente(client.id);
         }
 
-        // Calcular la edad
         if (client && client.fechaNacimiento) {
             const fechaNacimiento = new Date(client.fechaNacimiento);
             const edadCalculada = calcularEdad(fechaNacimiento);
@@ -98,6 +103,7 @@ const AddRoutine = () => {
         };
         obtenerCategorias();
 
+
     }, [client]);
 
     const toggleVentana = () => {
@@ -105,10 +111,19 @@ const AddRoutine = () => {
     };
 
     const calcularEdad = (fechaNacimiento) => {
+        if (!isValidDate(fechaNacimiento)) {
+            ToastifyError("Error al calcular la edad");
+            return;
+        }
+
         const diferenciaFechas = Date.now() - fechaNacimiento.getTime();
         const edad = new Date(diferenciaFechas);
         return Math.abs(edad.getUTCFullYear() - 1970);
     };
+
+    const isValidDate = (date) => {
+        return date instanceof Date && !isNaN(date);
+    }
 
     const handleChangeCategoria = async (e) => {
         const categoriaId = e.target.value;
@@ -293,6 +308,25 @@ const AddRoutine = () => {
         }));
     };
 
+    const renderDayInputs = () => {
+        return Array.from({ length: cantidadDias }, (_, i) => (
+            <div key={i} className="flex items-center">
+                <input
+                    type="radio"
+                    id={`dia-${i + 1}`}
+                    name="dia"
+                    value={i + 1}
+                    className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                    onChange={handleDiaChange}
+                    checked={formData.dia === i + 1}
+                />
+                <label htmlFor={`dia-${i + 1}`} className="ml-2">
+                    {i + 1}
+                </label>
+            </div>
+        ));
+    };
+
     return (
         <div>
             <Header />
@@ -420,25 +454,8 @@ const AddRoutine = () => {
                         <div className="flex items-center space-x-4">
                             {isLoading ? (
                                 <p>Cargando...</p>
-                            ) : valoracionMasReciente ? (
-                                Array.from({ length: valoracionMasReciente.diasSemana }, (_, i) => (
-                                    <div key={i} className="flex items-center">
-                                        <input
-                                            type="radio"
-                                            id={`dia-${i + 1}`}
-                                            name="dia"
-                                            value={i + 1}
-                                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                                            onChange={handleDiaChange}
-                                            checked={formData.dia === i + 1}
-                                        />
-                                        <label htmlFor={`dia-${i + 1}`} className="ml-2">
-                                            {i + 1}
-                                        </label>
-                                    </div>
-                                ))
                             ) : (
-                                <p>No se encontró la valoración más reciente.</p>
+                                renderDayInputs()
                             )}
                         </div>
                         <div className="flex justify-end">
