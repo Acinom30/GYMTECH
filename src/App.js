@@ -13,10 +13,9 @@ import UserUpdate from './components/user/userUpdate';
 import AddExercise from './components/exercises/addExercise';
 import EditExercise from './components/exercises/editExercise';
 import ExercisesList from './components/exercises/exerciseList';
-import CustomerRegistration from './components/customers/CustomerRegistration';
+import CustomerRegistration from './components/Customers/CustomerRegistration';
 import EditRoutine from './components/routine/editRoutine';
 import EditEvaluation from './components/evaluations/editEvaluation'
-
 
 function App() {
   return (
