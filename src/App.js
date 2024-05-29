@@ -13,7 +13,10 @@ import UserUpdate from './components/user/userUpdate';
 import AddExercise from './components/exercises/addExercise';
 import EditExercise from './components/exercises/editExercise';
 import ExercisesList from './components/exercises/exerciseList';
-import CustomerRegistration from './components/Customers/CustomerRegistration';
+import CustomerRegistration from './components/customers/CustomerRegistration';
+import EditRoutine from './components/routine/editRoutine';
+import EditEvaluation from './components/evaluations/editEvaluation'
+
 
 function App() {
   return (
@@ -33,6 +36,9 @@ function App() {
           <Route path="/editExercises" element={<ExercisesList />} />
           <Route path="/editExercise/:id" element={<EditExercise />} />
           <Route path="/customerRegistration" element={<CustomerRegistration />} />
+          <Route path="/editRoutine" element={<EditRoutine />} />
+          <Route path="/editEvaluation" element={<EditEvaluation />} />
+
         </Routes>
       </Router>
     </UserProvider>

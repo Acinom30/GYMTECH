@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, where, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { useNavigate } from 'react-router-dom';
 
-
 const SelectUserEvaluation = () => {
     const navigate = useNavigate();
-
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    //Para verificar si el componente está montado en caso de que el usuario tenga más de 
-    //3 días de registro.
     const isMounted = useRef(false);
+    const [modalType, setModalType] = useState(null);
+    const [valoraciones, setValoraciones] = useState([]);
+    const [showModal, setShowModal] = useState(false);
 
-
-
-    useEffect(() => {       
+    useEffect(() => {
         isMounted.current = true;
         const fetchClients = async () => {
             const querySnapshot = await getDocs(collection(db, 'usuarios'));
@@ -41,10 +38,6 @@ const SelectUserEvaluation = () => {
         };
     }, [searchTerm]);
 
-    const handleEvaluation = (client) => {
-        setSelectedClient(client);
-    };
-
     const calculateDays = (client) => {
         if (client && client.fechaRegistro) {
             const fechaRegistroDate = new Date(client.fechaRegistro);
@@ -55,17 +48,46 @@ const SelectUserEvaluation = () => {
         return null;
     };
 
-    const handleClick = () => {
+    const handleClickAdd = () => {
         if (isMounted.current) {
-            //Para pruebas de rutina
-            navigate('/assignEvaluation', {state: { client: selectedClient } });
-            //Este de abajo es el que va
-            //navigate('/assignEvaluation', { state: { client: selectedClient } });
+            navigate('/assignEvaluation', { state: { client: selectedClient } });
         }
     };
 
-    return (
+    const handleAddEvent = (client) => {
+        setSelectedClient(client);
+        setModalType('1');
+        setShowModal(true);
+    };
 
+    const handleEditEvent = (client) => {
+        setSelectedClient(client);
+        obtenerValoraciones(client);
+        setModalType('2');
+    };
+
+    const obtenerValoraciones = async (client) => {
+        setSelectedClient(client);
+        const clientId = client.id;
+        setModalType('2');
+        setShowModal(true);
+        const valoracionesRef = collection(db, 'valoraciones');
+        const q = query(valoracionesRef, orderBy('fechaValoracion', 'desc'));
+        const valoracionesSnapshot = await getDocs(q);
+        const valoracionesList = valoracionesSnapshot.docs
+            .filter(doc => doc.data().usuario.id === clientId)
+            .map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setValoraciones(valoracionesList)
+    };
+
+    const handleEditEvaluation = (valoracionId) => {
+        navigate('/editEvaluation', { state: { valoracionId, clientId: selectedClient.id } });
+    };
+
+    return (
         <div className="container mx-auto p-4">
             <Header />
             <h1 className="text-3xl font-bold text-center mb-4">Clientes</h1>
@@ -97,25 +119,71 @@ const SelectUserEvaluation = () => {
                     <tbody>
                         {clients.map(client => (
                             <tr key={client.id} className='text-center'>
-                                <td className="border px-4 py-2">{client.primerNombre}</td>
-                                <td className="border px-4 py-2">{client.primerApellido}</td>
-                                <td className="border px-4 py-2">{client.cedula}</td>
-                                <td className="border px-4 py-2">
-                                    <div className="inline-flex gap-5">
-                                        <button
-                                            onClick={() => handleEvaluation(client)}
-                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-                                        >
-                                            Agregar Valoración
-                                        </button>
-                                    </div>
-                                </td>
+                                {client.cedula !== '1' && (
+                                    <>
+                                        <td className="border px-4 py-2">{client.primerNombre}</td>
+                                        <td className="border px-4 py-2">{client.primerApellido}</td>
+                                        <td className="border px-4 py-2">{client.cedula}</td>
+                                        <td className="border px-4 py-2">
+                                            <div className="inline-flex gap-5">
+                                                <button
+                                                    onClick={() => handleAddEvent(client)}
+                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+                                                >
+                                                    Agregar Valoración
+                                                </button>
+                                                <button
+                                                    onClick={() => handleEditEvent(client)}
+                                                    className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded"
+                                                >
+                                                    Editar Valoración
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </>
+                                )}
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-            {selectedClient ? (
+
+            {modalType === '2' && showModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+                        <h2 className="text-xl font-bold mb-4">Últimas Evaluaciones de {selectedClient.primerNombre} {selectedClient.primerApellido}</h2>
+                        <ul>
+                            {valoraciones.length > 0 ? (
+                                valoraciones.map(valoracion => (
+                                    <li key={valoracion.id} className="mb-2">
+                                        <div className="bg-white p-4 rounded shadow">
+                                            <p><strong>Fecha de Valoración:</strong> {valoracion.fechaValoracion}</p>
+                                            <button
+                                                onClick={() => handleEditEvaluation(valoracion.id)}
+                                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded mt-2"
+                                            >
+                                                Editar Valoración
+                                            </button>
+                                        </div>
+                                    </li>
+                                ))
+                            ) : (
+                                <p>No hay valoraciones disponibles para mostrar.</p>
+                            )}
+                        </ul>
+                        <div className="mt-4 flex justify-center gap-5">
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {modalType === '1' && selectedClient ? (
                 calculateDays(selectedClient) < 3 ? (
                     <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                         <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
@@ -133,18 +201,21 @@ const SelectUserEvaluation = () => {
                             </p>
                             <div className="mt-4 flex justify-center gap-5">
                                 <button
-                                    onClick={() => setSelectedClient(null)}
+                                    onClick={() => {
+                                        setShowModal(false);
+                                        setSelectedClient(null);
+                                    }}
                                     className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
                                 >No</button>
                                 <button
-                                    onClick={handleClick}
+                                    onClick={handleClickAdd}
                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
                                 >Agregar Valoración</button>
                             </div>
                         </div>
                     </div>
                 ) : (
-                    handleClick()
+                    handleClickAdd()
                 )
             ) : null}
         </div>

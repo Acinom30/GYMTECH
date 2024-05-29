@@ -82,7 +82,7 @@ const AddExercise = () => {
                         name="nombre"
                         value={formData.nombre}
                         onChange={handleChange}
-                        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8 text-center" // Centra el placeholder y el valor del input
+                        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8 text-center"
                         />
                     <label htmlFor="descripcion" className="block font-semibold mb-5">Descripción</label>
                     <textarea
@@ -90,14 +90,14 @@ const AddExercise = () => {
                         name="descripcion"
                         value={formData.descripcion}
                         onChange={handleChange}
-                        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8 text-center" // Centra el placeholder y el valor del input
+                        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8 text-center"
                         />
                     <div className="flex flex-col gap-6">
                         <label className="block font-semibold text-center">Categoría:</label>
                         <select
                             id="categoria"
                             name="categoria"
-                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8" // Centra el placeholder y el valor del input
+                            className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8"
 
                             value={formData.categoria}
                             onChange={handleChangeCategoria}
