@@ -13,10 +13,12 @@ import UserUpdate from './components/user/userUpdate';
 import AddExercise from './components/exercises/addExercise';
 import EditExercise from './components/exercises/editExercise';
 import ExercisesList from './components/exercises/exerciseList';
-import CustomerRegistration from './components/customers/CustomerRegistration';
+import CustomerRegistration from './components/Customers/CustomerRegistration';
 import EditRoutine from './components/routine/editRoutine';
 import EditEvaluation from './components/evaluations/editEvaluation'
-
+import AddCategory from './components/category/addCategory';
+import CategoriesList from './components/category/categoriesList';
+import EditCategory from './components/category/editCategory';
 
 function App() {
   return (
@@ -38,6 +40,10 @@ function App() {
           <Route path="/customerRegistration" element={<CustomerRegistration />} />
           <Route path="/editRoutine" element={<EditRoutine />} />
           <Route path="/editEvaluation" element={<EditEvaluation />} />
+          <Route path="/addCategory" element={<AddCategory />} />
+          <Route path="/categoriesList" element={<CategoriesList />} />
+          <Route path="/editCategory/:id" element={<EditCategory />} />
+
 
         </Routes>
       </Router>

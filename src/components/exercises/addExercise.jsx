@@ -110,8 +110,8 @@ const AddExercise = () => {
                     </div>
 
                     <div className="flex justify-center md:justify-end">
-                        <Link to="/home" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-                            Cancelar
+                        <Link to="/editExercises" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                            Volver
                         </Link>
                         <button onClick={handleSubmit} type="submit" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4">
                             Guardar
