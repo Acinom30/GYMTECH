@@ -16,6 +16,7 @@ import ExercisesList from './components/exercises/exerciseList';
 import CustomerRegistration from './components/Customers/CustomerRegistration';
 import EditRoutine from './components/routine/editRoutine';
 import EditEvaluation from './components/evaluations/editEvaluation'
+import VerRutina from './components/routine/viewRoutine';
 
 function App() {
   return (
@@ -37,7 +38,7 @@ function App() {
           <Route path="/customerRegistration" element={<CustomerRegistration />} />
           <Route path="/editRoutine" element={<EditRoutine />} />
           <Route path="/editEvaluation" element={<EditEvaluation />} />
-
+          <Route path="/rutina" element={<VerRutina />} />
         </Routes>
       </Router>
     </UserProvider>
