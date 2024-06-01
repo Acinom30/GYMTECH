@@ -17,7 +17,6 @@ const Header = () => {
         navigate('/')
     };
 
-
     const toggleClienteMenu = () => {
         setShowClientesMenu(!showClientesMenu)
         setShowRutinaMenu(false);
@@ -49,7 +48,7 @@ const Header = () => {
 
     return (
         <div>
-            {(user.rol === "administrador" || user.rol === "entrenador") && (
+            {(user.user.rol === 'administrador' || user.user.rol === 'entrenador') && (
                 <nav className="bg-yellow-500 p-4 shadow-lg">
                     <div className="mx-auto p-0 flex justify-between items-center">
                         <div>
@@ -136,7 +135,7 @@ const Header = () => {
                 </nav>
             )}
 
-            {user.rol === "cliente" && (
+            {user.user.rol === 'cliente' && (
                 <nav className="bg-yellow-500 p-4 shadow-lg">
                     <div className="mx-auto p-0 flex justify-between items-center">
                         <div>
@@ -148,7 +147,7 @@ const Header = () => {
 
                             <Link to="/home" className="text-black hover:text-white">Inicio</Link>
 
-                            <Link to="/home" className="text-black hover:text-white">Ver mis valoraciones</Link>
+                            <Link to="/viewLatestEvaluation" className="text-black hover:text-white">Ver mis valoraciones</Link>
 
                             <Link to="/home" className="text-black hover:text-white">Ver mis Rutinas</Link>
 

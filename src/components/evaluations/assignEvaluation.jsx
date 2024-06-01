@@ -10,14 +10,18 @@ import { addDoc, collection, doc } from 'firebase/firestore';
 
 
 const AssignEvaluation = () => {
+
+  const formatDate = (date) => {
+    return new Date(date).toISOString().split('T')[0];
+  };
+
   const location = useLocation();
   const client = location.state?.client;
-  console.log(client)
   const [formData, setFormData] = useState({
     objetivo: '',
     diasSemana: '',
     peso: '',
-    fechaValoracion: new Date().toISOString().split('T')[0],
+    fechaValoracion: formatDate(new Date()), 
     lesionesActuales: '',
     tipoPersona: '',
 
@@ -130,7 +134,7 @@ const AssignEvaluation = () => {
         objetivo: '',
         diasSemana: '',
         peso: '',
-        fechaValoracion: new Date(),
+        fechaValoracion: formatDate(new Date()), 
         lesionesActuales: '',
         tipoPersona: '',
 
@@ -186,7 +190,6 @@ const AssignEvaluation = () => {
       <div className="bg-gray-100 p-4 rounded-md shadow-md">
         <p className="text-lg ml-5">
           {client.primerNombre} {client.segundoNombre} {client.primerApellido} {client.segundoApellido}, Cédula: {client.cedula}
-          {console.log(client)}
         </p>
       </div>
       <div className="flex flex-col items-center justify-center">
