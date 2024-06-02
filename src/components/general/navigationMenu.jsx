@@ -149,7 +149,7 @@ const Header = () => {
 
                             <Link to="/viewLatestEvaluation" className="text-black hover:text-white">Ver mis valoraciones</Link>
 
-                            <Link to="/home" className="text-black hover:text-white">Ver mis Rutinas</Link>
+                            <Link to="/viewLatestRoutine" className="text-black hover:text-white">Ver mis Rutinas</Link>
 
                             <Link to="/home" className="text-black hover:text-white">Editar perfil</Link>
 

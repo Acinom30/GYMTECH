@@ -17,6 +17,7 @@ import CustomerRegistration from './components/customers/CustomerRegistration';
 import EditRoutine from './components/routine/editRoutine';
 import EditEvaluation from './components/evaluations/editEvaluation'
 import ViewLatestEvaluation from './components/evaluations/viewLatestEvaluation';
+import ViewLatestRoutine from './components/routine/viewLatestRoutine';
 
 
 function App() {
@@ -40,7 +41,7 @@ function App() {
           <Route path="/editRoutine" element={<EditRoutine />} />
           <Route path="/editEvaluation" element={<EditEvaluation />} />
           <Route path="/viewLatestEvaluation" element={<ViewLatestEvaluation />} />
-
+          <Route path="/viewLatestRoutine" element={<ViewLatestRoutine />} />
 
         </Routes>
       </Router>
