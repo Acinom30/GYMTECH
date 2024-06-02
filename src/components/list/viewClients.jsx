@@ -160,7 +160,7 @@ const ViewClients = () => {
                         >
                           Editar
                         </button>
-                        {user.rol === 'administrador' && (
+                        {user.user.rol === 'administrador' && (
                           <button
                             onClick={() => handleDeleteClient(client)}
                             className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
