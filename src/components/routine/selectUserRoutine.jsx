@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { useNavigate } from 'react-router-dom';
+import ToastifyError from '../ui/toastify/toastifyError';
+import ToastifySuccess from '../ui/toastify/toastifySuccess';
+
 
 
 const SelectUserRoutine = () => {
@@ -61,6 +64,17 @@ const SelectUserRoutine = () => {
             navigate('/addRoutine', { state: { client: selectedClient } });
         }
     };
+    const handleDeleteRoutine = async (rutinaId) => {
+        try {
+            await deleteDoc(doc(db, 'rutinas', rutinaId));
+            setShowModal(false);
+            setSelectedClient(null);
+            ToastifySuccess("Rutina eliminada exitosamente.");
+        } catch (error) {
+            ToastifyError("Error al eliminar la rutina. Por favor, inténtalo de nuevo más tarde.");
+        }
+    };
+    
 
     const handleClientSelect = async (client) => {
         setSelectedClient(client);
@@ -125,16 +139,17 @@ const SelectUserRoutine = () => {
                                             <div className="inline-flex gap-5">
                                                 <button
                                                     onClick={() => handleEvaluation(client)}
-                                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
+                                                    className="bg-yellow-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
                                                 >
                                                     Agregar Rutina
                                                 </button>
                                                 <button
                                                     onClick={() => handleClientSelect(client)}
-                                                    className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-2"
+                                                    className="bg-yellow-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded mt-2"
                                                 >
                                                     Editar Rutina
                                                 </button>
+                                               
                                             </div>
                                         </td>
                                     </>
@@ -161,9 +176,15 @@ const SelectUserRoutine = () => {
 
                                                     <button
                                                         onClick={() => handleEditRoutine(rutina.id)}
-                                                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
+                                                        className="bg-yellow-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
                                                     >
                                                         Editar Rutina
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteRoutine(rutina.id)}
+                                                        className="bg-yellow-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-2 ml-2"
+                                                    >
+                                                        Eliminar Rutina
                                                     </button>
                                                 </div>
                                             </li>
@@ -217,7 +238,7 @@ const SelectUserRoutine = () => {
                                 >No</button>
                                 <button
                                     onClick={handleClick}
-                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+                                    className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
                                 >Agregar Rutina</button>
                             </div>
                         </div>

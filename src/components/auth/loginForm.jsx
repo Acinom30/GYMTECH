@@ -65,9 +65,9 @@ const LoginForm = () => {
         onChange={handleChangeContraseña}
         className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-16 text-center"
       />
-        <button onClick={handleSubmit} className="w-full sm:w-80 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full mb-16">Entrar</button>
+        <button onClick={handleSubmit} className="w-full sm:w-80 bg-yellow-500 hover:bg-yellow-500 text-white font-bold py-3 px-6 rounded-full mb-16">Entrar</button>
 
-      <Link to="/customerRegistration" className="w-full sm:w-80 border text-gray-700 font-bold py-3 px-6 rounded-full mb-6 text-center hover:border-gray-400">
+      <Link to="/customerRegistration" className="w-full sm:w-80 border text-white-700 font-bold py-3 px-6 rounded-full mb-6 text-center hover:border-gray-400">
         Registrar
       </Link>
     </div>

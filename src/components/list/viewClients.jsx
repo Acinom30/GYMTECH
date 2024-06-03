@@ -150,20 +150,20 @@ const ViewClients = () => {
                       <div className="inline-flex gap-5">
                         <button
                           onClick={() => handleShowDetails(client)}
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+                          className="bg-yellow-500 hover:bg-green-700 text-white font-bold py-2 px-3 rounded"
                         >
                           Ver Detalles
                         </button>
                         <button
                           onClick={() => handleEditClient(client)}
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+                          className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
                         >
                           Editar
                         </button>
                         {user.rol === 'administrador' && (
                           <button
                             onClick={() => handleDeleteClient(client)}
-                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
+                            className="bg-yellow-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
                           >
                             Eliminar
                           </button>
