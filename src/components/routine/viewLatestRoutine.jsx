@@ -150,12 +150,6 @@ const ViewLatestRoutine = () => {
         setShowButton(false);
         setPrintButton(false)
     };
-   /* const handleShowSecondLatestRoutine = (secondLatestRoutineIndex) => {
-        setCurrentRoutineIndex(secondLatestRoutineIndex);
-        setShowRoutine(true);
-        setShowButton(false);
-        setPrintButton(false)
-    };*/
 
     const handleBack = () => {
         navigate('/home');
