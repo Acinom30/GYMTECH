@@ -21,6 +21,7 @@ import ViewLatestRoutine from './components/routine/viewLatestRoutine';
 import AddCategory from './components/category/addCategory';
 import CategoriesList from './components/category/categoriesList';
 import EditCategory from './components/category/editCategory';
+import ViewEvaluationHistory from './components/evaluations/viewEvaluationHistory';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           <Route path="/addCategory" element={<AddCategory />} />
           <Route path="/categoriesList" element={<CategoriesList />} />
           <Route path="/editCategory/:id" element={<EditCategory />} />
+          <Route path='/ViewEvaluationHistory' element={<ViewEvaluationHistory/>}/>
 
         </Routes>
       </Router>

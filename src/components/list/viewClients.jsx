@@ -53,6 +53,9 @@ const ViewClients = () => {
       }));
       console.log(routinesData)
       setViewRoutine(routinesData);
+      if (routinesData.length === 0) {
+        ToastifyError('El cliente no tiene rutinas registradas');
+      }
     } catch (error) {
       ToastifyError('Error obteniendo las rutinas');
     }
