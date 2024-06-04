@@ -128,13 +128,13 @@ const SelectUserEvaluation = () => {
                                             <div className="inline-flex gap-5">
                                                 <button
                                                     onClick={() => handleAddEvent(client)}
-                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+                                                    className="bg-yellow-500 hover:bg-gree-700 text-white font-bold py-2 px-3 rounded"
                                                 >
                                                     Agregar Valoración
                                                 </button>
                                                 <button
                                                     onClick={() => handleEditEvent(client)}
-                                                    className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded"
+                                                    className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
                                                 >
                                                     Editar Valoración
                                                 </button>
@@ -160,7 +160,7 @@ const SelectUserEvaluation = () => {
                                             <p><strong>Fecha de Valoración:</strong> {valoracion.fechaValoracion}</p>
                                             <button
                                                 onClick={() => handleEditEvaluation(valoracion.id)}
-                                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded mt-2"
+                                                className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded mt-2"
                                             >
                                                 Editar Valoración
                                             </button>
