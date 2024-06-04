@@ -569,7 +569,7 @@ const AddRoutine = () => {
                             Limpiar
                         </button>
 
-                        <button onClick={handleSaveRoutine} type="button" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
+                        <button onClick={handleSaveRoutine} type="button" className="bg-yellow-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded mt-4">
                             Guardar Rutina
                         </button>
                     </div>
