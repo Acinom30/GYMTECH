@@ -92,6 +92,7 @@ const Header = () => {
                                             <Link to="/selectUserEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ingresar Valoración</Link>
                                             <Link to="/editEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Editar Valoración</Link>
                                             <Link to="/showEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Mostrar Valoración</Link>
+                                            <Link to="/viewEvaluationHistory" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ver Historial</Link>
                                             <Link to="/deleteEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Eliminar Valoración</Link>
                                         </div>
                                     </div>
