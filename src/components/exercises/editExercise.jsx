@@ -15,7 +15,8 @@ const EditExercise = () => {
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: '',
-        categoria: ''
+        categoria: '',
+        url: '',
     });
     const [categorias, setCategorias] = useState([]);
     const navigate = useNavigate();
@@ -25,8 +26,10 @@ const EditExercise = () => {
             try {
                 const exerciseDoc = await getDoc(doc(db, "ejercicios", id));
                 if (exerciseDoc.exists()) {
-                    setExercise({ id: exerciseDoc.id, ...exerciseDoc.data() });
-                    setFormData({ ...exerciseDoc.data() });
+                    const exerciseData = exerciseDoc.data();
+                    const categoriaId = exerciseData.categoria.id;
+                    setExercise({ id: exerciseDoc.id, ...exerciseData });
+                    setFormData({ ...exerciseData, categoria: categoriaId });
                 } else {
                     ToastifyError("No se encontró el ejercicio.");
                 }
@@ -105,6 +108,10 @@ const EditExercise = () => {
                                 <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>
                             ))}
                         </select>
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="url" className="block text-sm font-medium text-gray-700">Url del ejercicio</label>
+                        <input type="text" name="url" id="url" value={formData.url} onChange={handleInputChange} className="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 block w-full" />
                     </div>
                     <div className="flex justify-end">
                         <Link to="/editExercises" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2">Volver</Link>

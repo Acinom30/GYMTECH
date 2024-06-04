@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Header from "../general/navigationMenu";
 import { useUser } from '../../userContext';
-import { collection, query, where, getDocs, doc, orderBy, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, orderBy, getDoc, limit } from "firebase/firestore";
 import { db } from '../../firebase/config';
 import ToastifyError from '../ui/toastify/toastifyError';
 import { useNavigate } from 'react-router-dom';
+import RoutinePdfDocument from '../pdf/routinePdfDocument';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 
 const ViewLatestRoutine = () => {
     const { user } = useUser();
@@ -16,6 +19,8 @@ const ViewLatestRoutine = () => {
     const [showRoutine, setShowRoutine] = useState(false);
     const [ejerciciosPorDia, setEjerciciosPorDia] = useState({});
     const [showButton, setShowButton] = useState(true)
+    const [showPrintButton, setPrintButton] = useState(true)
+
     const navigate = useNavigate();
 
 
@@ -30,7 +35,7 @@ const ViewLatestRoutine = () => {
                 const q = query(
                     routinesRef,
                     where('clientId', '==', doc(db, 'usuarios', userId)),
-                    orderBy('fechaCreacion', 'desc')
+                    orderBy('fechaCreacion', 'desc', limit(2))
                 );
                 const querySnapshot = await getDocs(q);
 
@@ -38,7 +43,11 @@ const ViewLatestRoutine = () => {
                     const routines = querySnapshot.docs.map(doc => doc.data());
                     setRoutineData(routines);
                     setLatestRoutineIndex(0);
-                    setSecondLatestRoutineIndex(1);
+                    if (querySnapshot.docs.length > 1) {
+                        setSecondLatestRoutineIndex(1);
+                    } else {
+                        setSecondLatestRoutineIndex(null);
+                    }
                     setCurrentRoutineIndex(0);
                     setNoRoutines(false);
                     setShowRoutine(true);
@@ -105,7 +114,7 @@ const ViewLatestRoutine = () => {
                                             <th className="py-2 px-4 border-r border-gray-300" style={{ width: '25%' }}>Nombre</th>
                                             <th className="py-2 px-4 border-r border-gray-300" style={{ width: '25%' }}>Series</th>
                                             <th className="py-2 px-4 border-r border-gray-300" style={{ width: '25%' }}>Observaciones</th>
-                                            <th className="py-2 px-4 border-r border-gray-300" style={{ width: '10%' }}>Color</th>
+                                            <th className="py-2 px-4 border-r border-gray-300" style={{ width: '10%' }}>Alternado</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -135,10 +144,11 @@ const ViewLatestRoutine = () => {
         return null;
     };
 
-    const handleShowSecondLatestRoutine = (secondLatestRoutineIndex) => {
+    const handleShowSecondLatestRoutine = () => {
         setCurrentRoutineIndex(secondLatestRoutineIndex);
         setShowRoutine(true);
         setShowButton(false);
+        setPrintButton(false)
     };
 
     const handleBack = () => {
@@ -159,10 +169,21 @@ const ViewLatestRoutine = () => {
                     <button onClick={handleBack} className="bg-gray-500 text-white py-2 px-4 rounded-md mr-5">Atrás</button>
 
                     {secondLatestRoutineIndex !== null && showButton && (
-                        <button onClick={() => handleShowSecondLatestRoutine(secondLatestRoutineIndex)} className="bg-blue-500 text-white py-2 px-4 rounded-md mr-5">Penúltima Rutina</button>
+                        <button onClick={() => handleShowSecondLatestRoutine()} className="bg-blue-500 text-white py-2 px-4 rounded-md mr-5">Penúltima Rutina</button>
                     )}
+                    <PDFDownloadLink
+                        document={<RoutinePdfDocument routine={routineData[currentRoutineIndex]} ejerciciosPorDia={ejerciciosPorDia} />}
+                        fileName="routine.pdf"
+                    >
+                        {({ loading }) => (
+                            <button className="bg-green-500 text-white py-2 px-4 rounded-md">
+                                {loading ? 'Generando PDF...' : 'Descargar PDF'}
+                            </button>
+                        )}
+                    </PDFDownloadLink>
                 </div>
             )}
+
         </div>
     );
 };

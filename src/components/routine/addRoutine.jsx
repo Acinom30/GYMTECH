@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../general/navigationMenu';
 import { db } from '../../firebase/config';
-import { collection, getDocs, query, where, doc, addDoc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, addDoc, getDoc, limit, orderBy } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
-
+import RoutinePdfDocument from '../pdf/routinePdfDocument';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 
 const AddRoutine = () => {
@@ -18,6 +18,7 @@ const AddRoutine = () => {
     const [valoracionMasReciente, setValoracionMasReciente] = useState(null);
     const [IDValoracionMasReciente, setIDValoracionMasReciente] = useState(null);
 
+
     const [edad, setEdad] = useState(null);
     const [categorias, setCategorias] = useState([]);
     const [ejercicios, setEjercicios] = useState([]);
@@ -26,6 +27,12 @@ const AddRoutine = () => {
     const [seleccionFechaCambio, setSeleccionFechaCambio] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [cantidadDias, setCantidadDias] = useState();
+
+    const [generatedPdf, setGeneratedPdf] = useState(null);
+    const [rutinaDescarga, setRutinaDescarga] = useState(null);
+    const [ejerciciosPorDia, setEjerciciosPorDia] = useState({});
+    const [showPrintModal, setShowPrintModal] = useState(false);
+    const [printOption, setPrintOption] = useState(false);
 
 
     const predefinedColors = [
@@ -204,7 +211,6 @@ const AddRoutine = () => {
             color: ejercicio.color
         });
         setEjercicioSeleccionado(ejercicio);
-        //setDiaSeleccionado(ejercicio.dia);
         handleDeleteExercise(index);
     };
 
@@ -229,13 +235,77 @@ const AddRoutine = () => {
                 fechaCreacion: new Date().toISOString().split('T')[0],
                 fechaCambio: fechaCambio,
             });
+            await obtenerRutinaRecienGuardada();
+
+            setShowPrintModal(true);
             ToastifySuccess("Rutina guardada exitosamente.");
-            navigate('/selectUserRoutine')
-
             setRutina([]);
-
         } catch (error) {
             ToastifyError("Error guardando la rutina: ", error);
+        }
+    };
+
+    const obtenerRutinaRecienGuardada = async () => {
+        try {
+            const routinesRef = collection(db, 'rutinas');
+            const q = query(
+                routinesRef,
+                where('clientId', '==', doc(db, 'usuarios', client.id)),
+                orderBy('fechaCreacion', 'desc'),
+                limit(1)
+            );
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                let routine;
+                querySnapshot.forEach((doc) => {
+                    routine = doc.data();
+                });
+
+                const ejerciciosPorDiaTemp = {};
+
+                const ejerciciosConURL = await Promise.all(
+                    routine.ejercicios.map(async (ejercicio) => {
+                        const ejercicioData = await obtenerEjercicio(ejercicio.id);
+                        const urlEjercicio = ejercicioData ? ejercicioData.url : null;
+                        return { ...ejercicio, url: urlEjercicio };
+                    })
+                );
+
+                ejerciciosConURL.forEach((ejercicio) => {
+                    if (!ejerciciosPorDiaTemp[ejercicio.dia]) {
+                        ejerciciosPorDiaTemp[ejercicio.dia] = [];
+                    }
+                    ejerciciosPorDiaTemp[ejercicio.dia].push(ejercicio);
+                });
+
+                setRutinaDescarga(routine);
+                setEjerciciosPorDia(ejerciciosPorDiaTemp)
+            }
+        } catch (error) {
+            console.error("Error al obtener la rutina recién guardada:", error);
+            ToastifyError("Error al obtener la rutina recién guardada: ", error);
+        }
+    };
+
+    const obtenerEjercicio = async (id) => {
+        const ejercicioRef = doc(db, 'ejercicios', id);
+        const ejercicioSnapshot = await getDoc(ejercicioRef);
+        return ejercicioSnapshot.exists() ? ejercicioSnapshot.data() : null;
+    };
+
+    useEffect(() => {
+        if (printOption) {
+            handleSaveDownloadRoutine();
+        }
+    }, [printOption]);
+
+    const handleSaveDownloadRoutine = async () => {
+        try {
+        } catch (error) {
+            console.error("Error al obtener la rutina recién guardada:", error);
+            ToastifyError("Error al guardar e imprimir la rutina: ", error);
+            return null;
         }
     };
 
@@ -568,10 +638,50 @@ const AddRoutine = () => {
                         <button onClick={limpiarRutina} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4 mr-5">
                             Limpiar
                         </button>
-
                         <button onClick={handleSaveRoutine} type="button" className="bg-yellow-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded mt-4">
                             Guardar Rutina
                         </button>
+                        {showPrintModal && (
+                            <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                                <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+                                    <h2 className="text-2xl font-bold mb-4 text-center">¿Desea imprimir la rutina?</h2>
+                                    <div className="flex justify-center">
+                                        <PDFDownloadLink
+                                            document={<RoutinePdfDocument routine={rutinaDescarga} ejerciciosPorDia={ejerciciosPorDia} />}
+                                            fileName="routine.pdf"
+                                        >
+                                            {({ loading }) => (
+                                                <button 
+                                                onClick={() => {
+                                                    navigate('/selectUserRoutine');
+                                                }}
+                                                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-5"
+                                                aria-label={loading ? 'Generando PDF...' : 'Descargar PDF'}         
+                                                                             
+                                                >
+                                                {loading ? 'Generando PDF...' : 'Descargar PDF'}
+                                                
+                                            </button>
+                                            )}
+                                        </PDFDownloadLink>
+                                        <button
+                                            onClick={() => {
+                                                setShowPrintModal(false);
+                                                navigate('/selectUserRoutine');
+                                            }}
+                                            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                                        >
+                                            No
+                                        </button>
+                                    </div>
+                                    {generatedPdf !== null && (
+                                        <div>
+                                            {generatedPdf}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

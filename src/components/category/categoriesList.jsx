@@ -89,7 +89,7 @@ const CategoriesList = () => {
                                         >
                                             Editar
                                         </Link>
-                                        {user.rol === 'administrador' && (
+                                        {user.user.rol === 'administrador' && (
                                             <button
                                                 onClick={() => handleDeleteCategory(category)}
                                                 className="bg-yellow-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
