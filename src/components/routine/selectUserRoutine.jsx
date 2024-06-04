@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, getDocs, orderBy, query, deleteDoc, doc } from 'firebase/firestore';
+
+import { collection, getDocs, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { useNavigate } from 'react-router-dom';
@@ -76,21 +77,29 @@ const SelectUserRoutine = () => {
     };
     
 
+
+
     const handleClientSelect = async (client) => {
         setSelectedClient(client);
-        const clientId = client.id;
         setModalType('2');
         setShowModal(true);
         const rutinasRef = collection(db, 'rutinas');
-        const q = query(rutinasRef, orderBy('fechaCreacion', 'desc'));
-        const rutinasSnapshot = await getDocs(q);
-        const rutinasList = rutinasSnapshot.docs
-            .filter(doc => doc.data().clientId.id === clientId)
-            .map(doc => ({
+        try {
+            const clientDocRef = doc(db, 'usuarios', client.id);
+            const q = query(
+                rutinasRef,
+                where('clientId', '==', clientDocRef),
+                orderBy('fechaCreacion', 'desc')
+            );
+            const rutinasSnapshot = await getDocs(q);
+            const rutinasList = rutinasSnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
             }));
-        setRutinas(rutinasList);
+            setRutinas(rutinasList);
+        } catch (error) {
+            ToastifyError("Error obteniendo las rutinas")
+        }
     };
 
     const handleEditRoutine = (routineId) => {

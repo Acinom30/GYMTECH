@@ -36,13 +36,14 @@ const LoginForm = () => {
       return;
     } else {
       const userDocSnapshot = querySnapshot.docs[0];
+      const userId = userDocSnapshot.id;
       const userData = userDocSnapshot.data();
       const isMatch = await bcrypt.compare(contraseña, userData.contrasena);
       if (!isMatch) {
         ToastifyError('La contraseña no coincide');
         return;
       }
-      setUser({ rol: userData.rol }); 
+      setUser({ user: userData }); 
     }
     navigate('/home')
   };
