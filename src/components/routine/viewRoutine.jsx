@@ -27,41 +27,52 @@ const VerRutina = () => {
     };
 
     fetchRutinas();
-
   }, [clientId]);
 
-  
   const handleClose = () => {
     window.history.back();
   };
 
+  const agruparEjerciciosPorDia = (rutina) => {
+    const ejerciciosPorDia = {};
+    rutina.forEach((rutinaItem) => {
+      rutinaItem.ejercicios.forEach((ejercicio) => {
+        if (!ejerciciosPorDia[ejercicio.dia]) {
+          ejerciciosPorDia[ejercicio.dia] = [];
+        }
+        ejerciciosPorDia[ejercicio.dia].push(ejercicio);
+      });
+    });
+    return ejerciciosPorDia;
+  };
+
+  const ejerciciosPorDia = agruparEjerciciosPorDia(rutina);
+
   return (
-    <div>
-      <h1>Rutina del Usuario</h1>
+    <div className="bg-white shadow-md rounded-md p-4 mb-4">
+      <h1 className="text-2xl font-bold mb-4">Rutina del Usuario</h1>
       {rutina.length > 0 ? (
         <div>
-          {rutina.map((rutinaItem, index) => (
-            <div key={index} className="rutina">
-              <h2>{rutinaItem.nombre}</h2>
+          {Object.entries(ejerciciosPorDia).map(([dia, ejercicios], index) => (
+            <div key={index} className="dia-rutina mb-6">
+              <h2 className="text-lg font-bold mb-2">Día {dia}</h2>
               <table className='min-w-full bg-white border border-gray-300'>
                 <thead>
                   <tr className='bg-gray-200'>
                     <th className='py-2 px-4 border-b text-center'>Nombre</th>
-                    <th className='py-2 px-4 border-b text-center'>Día</th>
                     <th className='py-2 px-4 border-b text-center'>Series</th>
                     <th className='py-2 px-4 border-b text-center'>Observaciones</th>
                     <th className='py-2 px-4 border-b text-center'>Color</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rutinaItem.ejercicios.map((ejercicio, index) => (
+                  {ejercicios.map((ejercicio, index) => (
                     <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}>
                       <td className='py-2 px-4 border-b text-center'>{ejercicio.nombre}</td>
-                      <td className='py-2 px-4 border-b text-center'>{ejercicio.dia}</td>
                       <td className='py-2 px-4 border-b text-center'>{ejercicio.series}</td>
                       <td className='py-2 px-4 border-b text-center'>{ejercicio.observaciones}</td>
                       <td className='py-2 px-4 border-b text-center'>
-                        <span style={{ backgroundColor: ejercicio.color }}>{ejercicio.color}</span>
+                        <span style={{ backgroundColor: ejercicio.color, padding: '0.2em', borderRadius: '0.2em' }}>{ejercicio.color}</span>
                       </td>
                     </tr>
                   ))}
@@ -69,9 +80,11 @@ const VerRutina = () => {
               </table>
             </div>
           ))}
-          <button onClick={handleClose} className='bg-blue-500 text-white px-2 py-1 rounded mt-4'>
-            Cerrar
-          </button>
+          <div className='flex justify-end mt-4'>
+            <button onClick={handleClose} className='bg-blue-500 text-white px-4 py-2 rounded'>
+              Cerrar
+            </button>
+          </div>
         </div>
       ) : (
         <p>Cargando...</p>
