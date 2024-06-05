@@ -90,8 +90,8 @@ const SelectUserEvaluation = () => {
     return (
         <div className="container mx-auto p-4">
             <Header />
-            <h1 className="text-3xl font-bold text-center mb-4">Clientes</h1>
-            <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-bold text-center mb-4">Valoraciones</h1>
+            <div className="flex items-center justify-between mb-4 w-96 mx-auto">
                 <input
                     type="text"
                     placeholder="Buscar por nombre, apellido o cédula"

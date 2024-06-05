@@ -16,7 +16,7 @@ const ViewClients = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const [viewRoutine, setViewRoutine] = useState([]);
-  
+
 
   useEffect(() => {
     fetchClients();
@@ -51,7 +51,6 @@ const ViewClients = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      console.log(routinesData)
       setViewRoutine(routinesData);
       if (routinesData.length === 0) {
         ToastifyError('El cliente no tiene rutinas registradas');
@@ -77,7 +76,7 @@ const ViewClients = () => {
     const nombre = client.primerNombre + ' ' + client.primerApellido;
     confirmAlert({
       title: 'Confirmar Eliminación',
-      message: `¿Estás seguro de que deseas eliminar el cliente ${nombre}?`,
+      message: `¿Estás seguro de que deseas eliminar el cliente ${nombre} y todas sus valoraciones y rutinas?`,
       buttons: [
         {
           label: 'Sí',
@@ -135,10 +134,10 @@ const ViewClients = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <>
       <Header />
       <h1 className="text-3xl font-bold text-center mb-4">Clientes</h1>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 w-96 mx-auto">
         <input
           type="text"
           placeholder="Buscar por nombre, apellido o cédula"
@@ -153,6 +152,7 @@ const ViewClients = () => {
           Limpiar
         </button>
       </div>
+
       <div className="overflow-x-auto">
         <table className="table-fixed w-full">
           <thead>
@@ -177,16 +177,9 @@ const ViewClients = () => {
                           onClick={() => handleShowDetails(client)}
                           className="bg-yellow-500 hover:bg-green-700 text-white font-bold py-2 px-3 rounded"
                         >
-                          Ver Detalles
+                          Detalles
                         </button>
-                        {user.user.rol === 'administrador' && (
-                          <button
-                            onClick={() => handleViewRoutines(client)}
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-                          >
-                            Ver historial rutinas
-                          </button>
-                        )}
+
                         <button
                           onClick={() => handleEditClient(client)}
                           className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
@@ -222,6 +215,12 @@ const ViewClients = () => {
             <p><strong>Email:</strong> {selectedClient.email}</p>
             <p><strong>Teléfono:</strong> {selectedClient.telefono}</p>
             <p><strong>Observaciones/Enfermedades:</strong><br /> {selectedClient.observaciones}</p>
+            <button
+              onClick={() => handleViewRoutines(selectedClient)}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+            >
+              Ver historial rutinas
+            </button>
             <div className="mt-4 flex justify-center">
               <button onClick={() => setSelectedClient(null)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cerrar</button>
             </div>
@@ -229,44 +228,43 @@ const ViewClients = () => {
         </div>
       )}
       {viewRoutine.length > 0 && (
-  <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-    <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        Historial de Rutinas
-      </h2>
-      <div className="overflow-y-auto max-h-60">
-        {viewRoutine.map((routine, index) => (
-          <div key={routine.id} className="mb-4">
-            <p><strong>Rutina #{index + 1}</strong></p>
-            <p><strong>Fecha de Creación:</strong> {routine.fechaCreacion}</p>
-            <p><strong>Fecha de Cambio:</strong> {routine.fechaCambio}</p>
-            <ul>
-              {routine.ejercicios.map((ejercicio, ejIndex) => (
-                <li key={ejercicio.id}>
-                  <p><strong>Ejercicio #{ejIndex + 1}</strong></p>
-                  <p><strong>ID:</strong> {ejercicio.id}</p>
-                  <p><strong>Nombre:</strong> {ejercicio.nombre}</p>
-                  <p><strong>Día:</strong> {ejercicio.dia}</p>
-                  <p><strong>Color:</strong> {ejercicio.color}</p>
-                  <p><strong>Observaciones:</strong> {ejercicio.observaciones}</p>
-                  <p><strong>Series:</strong> {ejercicio.series}</p>
-                  
-                </li>
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              Historial de Rutinas
+            </h2>
+            <div className="overflow-y-auto max-h-60">
+              {viewRoutine.map((routine, index) => (
+                <div key={routine.id} className="mb-4">
+                  <p><strong>Rutina #{index + 1}</strong></p>
+                  <p><strong>Fecha de Creación:</strong> {routine.fechaCreacion}</p>
+                  <p><strong>Fecha de Cambio:</strong> {routine.fechaCambio}</p>
+                  <ul>
+                    {routine.ejercicios.map((ejercicio, ejIndex) => (
+                      <li key={ejercicio.id}>
+                        <p><strong>Ejercicio #{ejIndex + 1}</strong></p>
+                        <p><strong>ID:</strong> {ejercicio.id}</p>
+                        <p><strong>Nombre:</strong> {ejercicio.nombre}</p>
+                        <p><strong>Día:</strong> {ejercicio.dia}</p>
+                        <p><strong>Color:</strong> {ejercicio.color}</p>
+                        <p><strong>Observaciones:</strong> {ejercicio.observaciones}</p>
+                        <p><strong>Series:</strong> {ejercicio.series}</p>
+
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
+            <div className="mt-4 flex justify-center">
+              <button onClick={() => setViewRoutine([])} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cerrar Historial</button>
+            </div>
           </div>
-        ))}
-      </div>
-      <div className="mt-4 flex justify-center">
-        <button onClick={() => setViewRoutine([])} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cerrar Historial</button>
-      </div>
-    </div>
-  </div>
-)}
+        </div>
+      )}
 
 
-
-    </div>
+    </>
   );
 };
 

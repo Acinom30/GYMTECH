@@ -108,17 +108,17 @@ const SelectUserRoutine = () => {
 
     return (
 
-        <div className="container mx-auto p-4">
+        <>
             <Header />
-            <h1 className="text-3xl font-bold text-center mb-4">Clientes</h1>
-            <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-bold text-center mb-4">Rutinas</h1>
+            <div className="flex items-center justify-between mb-4 w-96 mx-auto">
                 <input
                     type="text"
                     placeholder="Buscar por nombre, apellido o cédula"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="border border-gray-300 p-2 rounded-md w-full"
-                />
+                    />
                 <button
                     onClick={() => setSearchTerm('')}
                     className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
@@ -256,7 +256,7 @@ const SelectUserRoutine = () => {
                     handleClick()
                 )
             ) : null}
-        </div>
+        </>
     );
 };
 

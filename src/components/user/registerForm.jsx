@@ -94,7 +94,7 @@ const RegisterForm = () => {
             <Header />
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <div className="md:w-2/3 px-4 py-8">
-                    <h1 className="text-3xl font-bold mb-4">Registrar Cliente</h1>
+                    <h1 className="text-3xl font-bold mb-4">Registrar Usuario</h1>
                     <form className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col space-y-4">
