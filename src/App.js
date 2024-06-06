@@ -23,6 +23,8 @@ import AddCategory from './components/category/addCategory';
 import CategoriesList from './components/category/categoriesList';
 import EditCategory from './components/category/editCategory';
 import ViewEvaluationHistory from './components/evaluations/viewEvaluationHistory';
+import ViewRoutineRecord from './components/routine/viewRoutineRecord';
+
 
 function App() {
   return (
@@ -51,6 +53,7 @@ function App() {
           <Route path="/categoriesList" element={<CategoriesList />} />
           <Route path="/editCategory/:id" element={<EditCategory />} />
           <Route path='/ViewEvaluationHistory' element={<ViewEvaluationHistory/>}/>
+          <Route path="/viewRoutineRecord" element={<ViewRoutineRecord />} />
 
         </Routes>
       </Router>
