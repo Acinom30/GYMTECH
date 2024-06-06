@@ -18,16 +18,14 @@ const Home = () => {
     }, [results]);
 
     const handleSearch = async () => {
-        const [firstName, lastName] = searchTerm.split(' ');
-        if (!firstName || !lastName) {
-            ToastifyError('Por favor, ingrese tanto el nombre como los apellidos');
+        if (!searchTerm) {
+            ToastifyError('Por favor, ingrese la cedula en formato 0-0000-0000');
             return;
         }
-        const q = query(collection(db, 'usuarios'), where('primerNombre', '==', firstName), where('primerApellido', '==', lastName));
+        const q = query(collection(db, 'usuarios'), where('cedula', '==', searchTerm));
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) {
             ToastifyError('Usuario no encontrado.');
-            setResults([]);
         } else {
             const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setResults(prevResults => [...prevResults, ...users.filter(user => !prevResults.some(r => r.id === user.id))]);
@@ -56,7 +54,7 @@ const Home = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className='w-full py-2 px-4 border border-gray-300 rounded-full focus:outline-none focus:border-yellow-500'
-                        placeholder="Buscar por nombre y apellidos"
+                        placeholder="Buscar cliente por cedula"
                     />
                     <i className='fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400'></i>
                 </div>
