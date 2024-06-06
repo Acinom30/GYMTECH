@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 import { useLocation } from 'react-router-dom';
@@ -6,10 +6,11 @@ import Header from '../general/navigationMenu';
 import { Link } from 'react-router-dom';
 import { db } from '../../firebase/config';
 import { addDoc, collection, doc } from 'firebase/firestore';
-
+import { useNavigate } from 'react-router-dom';
 
 
 const AssignEvaluation = () => {
+  const navigate = useNavigate();
 
   const formatDate = (date) => {
     return new Date(date).toISOString().split('T')[0];
@@ -88,33 +89,9 @@ const AssignEvaluation = () => {
       !formData.grasaBrazoDer ||
       !formData.grasaPiernaIzq ||
       !formData.grasaPiernaDer ||
-      !formData.grasaTorso ||
-      !formData.musculoCorporal ||
-      !formData.musculoBrazoIzq ||
-      !formData.musculoBrazoDer ||
-      !formData.musculoPiernaIzq ||
-      !formData.musculoPiernaDer ||
-      !formData.musculoTorso ||
-      !formData.porcentajeAgua ||
-      !formData.valoracionFisica ||
-      !formData.DCI_BMR ||
-      !formData.edadMetabolica ||
-      !formData.masaOsea ||
-      !formData.grasaVisceral ||
-      !formData.circunfPecho ||
-      !formData.circunfEspalda ||
-      !formData.circunfAntebrazoIzq ||
-      !formData.circunfAntebrazoDer ||
-      !formData.circunfBrazoIzq ||
-      !formData.circunfBrazoDer ||
-      !formData.circunfPiernaIzq ||
-      !formData.circunfPiernaDer ||
-      !formData.circunfPantorrillaIzq ||
-      !formData.circunfPantorrillaDer ||
-      !formData.circunfCintura ||
-      !formData.circunfCadera
+      !formData.grasaTorso
     )  {
-      ToastifyError("Por favor complete todos los campos obligatorios");
+      ToastifyError("Por favor complete los campos obligatorios");
       return;
     }
 
@@ -128,8 +105,9 @@ const AssignEvaluation = () => {
     try {
       const registerEvaluation = collection(db, "valoraciones");
       await addDoc(registerEvaluation, dataWithUserRef);
-
       ToastifySuccess("Se ha registrado el cliente correctamente");
+      navigate('/selectUserEvaluation');
+
       setFormData({
         objetivo: '',
         diasSemana: '',
@@ -210,7 +188,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Días a la semana</label>
                     <input
-                      type="text"
+                      type="number"
                       id="diasSemana"
                       name="diasSemana"
                       value={formData.diasSemana}
@@ -219,7 +197,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Peso</label>
                     <input
-                      type="text"
+                      type="number"
                       id="peso"
                       name="peso"
                       value={formData.peso}
@@ -284,7 +262,7 @@ const AssignEvaluation = () => {
                     </div>
                     <label className="block font-semibold">Grasa Corporal</label>
                     <input
-                      type="text"
+                      type="number"
                       id="grasaCorporal"
                       name="grasaCorporal"
                       value={formData.grasaCorporal}
@@ -293,7 +271,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Grasa Brazo Izquierdo</label>
                     <input
-                      type="text"
+                      type="number"
                       id="grasaBrazoIzq"
                       name="grasaBrazoIzq"
                       value={formData.grasaBrazoIzq}
@@ -302,7 +280,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Grasa Brazo Derecho</label>
                     <input
-                      type="text"
+                      type="number"
                       id="grasaBrazoDer"
                       name="grasaBrazoDer"
                       value={formData.grasaBrazoDer}
@@ -311,7 +289,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Grasa Pierna Izquierda</label>
                     <input
-                      type="text"
+                      type="number"
                       id="grasaPiernaIzq"
                       name="grasaPiernaIzq"
                       value={formData.grasaPiernaIzq}
@@ -320,7 +298,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Grasa Pierna Derecha</label>
                     <input
-                      type="text"
+                      type="number"
                       id="grasaPiernaDer"
                       name="grasaPiernaDer"
                       value={formData.grasaPiernaDer}
@@ -329,7 +307,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Grasa Torso</label>
                     <input
-                      type="text"
+                      type="number"
                       id="grasaTorso"
                       name="grasaTorso"
                       value={formData.grasaTorso}
@@ -338,7 +316,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Músculo Corporal</label>
                     <input
-                      type="text"
+                      type="number"
                       id="musculoCorporal"
                       name="musculoCorporal"
                       value={formData.musculoCorporal}
@@ -353,7 +331,7 @@ const AssignEvaluation = () => {
                   <div className="flex flex-col space-y-4">
                     <label className="block font-semibold">Músculo Brazo Izquierdo</label>
                     <input
-                      type="text"
+                      type="number"
                       id="musculoBrazoIzq"
                       name="musculoBrazoIzq"
                       value={formData.musculoBrazoIzq}
@@ -362,7 +340,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Músculo Brazo Derecho</label>
                     <input
-                      type="text"
+                      type="number"
                       id="musculoBrazoDer"
                       name="musculoBrazoDer"
                       value={formData.musculoBrazoDer}
@@ -371,7 +349,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Músculo Pierna Izquierda</label>
                     <input
-                      type="text"
+                      type="number"
                       id="musculoPiernaIzq"
                       name="musculoPiernaIzq"
                       value={formData.musculoPiernaIzq}
@@ -380,7 +358,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Músculo Pierna Derecha</label>
                     <input
-                      type="text"
+                      type="number"
                       id="musculoPiernaDer"
                       name="musculoPiernaDer"
                       value={formData.musculoPiernaDer}
@@ -389,7 +367,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Músculo Torso</label>
                     <input
-                      type="text"
+                      type="number"
                       id="musculoTorso"
                       name="musculoTorso"
                       value={formData.musculoTorso}
@@ -398,7 +376,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Porcentaje de Agua</label>
                     <input
-                      type="text"
+                      type="number"
                       id="porcentajeAgua"
                       name="porcentajeAgua"
                       value={formData.porcentajeAgua}
@@ -407,7 +385,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Valoración Física</label>
                     <input
-                      type="text"
+                      type="number"
                       id="valoracionFisica"
                       name="valoracionFisica"
                       value={formData.valoracionFisica}
@@ -416,7 +394,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">DCI/BMR</label>
                     <input
-                      type="text"
+                      type="number"
                       id="DCI_BMR"
                       name="DCI_BMR"
                       value={formData.DCI_BMR}
@@ -425,7 +403,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Edad Metabólica</label>
                     <input
-                      type="text"
+                      type="number"
                       id="edadMetabolica"
                       name="edadMetabolica"
                       value={formData.edadMetabolica}
@@ -434,7 +412,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Masa Ósea</label>
                     <input
-                      type="text"
+                      type="number"
                       id="masaOsea"
                       name="masaOsea"
                       value={formData.masaOsea}
@@ -452,7 +430,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Pecho</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfPecho"
                       name="circunfPecho"
                       value={formData.circunfPecho}
@@ -461,7 +439,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Espalda</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfEspalda"
                       name="circunfEspalda"
                       value={formData.circunfEspalda}
@@ -470,7 +448,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Antebrazo Izq</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfAntebrazoIzq"
                       name="circunfAntebrazoIzq"
                       value={formData.circunfAntebrazoIzq}
@@ -484,7 +462,7 @@ const AssignEvaluation = () => {
                   <div className="flex flex-col space-y-4">
                     <label className="block font-semibold">Circunferencia de Antebrazo Der</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfAntebrazoDer"
                       name="circunfAntebrazoDer"
                       value={formData.circunfAntebrazoDer}
@@ -493,7 +471,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Brazo Izq</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfBrazoIzq"
                       name="circunfBrazoIzq"
                       value={formData.circunfBrazoIzq}
@@ -502,7 +480,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Brazo Der</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfBrazoDer"
                       name="circunfBrazoDer"
                       value={formData.circunfBrazoDer}
@@ -511,7 +489,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Pierna Izq</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfPiernaIzq"
                       name="circunfPiernaIzq"
                       value={formData.circunfPiernaIzq}
@@ -520,7 +498,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Pierna Der</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfPiernaDer"
                       name="circunfPiernaDer"
                       value={formData.circunfPiernaDer}
@@ -529,7 +507,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Pantorrila Izq</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfPantorrillaIzq"
                       name="circunfPantorrillaIzq"
                       value={formData.circunfPantorrillaIzq}
@@ -538,7 +516,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Pantorrila Der</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfPantorrillaDer"
                       name="circunfPantorrillaDer"
                       value={formData.circunfPantorrillaDer}
@@ -547,7 +525,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Cintura</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfCintura"
                       name="circunfCintura"
                       value={formData.circunfCintura}
@@ -556,7 +534,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Circunferencia de Cadera</label>
                     <input
-                      type="text"
+                      type="number"
                       id="circunfCadera"
                       name="circunfCadera"
                       value={formData.circunfCadera}
@@ -565,7 +543,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Pliegues Triceps</label>
                     <input
-                      type="text"
+                      type="number"
                       id="plieguesTriceps"
                       name="plieguesTriceps"
                       value={formData.plieguesTriceps}
@@ -574,7 +552,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Pliegues Subescapular</label>
                     <input
-                      type="text"
+                      type="number"
                       id="plieguesSubescapular"
                       name="plieguesSubescapular"
                       value={formData.plieguesSubescapular}
@@ -583,7 +561,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Pliegues Abdomen</label>
                     <input
-                      type="text"
+                      type="number"
                       id="plieguesAbdomen"
                       name="plieguesAbdomen"
                       value={formData.plieguesAbdomen}
@@ -592,7 +570,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Pliegues Iliaco</label>
                     <input
-                      type="text"
+                      type="number"
                       id="plieguesIliaco"
                       name="plieguesIliaco"
                       value={formData.plieguesIliaco}
@@ -601,7 +579,7 @@ const AssignEvaluation = () => {
                     />
                     <label className="block font-semibold">Pliegues Muslo</label>
                     <input
-                      type="text"
+                      type="number"
                       id="plieguesMuslo"
                       name="plieguesMuslo"
                       value={formData.plieguesMuslo}
@@ -612,10 +590,10 @@ const AssignEvaluation = () => {
             </div>
 
             <div className="flex justify-center md:justify-end">
-              <Link to="/selectUserEvaluation" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+              <Link to="/selectUserEvaluation" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                 Cancelar
               </Link>
-              <button onClick={handleSubmit} type="button" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4">
+              <button onClick={handleSubmit} type="button" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
                 Guardar
               </button>
             </div>

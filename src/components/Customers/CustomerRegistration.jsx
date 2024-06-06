@@ -76,7 +76,7 @@ const CustomerRegistration = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen relative mt-10">
+        <div className="flex flex-col items-center justify-center min-h-screen relative mt-10 mb-5">
             <h1 className="text-3xl font-bold text-center mb-4">Registrar Cliente</h1>
             <img src={gymLogo} alt="GYMTECH Logo" className="w-24 h-24 mb-16 sm:w-32 sm:h-32 mb-10" />
             <div className="flex flex-col items-center">
@@ -110,12 +110,12 @@ const CustomerRegistration = () => {
                     className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8 text-center"
                 />
                 <div>
-                    <button onClick={handleBack} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded  mr-5">
+                    <button onClick={handleBack} className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                         Regresar
                     </button>
                     <button
                         onClick={handleRegister}
-                        className="bg-yellow-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded mb-4"
+                        className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white"
                     >
                         Registrar
                     </button>

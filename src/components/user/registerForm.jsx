@@ -94,7 +94,7 @@ const RegisterForm = () => {
             <Header />
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <div className="md:w-2/3 px-4 py-8">
-                    <h1 className="text-3xl font-bold mb-4">Registrar Cliente</h1>
+                    <h1 className="text-3xl font-bold mb-4">Registrar Usuario</h1>
                     <form className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col space-y-4">
@@ -232,10 +232,10 @@ const RegisterForm = () => {
                             </div>
                         </div>
                         <div className="flex justify-center md:justify-end">
-                            <Link to="/" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                            <Link to="/home" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                                 Cancelar
                             </Link>
-                            <button type="button" onClick={handleSubmit} className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4">
+                            <button type="button" onClick={handleSubmit} className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
                                 Guardar
                             </button>
                         </div>

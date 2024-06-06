@@ -49,7 +49,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen relative mt-16">
+    <div className="flex flex-col items-center justify-center min-h-screen relative mt-10">
       <h1 className="text-4xl font-bold mb-16">{title}</h1>
       <img src={gymLogo} alt="GYMTECH Logo" className="w-24 h-24 mb-16 sm:w-32 sm:h-32" />
       <input
@@ -66,7 +66,7 @@ const LoginForm = () => {
         onChange={handleChangeContraseña}
         className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-16 text-center"
       />
-        <button onClick={handleSubmit} className="w-full sm:w-80 bg-yellow-500 hover:bg-yellow-500 text-white font-bold py-3 px-6 rounded-full mb-16">Entrar</button>
+        <button onClick={handleSubmit} className="w-full sm:w-80 border text-black  text-white-700 font-bold py-3 px-6 rounded-full mb-10 text-center focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">Entrar</button>
 
       <Link to="/customerRegistration" className="w-full sm:w-80 border text-white-700 font-bold py-3 px-6 rounded-full mb-6 text-center hover:border-gray-400">
         Registrar
