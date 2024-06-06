@@ -17,7 +17,6 @@ const Header = () => {
         navigate('/')
     };
 
-
     const toggleClienteMenu = () => {
         setShowClientesMenu(!showClientesMenu)
         setShowRutinaMenu(false);
@@ -49,7 +48,7 @@ const Header = () => {
 
     return (
         <div>
-            {(user.rol === "administrador" || user.rol === "entrenador") && (
+            {(user.user.rol === 'administrador' || user.user.rol === 'entrenador') && (
                 <nav className="bg-yellow-500 p-4 shadow-lg">
                     <div className="mx-auto p-0 flex justify-between items-center">
                         <div>
@@ -93,6 +92,7 @@ const Header = () => {
                                             <Link to="/selectUserEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ingresar Valoración</Link>
                                             <Link to="/editEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Editar Valoración</Link>
                                             <Link to="/showEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Mostrar Valoración</Link>
+                                            <Link to="/viewEvaluationHistory" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ver Historial</Link>
                                             <Link to="/deleteEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Eliminar Valoración</Link>
                                         </div>
                                     </div>
@@ -108,7 +108,7 @@ const Header = () => {
                                 {showRutinaMenu && (
                                     <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                         <div className="py-1" role="none">
-                                            <Link to="/selectUserRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Crear Rutina</Link>
+                                            <Link to="/selectUserRoutine" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Gestionar Rutinas</Link>
                                         </div>
                                     </div>
                                 )}
@@ -123,8 +123,8 @@ const Header = () => {
                                 {showMantenimientoMenu && (
                                     <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                         <div className="py-1" role="none">
-                                            <Link to="/addExercises" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Agregar Ejercicios</Link>
-                                            <Link to="/editExercises" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Listar Ejercicios</Link>
+                                            <Link to="/editExercises" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Gestionar Ejercicios</Link>
+                                            <Link to="/categoriesList" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Gestionar Categorias</Link>
                                         </div>
                                     </div>
                                 )}
@@ -136,7 +136,7 @@ const Header = () => {
                 </nav>
             )}
 
-            {user.rol === "cliente" && (
+            {user.user.rol === 'cliente' && (
                 <nav className="bg-yellow-500 p-4 shadow-lg">
                     <div className="mx-auto p-0 flex justify-between items-center">
                         <div>
@@ -148,9 +148,9 @@ const Header = () => {
 
                             <Link to="/home" className="text-black hover:text-white">Inicio</Link>
 
-                            <Link to="/home" className="text-black hover:text-white">Ver mis valoraciones</Link>
+                            <Link to="/viewLatestEvaluation" className="text-black hover:text-white">Ver mis valoraciones</Link>
 
-                            <Link to="/home" className="text-black hover:text-white">Ver mis Rutinas</Link>
+                            <Link to="/viewLatestRoutine" className="text-black hover:text-white">Ver mis Rutinas</Link>
 
                             <Link to="/home" className="text-black hover:text-white">Editar perfil</Link>
 

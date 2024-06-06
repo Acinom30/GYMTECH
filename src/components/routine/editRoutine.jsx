@@ -165,6 +165,7 @@ const EditRoutine = () => {
     };
 
 
+
     const obtenerEjerciciosSeleccionado = async (categoriaId) => {
         const ejerciciosRef = collection(db, "ejercicios");
         const q = query(ejerciciosRef, where('categoria', '==', categoriaId));
@@ -394,7 +395,7 @@ const EditRoutine = () => {
                         <div className="flex justify-end mt-8">
                             <button
                                 onClick={handleSaveRoutine}
-                                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4"
+                                className="bg-yellow-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4"
                             >
                                 Actualizar Rutina
                             </button>

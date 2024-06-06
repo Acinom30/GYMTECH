@@ -17,6 +17,12 @@ import CustomerRegistration from './components/Customers/CustomerRegistration';
 import EditRoutine from './components/routine/editRoutine';
 import EditEvaluation from './components/evaluations/editEvaluation'
 import VerRutina from './components/routine/viewRoutine';
+import ViewLatestEvaluation from './components/evaluations/viewLatestEvaluation';
+import ViewLatestRoutine from './components/routine/viewLatestRoutine';
+import AddCategory from './components/category/addCategory';
+import CategoriesList from './components/category/categoriesList';
+import EditCategory from './components/category/editCategory';
+import ViewEvaluationHistory from './components/evaluations/viewEvaluationHistory';
 
 function App() {
   return (
@@ -39,6 +45,13 @@ function App() {
           <Route path="/editRoutine" element={<EditRoutine />} />
           <Route path="/editEvaluation" element={<EditEvaluation />} />
           <Route path="/rutina" element={<VerRutina />} />
+          <Route path="/viewLatestEvaluation" element={<ViewLatestEvaluation />} />
+          <Route path="/viewLatestRoutine" element={<ViewLatestRoutine />} />
+          <Route path="/addCategory" element={<AddCategory />} />
+          <Route path="/categoriesList" element={<CategoriesList />} />
+          <Route path="/editCategory/:id" element={<EditCategory />} />
+          <Route path='/ViewEvaluationHistory' element={<ViewEvaluationHistory/>}/>
+
         </Routes>
       </Router>
     </UserProvider>

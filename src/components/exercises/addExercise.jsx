@@ -11,7 +11,8 @@ const AddExercise = () => {
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: '',
-        categoria: ''
+        categoria: '',
+        url: '',
     });
 
     useEffect(() => {
@@ -54,7 +55,8 @@ const AddExercise = () => {
             setFormData({
                 nombre: '',
                 descripcion: '',
-                categoria: ''
+                categoria: '',
+                url: '',
             });
         } catch (error) {
             console.error("Error al guardar el ejercicio:", error);
@@ -108,10 +110,18 @@ const AddExercise = () => {
                             ))}
                         </select>
                     </div>
-
+                    <label htmlFor="url" className="block font-semibold mb-5">Url del ejercicio</label>
+                    <input
+                        type="text"
+                        id="url"
+                        name="url"
+                        value={formData.url}
+                        onChange={handleChange}
+                        className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-8 text-center"
+                        />
                     <div className="flex justify-center md:justify-end">
-                        <Link to="/home" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-                            Cancelar
+                        <Link to="/editExercises" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                            Volver
                         </Link>
                         <button onClick={handleSubmit} type="submit" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4">
                             Guardar

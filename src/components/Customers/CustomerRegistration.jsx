@@ -115,7 +115,7 @@ const CustomerRegistration = () => {
                     </button>
                     <button
                         onClick={handleRegister}
-                        className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mb-4"
+                        className="bg-yellow-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded mb-4"
                     >
                         Registrar
                     </button>
