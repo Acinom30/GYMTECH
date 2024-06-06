@@ -24,13 +24,6 @@ const Header = () => {
         setShowValoracionesMenu(false);
     };
 
-    const toggleRutinaMenu = () => {
-        setShowRutinaMenu(!showRutinaMenu);
-        setShowMantenimientoMenu(false);
-        setShowValoracionesMenu(false);
-        setShowClientesMenu(false)
-    };
-
     const toggleMantenimientoMenu = () => {
         setShowMantenimientoMenu(!showMantenimientoMenu);
         setShowRutinaMenu(false);
@@ -59,8 +52,6 @@ const Header = () => {
                         <nav className="space-x-4">
 
                             <Link to="/home" className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">Inicio</Link>
-
-                            <Link to="/activeList" className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">ASISTENCIA</Link>
 
                             <div className="relative inline-block text-left">
                                 <button type="button" onClick={toggleClienteMenu} className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">
@@ -91,7 +82,6 @@ const Header = () => {
                                         <div className="py-1" role="none">
                                             <Link to="/selectUserEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ingresar Valoración</Link>
                                             <Link to="/viewEvaluationHistory" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Ver Historial</Link>
-                                            <Link to="/deleteEvaluation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Eliminar Valoración</Link>
                                         </div>
                                     </div>
                                 )}
@@ -140,7 +130,7 @@ const Header = () => {
 
                             <Link to="/viewLatestRoutine" className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">Ver mis Rutinas</Link>
 
-                            <Link to="/home" className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">Editar perfil</Link>
+                            <Link to="/changePassword" className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">Cambiar contraseña</Link>
 
                             <button onClick={handleLogout}>Cerrar Sesión</button>
                         </nav>

@@ -166,17 +166,17 @@ const ViewLatestRoutine = () => {
                 <p className="text-center text-gray-500">No hay rutinas disponibles.</p>
             ) : (
                 <div className="flex justify-center mt-4">
-                    <button onClick={handleBack} className="bg-gray-500 text-white py-2 px-4 rounded-md mr-5">Atrás</button>
+                    <button onClick={handleBack} className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">Atrás</button>
 
                     {secondLatestRoutineIndex !== null && showButton && (
-                        <button onClick={() => handleShowSecondLatestRoutine()} className="bg-blue-500 text-white py-2 px-4 rounded-md mr-5">Penúltima Rutina</button>
+                        <button onClick={() => handleShowSecondLatestRoutine()} className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white mr-3">Penúltima Rutina</button>
                     )}
                     <PDFDownloadLink
                         document={<RoutinePdfDocument routine={routineData[currentRoutineIndex]} ejerciciosPorDia={ejerciciosPorDia} />}
                         fileName="routine.pdf"
                     >
                         {({ loading }) => (
-                            <button className="bg-green-500 text-white py-2 px-4 rounded-md">
+                            <button className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white">
                                 {loading ? 'Generando PDF...' : 'Descargar PDF'}
                             </button>
                         )}

@@ -22,6 +22,7 @@ import AddCategory from './components/category/addCategory';
 import CategoriesList from './components/category/categoriesList';
 import EditCategory from './components/category/editCategory';
 import ViewEvaluationHistory from './components/evaluations/viewEvaluationHistory';
+import ChangePassword from './components/user/changePassword';
 
 function App() {
   return (
@@ -48,7 +49,8 @@ function App() {
           <Route path="/addCategory" element={<AddCategory />} />
           <Route path="/categoriesList" element={<CategoriesList />} />
           <Route path="/editCategory/:id" element={<EditCategory />} />
-          <Route path='/ViewEvaluationHistory' element={<ViewEvaluationHistory/>}/>
+          <Route path='/viewEvaluationHistory' element={<ViewEvaluationHistory/>}/>
+          <Route path='/changePassword' element={<ChangePassword/>}/>
 
         </Routes>
       </Router>

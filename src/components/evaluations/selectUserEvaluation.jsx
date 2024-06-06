@@ -1,42 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { collection, getDocs, orderBy, query, where, doc } from 'firebase/firestore';
+import React, { useState } from 'react';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { useNavigate } from 'react-router-dom';
+import ViewClientList from '../general/viewClientList';
+import { useUser } from '../../userContext';
 
 const SelectUserEvaluation = () => {
     const navigate = useNavigate();
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const isMounted = useRef(false);
     const [modalType, setModalType] = useState(null);
     const [valoraciones, setValoraciones] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const { user } = useUser();
 
-    useEffect(() => {
-        isMounted.current = true;
-        const fetchClients = async () => {
-            const querySnapshot = await getDocs(collection(db, 'usuarios'));
-            const clientsData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            const filteredClients = clientsData.filter(client => {
-                const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const fullName = normalize(`${client.primerNombre} ${client.primerApellido}`).toLowerCase();
-                const cedula = normalize(client.cedula).toLowerCase();
-                const searchTermLower = normalize(searchTerm).toLowerCase();
-                return fullName.includes(searchTermLower) || cedula.includes(searchTermLower);
-            });
-            setClients(filteredClients);
-        };
-
-        fetchClients();
-        return () => {
-            isMounted.current = false;
-        };
-    }, [searchTerm]);
 
     const calculateDays = (client) => {
         if (client && client.fechaRegistro) {
@@ -49,9 +27,7 @@ const SelectUserEvaluation = () => {
     };
 
     const handleClickAdd = () => {
-        if (isMounted.current) {
-            navigate('/assignEvaluation', { state: { client: selectedClient } });
-        }
+        navigate('/assignEvaluation', { state: { client: selectedClient } });
     };
 
     const handleAddEvent = (client) => {
@@ -80,7 +56,7 @@ const SelectUserEvaluation = () => {
                 id: doc.id,
                 ...doc.data(),
             }));
-            setValoraciones(valoracionesList)
+        setValoraciones(valoracionesList)
     };
 
     const handleEditEvaluation = (valoracionId) => {
@@ -88,66 +64,19 @@ const SelectUserEvaluation = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
+        <>
             <Header />
             <h1 className="text-3xl font-bold text-center mb-4">Valoraciones</h1>
-            <div className="flex items-center justify-between mb-4 w-96 mx-auto">
-                <input
-                    type="text"
-                    placeholder="Buscar por nombre, apellido o cédula"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="border border-gray-300 p-2 rounded-md w-full"
-                />
-                <button
-                    onClick={() => setSearchTerm('')}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                >
-                    Limpiar
-                </button>
-            </div>
-            <div className="overflow-x-auto">
-                <table className="table-fixed w-full">
-                    <thead>
-                        <tr>
-                            <th className="w-1/4 px-4 py-2">Nombre</th>
-                            <th className="w-1/4 px-4 py-2">Apellido</th>
-                            <th className="w-1/4 px-4 py-2">Cédula</th>
-                            <th className="w-1/4 px-4 py-2">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {clients.map(client => (
-                            <tr key={client.id} className='text-center'>
-                                {client.cedula !== '1' && (
-                                    <>
-                                        <td className="border px-4 py-2">{client.primerNombre}</td>
-                                        <td className="border px-4 py-2">{client.primerApellido}</td>
-                                        <td className="border px-4 py-2">{client.cedula}</td>
-                                        <td className="border px-4 py-2">
-                                            <div className="inline-flex gap-5">
-                                                <button
-                                                    onClick={() => handleAddEvent(client)}
-                                                    className="bg-yellow-500 hover:bg-gree-700 text-white font-bold py-2 px-3 rounded"
-                                                >
-                                                    Agregar Valoración
-                                                </button>
-                                                <button
-                                                    onClick={() => handleEditEvent(client)}
-                                                    className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-                                                >
-                                                    Editar Valoración
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </>
-                                )}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
+            <ViewClientList
+                clients={clients}
+                handlePrimaryAction={handleAddEvent}
+                primaryActionLabel="Agregar"
+                handleSecondaryAction={handleEditEvent}
+                secondaryActionLabel="Editar"
+                handleTertiaryAction={'handleDeleteEvent'}
+                tertiaryActionLabel="Eliminar"
+                user={user}
+            />
             {modalType === '2' && showModal && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                     <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
@@ -218,7 +147,7 @@ const SelectUserEvaluation = () => {
                     handleClickAdd()
                 )
             ) : null}
-        </div>
+        </>
     );
 };
 

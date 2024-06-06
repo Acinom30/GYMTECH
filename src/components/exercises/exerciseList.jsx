@@ -3,9 +3,7 @@ import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { useUser } from '../../userContext'
@@ -14,7 +12,6 @@ const ExercisesList = () => {
     const [exercises, setExercises] = useState([]);
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState({});
-    const navigate = useNavigate();
     const { user } = useUser();
 
 
@@ -73,13 +70,28 @@ const ExercisesList = () => {
 
     return (
         <div >
-        <Header />
+            <Header />
             <div className="flex flex-col items-center justify-center relative mr-5 ml-5">
-                <h1 className="text-3xl font-bold mb-10">Lista de Ejercicios</h1>
+                <div className="flex flex-col items-center w-full mb-4">
+                    <div className="flex justify-center w-full mb-4">
+                        <h1 className="text-3xl font-bold">Lista de Ejercicios</h1>
+                    </div>
+                    <div className="flex justify-end w-full">
+                        <div className="flex space-x-4">
+                            <Link to="/home" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-1">
+                                Volver
+                            </Link>
+                            <Link to="/addExercises" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white">
+                                Agregar Ejercicio
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+                <br />
                 {loading ? (
                     <p>Cargando ejercicios...</p>
                 ) : (
-                    
+
                     <table className="min-w-full divide-y divide-gray-200 p-10">
                         <thead>
                             <tr>
@@ -98,14 +110,14 @@ const ExercisesList = () => {
                                     <td className="px-6 py-4 flex justify-center">
                                         <Link
                                             to={`/editExercise/${exercise.id}`}
-                                            className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded mr-2"
+                                            className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white mr-5"
                                         >
                                             Editar
                                         </Link>
                                         {user.user.rol === 'administrador' && (
                                             <button
                                                 onClick={() => handleDeleteExercise(exercise)}
-                                                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
+                                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
                                             >
                                                 Eliminar
                                             </button>
@@ -116,14 +128,7 @@ const ExercisesList = () => {
                         </tbody>
                     </table>
                 )}
-                <div className="flex justify-between md:justify-end mt-6">
-                    <Link to="/home" className="bg-gray-700 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-4">
-                        Volver
-                    </Link>
-                    <Link to="/addExercises" className="bg-yellow-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                        Agregar Ejercicio
-                    </Link>
-                </div>
+
             </div>
         </div>
     );

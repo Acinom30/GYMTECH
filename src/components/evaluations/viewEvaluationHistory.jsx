@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Header from "../general/navigationMenu";
-import { useUser } from '../../userContext';
 import { collection, query, where, getDocs, doc, orderBy } from "firebase/firestore";
 import { db } from '../../firebase/config';
 
@@ -113,7 +112,20 @@ const ViewEvaluationHistory = () => {
         return cedulaOrPassportRegex.test(str);
     };
 
+    const fieldPriority = ['objetivo', 'peso', 'edadMetabolica'];
 
+    const sortFields = (a, b) => {
+        const indexA = fieldPriority.indexOf(a);
+        const indexB = fieldPriority.indexOf(b);
+        if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+    };
+
+    const formatAttributeName = (name) => {
+        return name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    };
 
     const handleUserSelection = (userId) => {
         fetchEvaluationData(userId);
@@ -146,16 +158,17 @@ const ViewEvaluationHistory = () => {
                             <div key={index} className="bg-white shadow-md rounded-md p-4 mb-4">
                                 <h3 className="text-xl font-bold mb-2">Valoración {index + 1}:</h3>
                                 <p className="mb-2">Fecha de Valoración: {evaluation.fechaValoracion}</p>
-                                <button className="bg-green-500 text-white px-4 py-2 rounded-md mb-2" onClick={() => handleShowDetails(index)}>Mostrar Detalles</button>
+                                <button className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white" onClick={() => handleShowDetails(index)}>Mostrar Detalles</button>
                                 {evaluation.showDetails && (
                                     <ul>
                                         {Object.entries(evaluation)
-                                            .filter(([key]) => !['usuario', 'fechaValoracion', 'showDetails'].includes(key))
-                                            .map(([key, value]) => (
-                                                <li key={key}>
-                                                    <span className="font-semibold">{key}:</span> {value.toString()}
-                                                </li>
-                                            ))}
+                                        .filter(([key]) => !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales', 'showDetails'].includes(key))
+                                        .sort(([keyA], [keyB]) => sortFields(keyA, keyB))
+                                        .map(([key, value]) => (
+                                            <li key={key}>
+                                                <span className="font-semibold">{formatAttributeName(key)}:</span> {value.toString()}
+                                            </li>
+                                        ))}
                                     </ul>
                                 )}
                             </div>
@@ -183,9 +196,9 @@ const ViewEvaluationHistory = () => {
                     placeholder="Buscar por nombre, apellido o cédula"
                     value={searchTerm}
                     onChange={handleSearchTermChange}
-                    className="border border-gray-300 p-2 rounded-md w-full mr-5"
+                    className="w-full py-2 px-4 border border-gray-300 rounded-full focus:outline-none focus:border-yellow-500"
                     />
-                <button onClick={handleSearch} className="bg-blue-500 text-white px-4 py-2 rounded-md">Buscar</button>
+                <button onClick={handleSearch} className="---ml-4 py-2 px-4 bg-gray-500 text-white font-bold rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 ml-5">Buscar</button>
             </div>
             {userSelection.length > 0 && showUserSelection && (
 
