@@ -68,17 +68,18 @@ const ViewEvaluationHistory = () => {
                 id: doc.id,
                 ...doc.data(),
             }));
-            const searchTermLower = searchTerm.trim().toLowerCase();
-
+    
+            const searchTermNormalized = searchTerm.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    
             const filteredUsers = usersData.filter(user => {
-                const fullName = `${user.primerNombre} ${user.segundoNombre || ''} ${user.primerApellido} ${user.segundoApellido || ''}`.toLowerCase();
-                const cedula = user.cedula.toLowerCase();
-                return fullName.includes(searchTermLower) || cedula.includes(searchTermLower);
+                const fullNameNormalized = `${user.primerNombre} ${user.segundoNombre || ''} ${user.primerApellido} ${user.segundoApellido || ''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); 
+                const cedula = user.cedula.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); 
+                return fullNameNormalized.includes(searchTermNormalized) || cedula.includes(searchTermNormalized); 
             });
-
+    
             if (filteredUsers.length > 0) {
                 setUserSelection(filteredUsers);
-                setUserData(userSelection)
+                setUserData(userSelection);
                 setEvaluationData([]);
                 setNoEvaluations(false);
                 setShowUserSelection(true);
@@ -87,13 +88,13 @@ const ViewEvaluationHistory = () => {
                 setNoEvaluations(true);
                 setUserSelection([]);
                 setShowUserSelection(false);
-
             }
         } catch (error) {
             console.error('Error searching user: ', error);
             setNoEvaluations(true);
         }
     };
+    
 
 
     const handleSearch = () => {
