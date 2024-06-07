@@ -23,6 +23,7 @@ import AddCategory from './components/category/addCategory';
 import CategoriesList from './components/category/categoriesList';
 import EditCategory from './components/category/editCategory';
 import ViewEvaluationHistory from './components/evaluations/viewEvaluationHistory';
+import ViewRoutineRecord from './components/routine/viewRoutineRecord';
 import ChangePassword from './components/user/changePassword';
 import HomeClient from './components/general/homeClient'
 
@@ -52,10 +53,10 @@ function App() {
           <Route path="/addCategory" element={<AddCategory />} />
           <Route path="/categoriesList" element={<CategoriesList />} />
           <Route path="/editCategory/:id" element={<EditCategory />} />
+          <Route path="/viewRoutineRecord" element={<ViewRoutineRecord />} />
           <Route path='/viewEvaluationHistory' element={<ViewEvaluationHistory/>}/>
           <Route path='/changePassword' element={<ChangePassword/>}/>
           <Route path='/homeClient' element={<HomeClient/>}/>
-
         </Routes>
       </Router>
     </UserProvider>
