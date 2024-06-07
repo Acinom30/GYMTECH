@@ -8,7 +8,6 @@ import { db } from '../../firebase/config';
 import { useUser } from '../../userContext'; 
 import ToastifyError from '../ui/toastify/toastifyError';
 
-
 const LoginForm = () => {
   const [title] = useState("GYMTECH");
   const [cedula, setCedula] = useState("");
@@ -28,7 +27,7 @@ const LoginForm = () => {
     const q = query(collection(db, 'usuarios'), where("cedula", "==", cedula));
     const querySnapshot = await getDocs(q);
     if (!cedula || !contraseña) {
-      ToastifyError('Ingrese los datos de cedula y contraseña')
+      ToastifyError('Ingrese los datos de cedula y contraseña');
       return;
     }
     if (querySnapshot.empty) {
@@ -43,9 +42,14 @@ const LoginForm = () => {
         ToastifyError('La contraseña no coincide');
         return;
       }
-      setUser({ user: userData }); 
+      setUser({ user: userData });
+
+      if (userData.rol === 'cliente') {
+        navigate('/homeClient');
+      } else {
+        navigate('/home');
+      }
     }
-    navigate('/home')
   };
 
   return (
@@ -66,8 +70,9 @@ const LoginForm = () => {
         onChange={handleChangeContraseña}
         className="w-full sm:w-96 bg-gray-200 rounded-md px-4 py-3 mb-16 text-center"
       />
-        <button onClick={handleSubmit} className="w-full sm:w-80 border text-black  text-white-700 font-bold py-3 px-6 rounded-full mb-10 text-center focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">Entrar</button>
-
+      <button onClick={handleSubmit} className="w-full sm:w-80 border text-black text-white-700 font-bold py-3 px-6 rounded-full mb-10 text-center focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
+        Entrar
+      </button>
       <Link to="/customerRegistration" className="w-full sm:w-80 border text-white-700 font-bold py-3 px-6 rounded-full mb-6 text-center hover:border-gray-400">
         Registrar
       </Link>

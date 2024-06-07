@@ -13,7 +13,7 @@ import UserUpdate from './components/user/userUpdate';
 import AddExercise from './components/exercises/addExercise';
 import EditExercise from './components/exercises/editExercise';
 import ExercisesList from './components/exercises/exerciseList';
-import CustomerRegistration from './components/Customers/CustomerRegistration';
+import CustomerRegistration from './components/customers/CustomerRegistration';
 import EditRoutine from './components/routine/editRoutine';
 import EditEvaluation from './components/evaluations/editEvaluation'
 import VerRutina from './components/routine/viewRoutine';
@@ -24,6 +24,7 @@ import CategoriesList from './components/category/categoriesList';
 import EditCategory from './components/category/editCategory';
 import ViewEvaluationHistory from './components/evaluations/viewEvaluationHistory';
 import ChangePassword from './components/user/changePassword';
+import HomeClient from './components/general/homeClient'
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
           <Route path="/editCategory/:id" element={<EditCategory />} />
           <Route path='/viewEvaluationHistory' element={<ViewEvaluationHistory/>}/>
           <Route path='/changePassword' element={<ChangePassword/>}/>
+          <Route path='/homeClient' element={<HomeClient/>}/>
 
         </Routes>
       </Router>
