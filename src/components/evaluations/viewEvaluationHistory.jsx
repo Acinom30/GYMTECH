@@ -158,17 +158,20 @@ const ViewEvaluationHistory = () => {
                             <div key={index} className="bg-white shadow-md rounded-md p-4 mb-4">
                                 <h3 className="text-xl font-bold mb-2">Valoración {index + 1}:</h3>
                                 <p className="mb-2">Fecha de Valoración: {evaluation.fechaValoracion}</p>
-                                <button className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white" onClick={() => handleShowDetails(index)}>Mostrar Detalles</button>
+                                <button className="mb-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white" onClick={() => handleShowDetails(index)}>Mostrar Detalles</button>
                                 {evaluation.showDetails && (
                                     <ul>
                                         {Object.entries(evaluation)
-                                        .filter(([key]) => !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales', 'showDetails'].includes(key))
-                                        .sort(([keyA], [keyB]) => sortFields(keyA, keyB))
-                                        .map(([key, value]) => (
-                                            <li key={key}>
-                                                <span className="font-semibold">{formatAttributeName(key)}:</span> {value.toString()}
-                                            </li>
-                                        ))}
+                                            .filter(([key, value]) =>
+                                                !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales', 'showDetails'].includes(key) && value !== ''
+                                            )
+                                            .sort(([keyA], [keyB]) => sortFields(keyA, keyB))
+                                            .map(([key, value]) => (
+                                                <li key={key}>
+                                                    <span className="font-semibold">{formatAttributeName(key)}:</span> {value.toString()}
+                                                </li>
+                                            ))
+                                        }
                                     </ul>
                                 )}
                             </div>
@@ -197,7 +200,7 @@ const ViewEvaluationHistory = () => {
                     value={searchTerm}
                     onChange={handleSearchTermChange}
                     className="w-full py-2 px-4 border border-gray-300 rounded-full focus:outline-none focus:border-yellow-500"
-                    />
+                />
                 <button onClick={handleSearch} className="---ml-4 py-2 px-4 bg-gray-500 text-white font-bold rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 ml-5">Buscar</button>
             </div>
             {userSelection.length > 0 && showUserSelection && (

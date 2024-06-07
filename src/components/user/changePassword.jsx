@@ -39,6 +39,10 @@ const ChangePassword = () => {
             return;
         }
 
+        if (formData.newPassword.length < 8) {
+            ToastifyError('La contraseña debe tener mínimo 8 caracterres.');
+            return;
+        }
         const usersCollection = collection(db, "usuarios");
         const querySnapshot = await getDocs(query(usersCollection, where("cedula", "==", user.user.cedula)));
         const userDoc = querySnapshot.docs[0];

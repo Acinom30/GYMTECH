@@ -158,7 +158,7 @@ const UserUpdate = () => {
                             <div className="flex flex-col space-y-4">
                                 <label htmlFor="telefono" className="block font-semibold">Teléfono</label>
                                 <input
-                                    type="tel"
+                                    type="number"
                                     id="telefono"
                                     name="telefono"
                                     value={formData.telefono}
@@ -167,7 +167,7 @@ const UserUpdate = () => {
                                 />
                                 <label htmlFor="email" className="block font-semibold">Email</label>
                                 <input
-                                    type="email"
+                                    type="text"
                                     id="email"
                                     name="email"
                                     value={formData.email}
