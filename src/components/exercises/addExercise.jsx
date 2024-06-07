@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 
+
 const AddExercise = () => {
     const navigate = useNavigate();
     const [categorias, setCategorias] = useState([]);
@@ -80,7 +81,7 @@ const AddExercise = () => {
     return (
         <div>
             <Header />
-            <div className="flex flex-col items-center justify-center relative">
+            <div className="flex flex-col items-center justify-center relative mb-5 mt-14">
                 <h1 className="text-3xl font-bold mb-10">Registrar Ejercicio</h1>
                     <label htmlFor="nombre" className="block font-semibold mb-5">Nombre del ejercicio</label>
                     <input

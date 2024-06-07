@@ -124,7 +124,7 @@ const Header = () => {
                         </div>
                         <nav className="space-x-4">
 
-                            <Link to="/home" className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">Inicio</Link>
+                            <Link to="/homeClient" className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">Inicio</Link>
 
                             <Link to="/viewLatestEvaluation" className="text-black hover:bg-gray-700 hover:text-white rounded-full px-4 py-2">Ver mis valoraciones</Link>
 

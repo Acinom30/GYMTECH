@@ -160,7 +160,6 @@ const EditRoutine = () => {
             color: ejercicio.color
         });
         setEjercicioSeleccionado(ejercicio);
-        //setDiaSeleccionado(diaSeleccionado); // Si es necesario, establece el día seleccionado en el estado
         handleDeleteExercise(index);
     };
 
@@ -182,6 +181,10 @@ const EditRoutine = () => {
     };
 
     const handleSaveRoutine = async () => {
+        if(rutina.length === 0) {
+            ToastifyError("Debe ingresar ejercicios a la rutina")
+            return;
+        }
         try {
             const rutinaRef = doc(db, "rutinas", routineId);
             await updateDoc(rutinaRef, {

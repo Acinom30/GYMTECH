@@ -5,9 +5,12 @@ import { db } from '../../firebase/config';
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import Header from '../general/navigationMenu';
+import { useNavigate } from 'react-router-dom';
+
 
 const EditCategory = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: ''
@@ -46,9 +49,14 @@ const EditCategory = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!formData.nombre || !formData.descripcion) {
+            ToastifyError("Por favor, complete todos los campos obligatorios");
+            return;
+        }
         try {
             await updateDoc(doc(db, 'categorias', id), formData);
             ToastifySuccess('Categoría actualizada correctamente');
+            navigate('/categoriesList')
         } catch (error) {
             ToastifyError('Error al actualizar la categoría');
         }
@@ -57,7 +65,7 @@ const EditCategory = () => {
     return (
         <div>
             <Header />
-            <div className="flex flex-col items-center justify-center relative">
+            <div className="flex flex-col items-center justify-center relative mb-5 mt-14">
                 <h1 className="text-3xl font-bold mb-10">Editar Categoría</h1>
                 {loading ? (
                     <p>Cargando categoría...</p>

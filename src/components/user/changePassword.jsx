@@ -56,7 +56,7 @@ const ChangePassword = () => {
                     try {
                         await updateDoc(userRef, { contrasena: hashedNewPassword });
                         ToastifySuccess("Contraseña actualizada correctamente");
-                        navigate('/home')
+                        navigate('/homeClient')
                         setFormData({
                             currentPassword: '',
                             newPassword: '',
