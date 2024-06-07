@@ -160,7 +160,6 @@ const EditRoutine = () => {
             color: ejercicio.color
         });
         setEjercicioSeleccionado(ejercicio);
-        //setDiaSeleccionado(diaSeleccionado); // Si es necesario, establece el día seleccionado en el estado
         handleDeleteExercise(index);
     };
 
@@ -182,6 +181,10 @@ const EditRoutine = () => {
     };
 
     const handleSaveRoutine = async () => {
+        if(rutina.length === 0) {
+            ToastifyError("Debe ingresar ejercicios a la rutina")
+            return;
+        }
         try {
             const rutinaRef = doc(db, "rutinas", routineId);
             await updateDoc(rutinaRef, {
@@ -229,7 +232,7 @@ const EditRoutine = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8">
+        <div>
             <Header />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div>
@@ -307,11 +310,11 @@ const EditRoutine = () => {
                                 ))
                             }
                         </div>
-                        <div className="flex justify-end">
-                            <button onClick={() => navigate('/selectUserRoutine')} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
+                        <div className="mt-5 justify-end">
+                            <button onClick={() => navigate('/selectUserRoutine')} type="button" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                                 Atrás
                             </button>
-                            <button onClick={handleAddExercise} type="button" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
+                            <button onClick={handleAddExercise} type="button" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
                                 Agregar
                             </button>
                         </div>
@@ -395,7 +398,7 @@ const EditRoutine = () => {
                         <div className="flex justify-end mt-8">
                             <button
                                 onClick={handleSaveRoutine}
-                                className="bg-yellow-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4"
+                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white"
                             >
                                 Actualizar Rutina
                             </button>

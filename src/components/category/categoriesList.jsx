@@ -62,56 +62,64 @@ const CategoriesList = () => {
     };
 
     return (
-        <div >
-        <Header />
-            <div className="flex flex-col items-center justify-center relative mr-5 ml-5">
-                <h1 className="text-3xl font-bold mb-10">Lista de Categorías</h1>
-                {loading ? (
-                    <p>Cargando categorías...</p>
-                ) : (
-                    <table className="min-w-full divide-y divide-gray-200 p-10">
-                        <thead>
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {categories.map(category => (
-                                <tr key={category.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap">{category.nombre}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{category.descripcion}</td>
-                                    <td className="px-6 py-4 flex justify-center">
-                                    <Link
-                                            to={`/editCategory/${category.id}`}
-                                            className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded mr-2"
-                                        >
-                                            Editar
-                                        </Link>
-                                        {user.user.rol === 'administrador' && (
-                                            <button
-                                                onClick={() => handleDeleteCategory(category)}
-                                                className="bg-yellow-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded"
-                                            >
-                                                Eliminar
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-                <div className="flex justify-center md:justify-end mt-6">
-                    <Link to="/home" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-4">
-                        Volver
-                    </Link>
-                    <Link to="/addCategory" className="bg-yellow-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                        Agregar Categoria
-                    </Link>
+        <div>
+            <Header />
+            <div className="flex flex-col items-center justify-center relative mr-10 ml-10 mt-14">
+                <div className="flex flex-col items-center w-full mb-4">
+                    <div className="flex justify-center w-full mb-4">
+                        <h1 className="text-3xl font-bold">Lista de Categorías</h1>
+                    </div>
+                    <div className="flex justify-end w-full">
+                        <div className="flex space-x-4">
+                            <Link to="/home" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-1">
+                                Volver
+                            </Link>
+                            <Link to="/addCategory" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white">
+                                Agregar Categoria
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <br />
+            {loading ? (
+                <p>Cargando categorías...</p>
+            ) : (
+                <table className="min-w-full divide-y divide-gray-200 p-10">
+                    <thead>
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">Nombre</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">Descripción</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {categories.map(category => (
+                            <tr key={category.id}>
+                                <td className="px-6 py-4 whitespace-normal">{category.nombre}</td>
+                                <td className="px-6 py-4 whitespace-normal">{category.descripcion}</td>
+                                <td className="px-6 py-4 flex justify-center">
+                                    <Link
+                                        to={`/editCategory/${category.id}`}
+                                        className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white mr-5"
+                                        >
+                                        Editar
+                                    </Link>
+                                    {user.user.rol === 'administrador' && (
+                                        <button
+                                            onClick={() => handleDeleteCategory(category)}
+                                            className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                            >
+                                            Eliminar
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+
         </div>
     );
 };

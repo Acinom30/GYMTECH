@@ -37,7 +37,7 @@ const Home = () => {
     }
 
     const handleVerRutina = (id) => {
-        navigate(`/rutina`, { state: { clientId: id }});
+        navigate(`/rutina`, { state: { clientId: id } });
     };
 
     return (
@@ -62,7 +62,7 @@ const Home = () => {
                     onClick={handleSearch}
                     className='ml-4 py-2 px-4 bg-yellow-500 text-white font-bold rounded-full hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50'
                 >
-                    Buscar
+                    Agregar
                 </button>
             </div>
             <br />
@@ -74,20 +74,19 @@ const Home = () => {
                                 <th className='py-2 px-4 border-b text-center'>Nombre</th>
                                 <th className='py-2 px-4 border-b text-center'>Apellidos</th>
                                 <th className='py-2 px-4 border-b text-center'>Cédula</th>
-                                <th className='py-2 px-4 border-b text-center'>Estado</th>
                                 <th className='py-2 px-4 border-b text-center'>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {results.map((user, index) => (
                                 <tr key={user.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}>
-                                    <td className='py-2 px-4 border-b text-center'>{user.primerNombre}</td>
-                                    <td className='py-2 px-4 border-b text-center'>{user.primerApellido}</td>
+                                    <td className='py-2 px-4 border-b text-center'>{user.primerNombre} {user.segundoNombre}</td>
+                                    <td className='py-2 px-4 border-b text-center'>{user.primerApellido} {user.segundoApellido}</td>
                                     <td className='py-2 px-4 border-b text-center'>{user.cedula}</td>
-                                    <td className='py-2 px-4 border-b text-center'>{user.estado}</td>
                                     <td className='py-2 px-4 border-b text-center'>
-                                        <button className='bg-blue-500 text-white px-2 py-1 rounded mr-2' onClick={() => handleVerRutina(user.id)}>Ver Rutina</button>
-                                        <button onClick={() => handleBorrar(user.id)} className='bg-red-500 text-white px-2 py-1 rounded'>Borrar</button>
+                                        <button className="mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white"
+                                            onClick={() => handleVerRutina(user.id)}>Ver Rutina</button>
+                                        <button onClick={() => handleBorrar(user.id)} className='text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white'>Borrar</button>
                                     </td>
                                 </tr>
                             ))}

@@ -59,6 +59,10 @@ const RegisterForm = () => {
                 ToastifyError('Formato de cédula incorrecto.');
                 return;
             }
+            if (formData.altura <= 0) {
+                ToastifyError('La altura debe ser un valor positivo.');
+                return;
+            }
         }
 
         const registerUsiario = collection(db, "usuarios");
@@ -94,7 +98,7 @@ const RegisterForm = () => {
             <Header />
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <div className="md:w-2/3 px-4 py-8">
-                    <h1 className="text-3xl font-bold mb-4">Registrar Cliente</h1>
+                    <h1 className="text-3xl font-bold mb-4">Registrar Usuario</h1>
                     <form className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col space-y-4">
@@ -156,9 +160,9 @@ const RegisterForm = () => {
 
                             <div className="flex flex-col space-y-4">
 
-                                <label htmlFor="altura" className="block font-semibold">Altura</label>
+                                <label className="block font-semibold">Altura</label>
                                 <input
-                                    type="altura"
+                                    type="number"
                                     id="altura"
                                     name="altura"
                                     value={formData.altura}
@@ -167,7 +171,7 @@ const RegisterForm = () => {
                                 />
                                 <label htmlFor="telefono" className="block font-semibold">Teléfono</label>
                                 <input
-                                    type="tel"
+                                    type="number"
                                     id="telefono"
                                     name="telefono"
                                     value={formData.telefono}
@@ -176,14 +180,13 @@ const RegisterForm = () => {
                                 />
                                 <label htmlFor="email" className="block font-semibold">Email</label>
                                 <input
-                                    type="email"
+                                    type="text"
                                     id="email"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-
                                 <label className="block font-semibold">Rol</label>
                                 <div>
                                     <label>
@@ -232,10 +235,10 @@ const RegisterForm = () => {
                             </div>
                         </div>
                         <div className="flex justify-center md:justify-end">
-                            <Link to="/" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                            <Link to="/home" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                                 Cancelar
                             </Link>
-                            <button type="button" onClick={handleSubmit} className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4">
+                            <button type="button" onClick={handleSubmit} className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
                                 Guardar
                             </button>
                         </div>

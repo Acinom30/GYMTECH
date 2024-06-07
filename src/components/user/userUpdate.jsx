@@ -1,5 +1,5 @@
 import { doc, setDoc } from 'firebase/firestore';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { db } from '../../firebase/config';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
@@ -25,7 +25,6 @@ const UserUpdate = () => {
         email: clientToUpdate.email || '',
         rol: clientToUpdate.rol || '',
         observaciones: clientToUpdate.observaciones || '',
-        estado: clientToUpdate.estado || 'ACTIVO',
         resetPassword: 'no',
     });
 
@@ -59,17 +58,24 @@ const UserUpdate = () => {
             }
         }
 
+        const userRef = doc(db, "usuarios", clientToUpdate.id);
         if (formData.resetPassword === 'si') {
             const hashedPassword = bcrypt.hashSync('12345678', 10);
             try {
-                const userRef = doc(db, "usuarios", clientToUpdate.id);
-                await setDoc(userRef, { ...formData, contrasena: hashedPassword }, { merge: true });
-                ToastifySuccess("Se ha actualizado el cliente correctamente");
-                navigate('/home')
+                // Excluir resetPassword de los datos que se actualizan en Firestore
+                const { resetPassword, ...formDataWithoutReset } = formData;
+                await setDoc(userRef, { ...formDataWithoutReset, contrasena: hashedPassword }, { merge: true });
             } catch (error) {
                 ToastifyError("Error al actualizar el cliente");
             }
+        } else {
+            // Excluir resetPassword de los datos que se actualizan en Firestore
+            const { resetPassword, ...formDataWithoutReset } = formData;
+            await setDoc(userRef, formDataWithoutReset, { merge: true });
         }
+
+        ToastifySuccess("Se ha actualizado el cliente correctamente");
+        navigate('/viewListClients')
         setFormData({
             cedula: '',
             primerNombre: '',
@@ -152,7 +158,7 @@ const UserUpdate = () => {
                             <div className="flex flex-col space-y-4">
                                 <label htmlFor="telefono" className="block font-semibold">Teléfono</label>
                                 <input
-                                    type="tel"
+                                    type="number"
                                     id="telefono"
                                     name="telefono"
                                     value={formData.telefono}
@@ -161,7 +167,7 @@ const UserUpdate = () => {
                                 />
                                 <label htmlFor="email" className="block font-semibold">Email</label>
                                 <input
-                                    type="email"
+                                    type="text"
                                     id="email"
                                     name="email"
                                     value={formData.email}
@@ -225,10 +231,10 @@ const UserUpdate = () => {
                             </div>
                         </div>
                         <div className="flex justify-center md:justify-end">
-                            <Link to="/viewListClients" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                            <Link to="/viewListClients" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                                 Cancelar
                             </Link>
-                            <button type="submit" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4">
+                            <button type="submit" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
                                 Guardar
                             </button>
                         </div>

@@ -64,6 +64,10 @@ const EditExercise = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!formData.nombre || !formData.descripcion || !formData.categoria) {
+            ToastifyError("Por favor, complete todos los campos obligatorios");
+            return;
+        }
         try {
             const categoriaRef = doc(db, "categorias", formData.categoria);
             const categoriaDoc = await getDoc(categoriaRef);
@@ -74,6 +78,7 @@ const EditExercise = () => {
                 });
                 ToastifySuccess('Los cambios se guardaron exitosamente.');
                 navigate('/editExercises')
+
             } else {
                 ToastifyError('Hubo un error al guardar los cambios. La categoría seleccionada no existe.');
             }
@@ -89,7 +94,7 @@ const EditExercise = () => {
     return (
         <div>
             <Header />
-            <div className="flex flex-col items-center justify-center relative">
+            <div className="flex flex-col items-center justify-center relative mb-5 mt-14">
                 <h1 className="text-3xl font-bold mb-10">Editar Ejercicio</h1>
                 <form onSubmit={handleSubmit} className="max-w-lg w-full">
                     <div className="mb-4">
@@ -114,8 +119,8 @@ const EditExercise = () => {
                         <input type="text" name="url" id="url" value={formData.url} onChange={handleInputChange} className="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 block w-full" />
                     </div>
                     <div className="flex justify-end">
-                        <Link to="/editExercises" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2">Volver</Link>
-                        <button type="submit"className="bg-indigo-500 text-white font-bold py-2 px-4 rounded">Guardar Cambios</button>
+                        <Link to="/editExercises" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">Volver</Link>
+                        <button type="submit"className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">Guardar Cambios</button>
                     </div>
                 </form>
             </div>

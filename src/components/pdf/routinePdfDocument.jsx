@@ -54,6 +54,7 @@ const RoutinePdfDocument = ({ routine, ejerciciosPorDia }) => {
     const [userData, setUserData] = useState(null);
     const [evaluationData, setEvaluationData] = useState(null);
 
+
     useEffect(() => {
         const userRef = doc(db, 'usuarios', routine.clientId.id);
 

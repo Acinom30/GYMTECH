@@ -220,11 +220,16 @@ const AddRoutine = () => {
     };
 
     const handleSaveRoutine = async () => {
+        if(rutina.length === 0) {
+            ToastifyError("Debe ingresar ejercicios a la rutina")
+            return;
+        }
         try {
             if (seleccionFechaCambio === "") {
                 ToastifyError("Selecciona una fecha de cambio")
                 return;
             }
+            
             const fechaCambio = calcularFechaCambio(seleccionFechaCambio);
             const rutinaRef = collection(db, "rutinas");
             const usuarioRef = doc(db, "usuarios", client.id);
@@ -278,7 +283,6 @@ const AddRoutine = () => {
                     }
                     ejerciciosPorDiaTemp[ejercicio.dia].push(ejercicio);
                 });
-
                 setRutinaDescarga(routine);
                 setEjerciciosPorDia(ejerciciosPorDiaTemp)
             }
@@ -456,7 +460,7 @@ const AddRoutine = () => {
                         <div className="mt-4 flex justify-center">
                             <button
                                 onClick={toggleVentana}
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3"
                             >
                                 Cerrar
                             </button>
@@ -528,11 +532,11 @@ const AddRoutine = () => {
                                 renderDayInputs()
                             )}
                         </div>
-                        <div className="flex justify-end">
-                            <button onClick={() => navigate('/selectUserRoutine')} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
+                        <div className="mt-5 justify-end">
+                            <button onClick={() => navigate('/selectUserRoutine')} type="button" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                                 Atrás
                             </button>
-                            <button onClick={handleAddExercise} type="button" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4 mt-8">
+                            <button onClick={handleAddExercise} className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
                                 Agregar
                             </button>
                         </div>
@@ -561,7 +565,6 @@ const AddRoutine = () => {
                                                     </div>
 
                                                     <div className="flex items-center space-x-4">
-
                                                         <button onClick={() => handleEditExercise(index)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Editar</button>
                                                         <button onClick={() => handleDeleteExercise(index)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Eliminar</button>
                                                         <button onClick={() => handleExerciseColorSelect(index, selectedColor)} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 rounded mt-4 mr-2 text-xs">Asignar color</button>
@@ -635,10 +638,10 @@ const AddRoutine = () => {
                     </div>
                     <div className="flex justify-end mt-8">
 
-                        <button onClick={limpiarRutina} type="button" className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4 mr-5">
+                        <button onClick={limpiarRutina} type="button" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                             Limpiar
                         </button>
-                        <button onClick={handleSaveRoutine} type="button" className="bg-yellow-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded mt-4">
+                        <button onClick={handleSaveRoutine} type="button" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
                             Guardar Rutina
                         </button>
                         {showPrintModal && (
