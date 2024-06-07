@@ -18,6 +18,23 @@ const ViewClients = () => {
   const { user } = useUser();
   const [viewRoutine, setViewRoutine] = useState([]);
 
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      const clientsCollection = collection(db, 'usuarios');
+      const clientsSnapshot = await getDocs(clientsCollection);
+      const clientsData = clientsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setClients(clientsData);
+    } catch (error) {
+      ToastifyError('Error obteniendo los clientes');
+    }
+  };
 
   const fetchRoutines = async (client) => {
     try {
@@ -60,9 +77,8 @@ const ViewClients = () => {
           onClick: async () => {
             try {
               await deleteClientData(client.id);
+              //await fetchClients(); // Actualizar la lista de clientes después de eliminar con éxito el cliente
               ToastifySuccess('Cliente eliminado correctamente');
-              //fetchClients();
-              navigate('/viewListClients');
             } catch (error) {
               ToastifyError('Error al eliminar el cliente');
               console.error('Error al eliminar el cliente: ', error);
@@ -76,6 +92,7 @@ const ViewClients = () => {
       ]
     });
   };
+
 
   const deleteClientData = async (clientId) => {
     const userRef = doc(db, 'usuarios', clientId);
@@ -101,93 +118,93 @@ const ViewClients = () => {
       ToastifyError('Error eliminando las rutinas');
       throw error;
     }
-
     try {
-      await deleteDoc(doc(db, 'usuarios', clientId));
+      await deleteDoc(userRef);
+      fetchClients();
+
     } catch (error) {
       ToastifyError('Error eliminando el usuario');
       throw error;
-    }
+    };
+
   };
 
-  return (
-    <>
-      <Header />
-      <h1 className="text-3xl font-bold text-center mb-4">Usuarios</h1>
+    return (
+      <>
+        <Header />
+        <h1 className="text-3xl font-bold text-center mb-4">Usuarios</h1>
 
-      <ViewClientList
-        clients={clients}
-        handlePrimaryAction={handleShowDetails}
-        primaryActionLabel="Detalles"
-        handleSecondaryAction={handleEditClient}
-        secondaryActionLabel="Editar"
-        handleTertiaryAction={handleDeleteClient}
-        tertiaryActionLabel='Eliminar'
-        user={user}
-      />
-      {selectedClient && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4 text-center">
-              Detalles de {selectedClient.primerNombre} {selectedClient.primerApellido}
-            </h2>
-            <p><strong>Cédula:</strong> {selectedClient.cedula}</p>
-            <p><strong>Nombre Completo:</strong> {selectedClient.primerNombre} {selectedClient.segundoNombre}</p>
-            <p><strong>Apellidos:</strong> {selectedClient.primerApellido} {selectedClient.segundoApellido}</p>
-            <p><strong>Email:</strong> {selectedClient.email}</p>
-            <p><strong>Teléfono:</strong> {selectedClient.telefono}</p>
-            <p><strong>Observaciones/Enfermedades:</strong><br /> {selectedClient.observaciones}</p>
-            <button
-              onClick={() => handleViewRoutines(selectedClient)}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-            >
-              Ver historial rutinas
-            </button>
-            <div className="mt-4 flex justify-center">
-              <button onClick={() => setSelectedClient(null)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cerrar</button>
+        <ViewClientList
+          clients={clients}
+          handlePrimaryAction={handleShowDetails}
+          primaryActionLabel="Detalles"
+          handleSecondaryAction={handleEditClient}
+          secondaryActionLabel="Editar"
+          handleTertiaryAction={handleDeleteClient}
+          tertiaryActionLabel='Eliminar'
+          user={user}
+        />
+        {selectedClient && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+              <h2 className="text-2xl font-bold mb-4 text-center">
+                Detalles de {selectedClient.primerNombre} {selectedClient.primerApellido}
+              </h2>
+              <p><strong>Cédula:</strong> {selectedClient.cedula}</p>
+              <p><strong>Nombre Completo:</strong> {selectedClient.primerNombre} {selectedClient.segundoNombre}</p>
+              <p><strong>Apellidos:</strong> {selectedClient.primerApellido} {selectedClient.segundoApellido}</p>
+              <p><strong>Email:</strong> {selectedClient.email}</p>
+              <p><strong>Teléfono:</strong> {selectedClient.telefono}</p>
+              <p><strong>Observaciones/Enfermedades:</strong><br /> {selectedClient.observaciones}</p>
+              <button
+                onClick={() => handleViewRoutines(selectedClient)}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+              >
+                Ver historial rutinas
+              </button>
+              <div className="mt-4 flex justify-center">
+                <button onClick={() => setSelectedClient(null)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cerrar</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      {viewRoutine.length > 0 && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4 text-center">
-              Historial de Rutinas
-            </h2>
-            <div className="overflow-y-auto max-h-60">
-              {viewRoutine.map((routine, index) => (
-                <div key={routine.id} className="mb-4">
-                  <p><strong>Rutina #{index + 1}</strong></p>
-                  <p><strong>Fecha de Creación:</strong> {routine.fechaCreacion}</p>
-                  <p><strong>Fecha de Cambio:</strong> {routine.fechaCambio}</p>
-                  <ul>
-                    {routine.ejercicios.map((ejercicio, ejIndex) => (
-                      <li key={ejercicio.id}>
-                        <p><strong>Ejercicio #{ejIndex + 1}</strong></p>
-                        <p><strong>ID:</strong> {ejercicio.id}</p>
-                        <p><strong>Nombre:</strong> {ejercicio.nombre}</p>
-                        <p><strong>Día:</strong> {ejercicio.dia}</p>
-                        <p><strong>Color:</strong> {ejercicio.color}</p>
-                        <p><strong>Observaciones:</strong> {ejercicio.observaciones}</p>
-                        <p><strong>Series:</strong> {ejercicio.series}</p>
+        )}
+        {viewRoutine.length > 0 && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+              <h2 className="text-2xl font-bold mb-4 text-center">
+                Historial de Rutinas
+              </h2>
+              <div className="overflow-y-auto max-h-60">
+                {viewRoutine.map((routine, index) => (
+                  <div key={routine.id} className="mb-4">
+                    <p><strong>Rutina #{index + 1}</strong></p>
+                    <p><strong>Fecha de Creación:</strong> {routine.fechaCreacion}</p>
+                    <p><strong>Fecha de Cambio:</strong> {routine.fechaCambio}</p>
+                    <ul>
+                      {routine.ejercicios.map((ejercicio, ejIndex) => (
+                        <li key={ejercicio.id}>
+                          <p><strong>Ejercicio #{ejIndex + 1}</strong></p>
+                          <p><strong>ID:</strong> {ejercicio.id}</p>
+                          <p><strong>Nombre:</strong> {ejercicio.nombre}</p>
+                          <p><strong>Día:</strong> {ejercicio.dia}</p>
+                          <p><strong>Color:</strong> {ejercicio.color}</p>
+                          <p><strong>Observaciones:</strong> {ejercicio.observaciones}</p>
+                          <p><strong>Series:</strong> {ejercicio.series}</p>
 
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex justify-center">
-              <button onClick={() => setViewRoutine([])} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cerrar Historial</button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex justify-center">
+                <button onClick={() => setViewRoutine([])} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cerrar Historial</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </>
+    );
+  };
 
-
-    </>
-  );
-};
-
-export default ViewClients;
+  export default ViewClients;

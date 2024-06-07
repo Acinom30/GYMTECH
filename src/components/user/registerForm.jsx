@@ -59,6 +59,10 @@ const RegisterForm = () => {
                 ToastifyError('Formato de cédula incorrecto.');
                 return;
             }
+            if (formData.altura <= 0) {
+                ToastifyError('La altura debe ser un valor positivo.');
+                return;
+            }
         }
 
         const registerUsiario = collection(db, "usuarios");
@@ -156,9 +160,9 @@ const RegisterForm = () => {
 
                             <div className="flex flex-col space-y-4">
 
-                                <label htmlFor="altura" className="block font-semibold">Altura</label>
+                                <label className="block font-semibold">Altura</label>
                                 <input
-                                    type="altura"
+                                    type="number"
                                     id="altura"
                                     name="altura"
                                     value={formData.altura}
@@ -167,7 +171,7 @@ const RegisterForm = () => {
                                 />
                                 <label htmlFor="telefono" className="block font-semibold">Teléfono</label>
                                 <input
-                                    type="tel"
+                                    type="number"
                                     id="telefono"
                                     name="telefono"
                                     value={formData.telefono}
@@ -176,14 +180,13 @@ const RegisterForm = () => {
                                 />
                                 <label htmlFor="email" className="block font-semibold">Email</label>
                                 <input
-                                    type="email"
+                                    type="text"
                                     id="email"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-
                                 <label className="block font-semibold">Rol</label>
                                 <div>
                                     <label>
