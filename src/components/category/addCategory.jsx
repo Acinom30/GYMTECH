@@ -5,8 +5,11 @@ import { db } from '../../firebase/config';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 import Header from '../general/navigationMenu';
+import { useNavigate } from 'react-router-dom';
+
 
 const AddCategory = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: ''
@@ -34,6 +37,7 @@ const AddCategory = () => {
                 nombre: '',
                 descripcion: ''
             });
+            navigate('/categoriesList')
         } catch (error) {
             console.error("Error al guardar la categoría:", error);
             ToastifyError("Hubo un error al guardar la categoría. Por favor, inténtalo de nuevo más tarde.");
@@ -43,7 +47,7 @@ const AddCategory = () => {
     return (
         <div>
             <Header />
-            <div className="flex flex-col items-center justify-center relative">
+            <div className="flex flex-col items-center justify-center relative mb-5 mt-14">
                 <h1 className="text-3xl font-bold mb-10">Registrar Categoría</h1>
                 <form onSubmit={handleSubmit} className="w-full sm:w-96">
                     <label htmlFor="nombre" className="block font-semibold mb-5">Nombre de la categoría</label>

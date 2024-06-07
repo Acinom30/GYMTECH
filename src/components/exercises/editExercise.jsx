@@ -64,6 +64,10 @@ const EditExercise = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!formData.nombre || !formData.descripcion || !formData.categoria) {
+            ToastifyError("Por favor, complete todos los campos obligatorios");
+            return;
+        }
         try {
             const categoriaRef = doc(db, "categorias", formData.categoria);
             const categoriaDoc = await getDoc(categoriaRef);
@@ -90,7 +94,7 @@ const EditExercise = () => {
     return (
         <div>
             <Header />
-            <div className="flex flex-col items-center justify-center relative">
+            <div className="flex flex-col items-center justify-center relative mb-5 mt-14">
                 <h1 className="text-3xl font-bold mb-10">Editar Ejercicio</h1>
                 <form onSubmit={handleSubmit} className="max-w-lg w-full">
                     <div className="mb-4">

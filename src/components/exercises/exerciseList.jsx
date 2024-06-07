@@ -71,7 +71,7 @@ const ExercisesList = () => {
     return (
         <div >
             <Header />
-            <div className="flex flex-col items-center justify-center relative mr-5 ml-5">
+            <div className="flex flex-col items-center justify-center relative mr-5 ml-5 mt-14">
                 <div className="flex flex-col items-center w-full mb-4">
                     <div className="flex justify-center w-full mb-4">
                         <h1 className="text-3xl font-bold">Lista de Ejercicios</h1>

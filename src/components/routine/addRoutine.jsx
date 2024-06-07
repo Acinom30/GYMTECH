@@ -220,11 +220,16 @@ const AddRoutine = () => {
     };
 
     const handleSaveRoutine = async () => {
+        if(rutina.length === 0) {
+            ToastifyError("Debe ingresar ejercicios a la rutina")
+            return;
+        }
         try {
             if (seleccionFechaCambio === "") {
                 ToastifyError("Selecciona una fecha de cambio")
                 return;
             }
+            
             const fechaCambio = calcularFechaCambio(seleccionFechaCambio);
             const rutinaRef = collection(db, "rutinas");
             const usuarioRef = doc(db, "usuarios", client.id);
@@ -278,7 +283,6 @@ const AddRoutine = () => {
                     }
                     ejerciciosPorDiaTemp[ejercicio.dia].push(ejercicio);
                 });
-
                 setRutinaDescarga(routine);
                 setEjerciciosPorDia(ejerciciosPorDiaTemp)
             }

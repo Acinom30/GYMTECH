@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-
 import { collection, getDocs, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
@@ -9,23 +8,20 @@ import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { useUser } from '../../userContext';
 import ViewClientList from '../general/viewClientList';
 
-
-
-
-
 const SelectUserRoutine = () => {
     const navigate = useNavigate();
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
     const [rutinas, setRutinas] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [modalType, setModalType] = useState(null)
-
+    const [modalType, setModalType] = useState(null);
+    const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+    const [rutinaToDelete, setRutinaToDelete] = useState(null);
     const { user } = useUser();
 
     const handleEvaluation = (client) => {
         setSelectedClient(client);
-        setModalType('1')
+        setModalType('1');
     };
 
     const calculateDays = (client) => {
@@ -41,17 +37,29 @@ const SelectUserRoutine = () => {
     const handleClick = () => {
         navigate('/addRoutine', { state: { client: selectedClient } });
     };
-    const handleDeleteRoutine = async (rutinaId) => {
+
+    const handleDeleteRoutine = (rutinaId) => {
+        setRutinaToDelete(rutinaId);
+        setConfirmationModalOpen(true);
+    };
+
+    const confirmDeleteRoutine = async () => {
         try {
-            await deleteDoc(doc(db, 'rutinas', rutinaId));
+            await deleteDoc(doc(db, 'rutinas', rutinaToDelete));
+            setRutinas(prevRutinas => prevRutinas.filter(rutina => rutina.id !== rutinaToDelete));
             setShowModal(false);
             setSelectedClient(null);
+            setConfirmationModalOpen(false);
             ToastifySuccess("Rutina eliminada exitosamente.");
         } catch (error) {
             ToastifyError("Error al eliminar la rutina. Por favor, inténtalo de nuevo más tarde.");
         }
     };
 
+    const cancelDeleteRoutine = () => {
+        setConfirmationModalOpen(false);
+        setRutinaToDelete(null);
+    };
 
     const handleClientSelect = async (client) => {
         setSelectedClient(client);
@@ -72,7 +80,7 @@ const SelectUserRoutine = () => {
             }));
             setRutinas(rutinasList);
         } catch (error) {
-            ToastifyError("Error obteniendo las rutinas")
+            ToastifyError("Error obteniendo las rutinas");
         }
     };
 
@@ -93,10 +101,9 @@ const SelectUserRoutine = () => {
                 user={user}
             />
             {modalType === '2' && showModal && (
-                <div className="fixed inset-0 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black opacity-50"></div>
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                     <div className="bg-white rounded-lg p-8 z-10">
-                        <h3 className="text-xl font-semibold mb-2">Rutinas del {selectedClient.primerNombre} {selectedClient.primerApellido}</h3>
+                        <h3 className="text-xl font-semibold mb-2">Rutinas de {selectedClient.primerNombre} {selectedClient.primerApellido}</h3>
                         <ul>
                             {rutinas.length > 0 ? (
                                 <>
@@ -109,13 +116,13 @@ const SelectUserRoutine = () => {
 
                                                     <button
                                                         onClick={() => handleEditRoutine(rutina.id)}
-                                                        className="bg-yellow-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
+                                                        className="mt-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white mr-5"
                                                     >
                                                         Editar Rutina
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteRoutine(rutina.id)}
-                                                        className="bg-yellow-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-2 ml-2"
+                                                        className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
                                                     >
                                                         Eliminar Rutina
                                                     </button>
@@ -126,7 +133,7 @@ const SelectUserRoutine = () => {
                                     <div className="mt-4 flex justify-center gap-5">
                                         <button
                                             onClick={() => setShowModal(false)}
-                                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                            className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
                                         >
                                             Cerrar
                                         </button>
@@ -138,7 +145,7 @@ const SelectUserRoutine = () => {
                                     <div className="mt-4 flex justify-center gap-5">
                                         <button
                                             onClick={() => setShowModal(false)}
-                                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                            className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
                                         >
                                             Cerrar
                                         </button>
@@ -146,6 +153,24 @@ const SelectUserRoutine = () => {
                                 </>
                             )}
                         </ul>
+                    </div>
+                </div>
+            )}
+            {confirmationModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+                        <h2 className="text-xl font-bold mb-4">Confirmar eliminación</h2>
+                        <p>¿Estás seguro de que deseas eliminar esta rutina?</p>
+                        <div className="mt-4 flex justify-center gap-5">
+                            <button
+                                onClick={confirmDeleteRoutine}
+                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                >Eliminar</button>
+                            <button
+                                onClick={cancelDeleteRoutine}
+                                className="mr-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
+                                >Cancelar</button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -164,14 +189,14 @@ const SelectUserRoutine = () => {
                                     ¿Quiere agregar una rutina a {selectedClient.primerNombre}?
                                 </strong>
                             </p>
-                            <div className="mt-4 flex justify-center gap-5">
+                            <div className="mt-4 justify-center gap-5">
                                 <button
                                     onClick={() => setSelectedClient(null)}
-                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                    className="mr-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
                                 >No</button>
                                 <button
                                     onClick={handleClick}
-                                    className="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
+                                    className="mt-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white mr-5"
                                 >Agregar Rutina</button>
                             </div>
                         </div>

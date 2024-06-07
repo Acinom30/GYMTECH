@@ -117,7 +117,7 @@ const AssignEvaluation = () => {
     try {
       const registerEvaluation = collection(db, "valoraciones");
       await addDoc(registerEvaluation, dataWithUserRef);
-      ToastifySuccess("Se ha registrado el cliente correctamente");
+      ToastifySuccess("Se ha registrado la valoración correctamente");
       navigate('/selectUserEvaluation');
 
       setFormData({
@@ -222,7 +222,7 @@ const AssignEvaluation = () => {
                   id="lesionesActuales"
                   name="lesionesActuales"
                   value={formData.lesionesActuales}
-                  onChange={handleChangeNumber}
+                  onChange={handleChange}
                   className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                 />
                 <label className="block font-semibold">Tipo de persona *</label>
