@@ -14,7 +14,6 @@ const VerRutina = () => {
         const userRef = doc(db, 'usuarios', clientId);
         const userSnapshot = await getDoc(userRef);
 
-        // Verificar si el documento del usuario existe
         if (userSnapshot.exists()) {
           const rutinasRef = collection(db, 'rutinas');
           const q = query(
@@ -26,14 +25,11 @@ const VerRutina = () => {
           const querySnapshot = await getDocs(q);
           if (!querySnapshot.empty) {
             const routines = querySnapshot.docs.map(doc => doc.data());
-            console.log('Routines:', routines);
             setRutina(routines[0]);
           } else {
-            console.log('No routines found');
             setRutina(null);
           }
         } else {
-          console.log('User not found');
           setRutina(null);
         }
       } catch (error) {

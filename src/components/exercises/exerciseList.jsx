@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { Link } from 'react-router-dom';
@@ -52,7 +52,18 @@ const ExercisesList = () => {
                     label: 'Sí',
                     onClick: async () => {
                         try {
+                            const rutinasRef = collection(db, 'rutinas');
+                            const rutinasSnapshot = await getDocs(rutinasRef);
+
+                            rutinasSnapshot.forEach(async (rutinaDoc) => {
+                                const rutinaData = rutinaDoc.data();
+                                const ejercicios = rutinaData.ejercicios.filter(ej => ej.id !== exercise.id);
+
+                                await updateDoc(doc(db, 'rutinas', rutinaDoc.id), { ejercicios });
+                            });
+
                             await deleteDoc(doc(db, 'ejercicios', exercise.id));
+
                             ToastifySuccess('Ejercicio eliminado correctamente');
                             fetchExercises();
                         } catch (error) {
@@ -67,6 +78,7 @@ const ExercisesList = () => {
             ]
         });
     };
+
 
     return (
         <div >
