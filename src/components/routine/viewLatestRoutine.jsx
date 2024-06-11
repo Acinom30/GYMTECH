@@ -77,6 +77,7 @@ const ViewLatestRoutine = () => {
                     const urlEjercicio = ejercicioData ? ejercicioData.url : null;
                     return { ...ejercicio, url: urlEjercicio };
                 })).then((ejerciciosConURL) => {
+
                     ejerciciosConURL.forEach((ejercicio) => {
                         if (!ejerciciosPorDiaTemp[ejercicio.dia]) {
                             ejerciciosPorDiaTemp[ejercicio.dia] = [];
@@ -147,11 +148,11 @@ const ViewLatestRoutine = () => {
         setCurrentRoutineIndex(secondLatestRoutineIndex);
         setShowRoutine(true);
         setShowButton(false);
-        setPrintButton(false);
+        setPrintButton(false)
     };
 
     const handleBack = () => {
-        navigate('/homeClient');
+        navigate('/home');
     };
 
     return (
