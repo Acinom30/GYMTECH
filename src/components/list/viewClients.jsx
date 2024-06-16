@@ -58,10 +58,6 @@ const ViewClients = () => {
     setSelectedClient(client);
   };
 
-  const handleViewRoutines = (client) => {
-    fetchRoutines(client);
-  };
-
   const handleEditClient = (client) => {
     navigate('/userUpdate', { state: { client } });
   };
@@ -156,12 +152,6 @@ const ViewClients = () => {
               <p><strong>Email:</strong> {selectedClient.email}</p>
               <p><strong>Teléfono:</strong> {selectedClient.telefono}</p>
               <p><strong>Observaciones/Enfermedades:</strong><br /> {selectedClient.observaciones}</p>
-              <button
-                onClick={() => handleViewRoutines(selectedClient)}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded"
-              >
-                Ver historial rutinas
-              </button>
               <div className="mt-4 flex justify-center">
                 <button onClick={() => setSelectedClient(null)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cerrar</button>
               </div>

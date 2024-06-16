@@ -7,6 +7,7 @@ import Header from '../general/navigationMenu';
 import { addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
 import { useNavigate } from 'react-router-dom';
+import { formatDate } from '../js/general';
 
 
 
@@ -25,7 +26,7 @@ const RegisterForm = () => {
         estado: 'ACTIVO',
         contrasena: "12345678",
         altura: '',
-        fechaRegistro: new Date().toISOString().split('T')[0],
+        fechaRegistro: formatDate(new Date),
     });
 
     const navigate = useNavigate();

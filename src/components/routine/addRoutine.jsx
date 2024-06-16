@@ -9,6 +9,7 @@ import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import RoutinePdfDocument from '../pdf/routinePdfDocument';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import { formatDate } from '../js/general';
 
 
 const AddRoutine = () => {
@@ -237,7 +238,7 @@ const AddRoutine = () => {
                 clientId: usuarioRef,
                 valoracion: IDValoracionMasReciente,
                 ejercicios: rutina,
-                fechaCreacion: new Date().toISOString().split('T')[0],
+                fechaCreacion: formatDate(new Date()),
                 fechaCambio: fechaCambio,
             });
             await obtenerRutinaRecienGuardada();
@@ -336,7 +337,8 @@ const AddRoutine = () => {
                 return null;
         }
 
-        const formattedDate = fechaCambio.toISOString().split('T')[0];
+        //const formattedDate = fechaCambio.toISOString().split('T')[0];
+        const formattedDate = formatDate(fechaCambio);
         return formattedDate;
     };
 

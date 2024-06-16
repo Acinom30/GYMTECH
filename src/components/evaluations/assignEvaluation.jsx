@@ -7,14 +7,11 @@ import { Link } from 'react-router-dom';
 import { db } from '../../firebase/config';
 import { addDoc, collection, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { formatDate } from '../js/general';
 
 
 const AssignEvaluation = () => {
   const navigate = useNavigate();
-
-  const formatDate = (date) => {
-    return new Date(date).toISOString().split('T')[0];
-  };
 
   const location = useLocation();
   const client = location.state?.client;
@@ -124,7 +121,7 @@ const AssignEvaluation = () => {
         objetivo: '',
         diasSemana: '',
         peso: '',
-        fechaValoracion: formatDate(new Date()),
+        fechaValoracion: formatDate(new Date),
         lesionesActuales: '',
         tipoPersona: '',
 
