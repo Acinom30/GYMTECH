@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from "../general/navigationMenu";
-import { collection, query, where, getDocs, doc, orderBy } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, orderBy, deleteDoc, getDoc } from "firebase/firestore";
 import { db } from '../../firebase/config';
+import { useUser } from '../../userContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const ViewEvaluationHistory = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -9,11 +11,43 @@ const ViewEvaluationHistory = () => {
     const [noEvaluations, setNoEvaluations] = useState(false);
     const [userSelection, setUserSelection] = useState([]);
     const [showUserSelection, setShowUserSelection] = useState(false);
-    const [userData, setUserData] = useState(null)
+    const [userData, setUserData] = useState(null);
+    const [userID, setUserID] = useState(null);
+    const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+    const [evaluationToDelete, setEvaluationToDelete] = useState(null); // Nuevo estado para almacenar la evaluación que se desea eliminar
+    const { user } = useUser();
+    const navigate = useNavigate();
+    const location = useLocation();
 
+    const { clientId } = location.state || {};
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (clientId) {
+                    const refUser = doc(db, 'usuarios', clientId);
+                    const snapshotUser = await getDoc(refUser);
+
+                    if (snapshotUser.exists()) {
+                        const userInfo = snapshotUser.data();
+                        setUserData(userInfo);
+                        fetchEvaluationData(clientId);
+                    } else {
+                        console.log('No se encontró el usuario con el ID proporcionado.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user data: ', error);
+            }
+        };
+
+        fetchData(); // Llama a la función fetchData dentro de useEffect
+
+    }, [clientId]);
 
     const fetchEvaluationData = async (userId) => {
         try {
+            setUserID(userId);
             const valoracionesRef = collection(db, 'valoraciones');
             const q = query(
                 valoracionesRef,
@@ -23,7 +57,11 @@ const ViewEvaluationHistory = () => {
             const querySnapshot = await getDocs(q);
 
             if (!querySnapshot.empty) {
-                const valoraciones = querySnapshot.docs.map(doc => ({ ...doc.data(), showDetails: false }));
+                const valoraciones = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    showDetails: false
+                }));
                 setEvaluationData(valoraciones);
                 setNoEvaluations(false);
             } else {
@@ -68,15 +106,15 @@ const ViewEvaluationHistory = () => {
                 id: doc.id,
                 ...doc.data(),
             }));
-    
+
             const searchTermNormalized = searchTerm.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    
+
             const filteredUsers = usersData.filter(user => {
-                const fullNameNormalized = `${user.primerNombre} ${user.segundoNombre || ''} ${user.primerApellido} ${user.segundoApellido || ''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); 
-                const cedula = user.cedula.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); 
-                return fullNameNormalized.includes(searchTermNormalized) || cedula.includes(searchTermNormalized); 
+                const fullNameNormalized = `${user.primerNombre} ${user.segundoNombre || ''} ${user.primerApellido} ${user.segundoApellido || ''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const cedula = user.cedula.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                return fullNameNormalized.includes(searchTermNormalized) || cedula.includes(searchTermNormalized);
             });
-    
+
             if (filteredUsers.length > 0) {
                 setUserSelection(filteredUsers);
                 setUserData(userSelection);
@@ -94,7 +132,6 @@ const ViewEvaluationHistory = () => {
             setNoEvaluations(true);
         }
     };
-    
 
 
     const handleSearch = () => {
@@ -145,6 +182,37 @@ const ViewEvaluationHistory = () => {
         setSearchTerm(e.target.value);
     };
 
+    const handleEditEvaluation = (valoracionId) => {
+        navigate('/editEvaluation', { state: { valoracionId, clientId: userID } });
+
+    };
+
+    const handleDeleteEvaluation = (evaluationId) => {
+        setEvaluationToDelete(evaluationId); // Almacenar el id de la evaluación que se desea eliminar
+        setConfirmationModalOpen(true); // Abrir el modal de confirmación
+    };
+
+    const confirmDeleteEvaluation = async () => {
+        try {
+            await deleteDoc(doc(db, 'valoraciones', evaluationToDelete));
+            setConfirmationModalOpen(false); // Cerrar el modal después de eliminar
+            fetchEvaluationData(userID); // Volver a cargar los datos después de eliminar
+        } catch (error) {
+            console.error("Error deleting evaluation: ", error);
+        }
+    };
+
+    const cancelDeleteEvaluation = () => {
+        setConfirmationModalOpen(false); // Cerrar el modal sin realizar ninguna acción
+        setEvaluationToDelete(null); // Limpiar el estado del id de evaluación a eliminar
+    };
+
+    const handleShowDetails = (index) => {
+        const updatedEvaluationData = [...evaluationData];
+        updatedEvaluationData[index].showDetails = !updatedEvaluationData[index].showDetails;
+        setEvaluationData(updatedEvaluationData);
+    };
+
     const renderEvaluationList = () => {
         return (
             <div className="mt-8 mx-auto max-w-2xl">
@@ -153,18 +221,27 @@ const ViewEvaluationHistory = () => {
                 ) : (
                     <>
                         {userData !== null && showUserSelection === false && (
-                            <h3 className="text-xl font-bold mb-2">Valoración {userData.primerNombre} {userData.segundoNombre} {userData.primerApellido} {userData.segundoApellido}</h3>
+                            <h3 className="text-xl font-bold mb-2">Valoraciones de {userData.primerNombre} {userData.segundoNombre} {userData.primerApellido} {userData.segundoApellido}</h3>
                         )}
                         {evaluationData.map((evaluation, index) => (
                             <div key={index} className="bg-white shadow-md rounded-md p-4 mb-4">
                                 <h3 className="text-xl font-bold mb-2">Valoración {index + 1}:</h3>
                                 <p className="mb-2">Fecha de Valoración: {evaluation.fechaValoracion}</p>
-                                <button className="mb-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white" onClick={() => handleShowDetails(index)}>Mostrar Detalles</button>
+                                <button className="mb-5 mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white" onClick={() => handleShowDetails(index)}>Mostrar Detalles</button>
+                                <button className="mb-5 mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white" onClick={() => handleEditEvaluation(evaluation.id)}>Editar</button>
+                                {user.user.rol === 'administrador' && (
+                                    <button
+                                        onClick={() => handleDeleteEvaluation(evaluation.id)}
+                                        className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                    >
+                                        Eliminar
+                                    </button>
+                                )}
                                 {evaluation.showDetails && (
                                     <ul>
                                         {Object.entries(evaluation)
                                             .filter(([key, value]) =>
-                                                !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales', 'showDetails'].includes(key) && value !== ''
+                                                !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales', 'showDetails', 'id'].includes(key) && value !== ''
                                             )
                                             .sort(([keyA], [keyB]) => sortFields(keyA, keyB))
                                             .map(([key, value]) => (
@@ -182,12 +259,6 @@ const ViewEvaluationHistory = () => {
 
             </div>
         );
-    };
-
-    const handleShowDetails = (index) => {
-        const updatedEvaluationData = [...evaluationData];
-        updatedEvaluationData[index].showDetails = !updatedEvaluationData[index].showDetails;
-        setEvaluationData(updatedEvaluationData);
     };
 
     return (
@@ -221,6 +292,28 @@ const ViewEvaluationHistory = () => {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </div>
+            )}
+            {confirmationModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-75">
+                    <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+                        <h2 className="text-xl font-bold mb-4">Confirmar eliminación</h2>
+                        <p>¿Estás seguro de que deseas eliminar esta valoración?</p>
+                        <div className="mt-4 flex justify-center gap-5">
+                            <button
+                                onClick={confirmDeleteEvaluation}
+                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                            >
+                                Eliminar
+                            </button>
+                            <button
+                                onClick={cancelDeleteEvaluation}
+                                className="mr-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

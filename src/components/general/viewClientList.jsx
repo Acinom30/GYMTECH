@@ -81,14 +81,15 @@ const ViewClientList = ({ handlePrimaryAction, primaryActionLabel, handleSeconda
                         >
                         {secondaryActionLabel}
                       </button>
-                      {handleTertiaryAction && user.user.rol === 'administrador' && (
                         <button
                           onClick={() => handleTertiaryAction(client)}
-                          className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
-                          >
+                          className={`text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 ${tertiaryActionLabel === 'Eliminar' &&  user.user.rol === 'administrador' 
+                              ? "text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                              : "text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white"
+                            }`}
+                        >
                           {tertiaryActionLabel}
                         </button>
-                      )}
                     </div>
                   </td>
                 </>

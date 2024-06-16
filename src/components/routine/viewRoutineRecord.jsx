@@ -6,11 +6,14 @@ import Header from '../general/navigationMenu';
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { formatDate } from '../js/general'
+import { useUser } from '../../userContext';
+
 
 const ViewRoutineRecord = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { clientId } = location.state || {};
+    const { user } = useUser();
 
     const [IDValoracionMasReciente, setIDValoracionMasReciente] = useState(null);
     const [rutinas, setRutinas] = useState([]);
@@ -34,9 +37,6 @@ const ViewRoutineRecord = () => {
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [showConfirmCopy, setShowConfirmCopy] = useState(false);
     const [fechaCambio, setFechaCambio] = useState(null);
-
-
-
 
 
     const handleDeleteRoutine = (rutinaId) => {
@@ -210,7 +210,7 @@ const ViewRoutineRecord = () => {
         return cedulaOrPassportRegex.test(str);
     };
 
-    
+
     const confirmCopyRoutine = async () => {
         try {
             setShowConfirmationModal(true);
@@ -347,12 +347,14 @@ const ViewRoutineRecord = () => {
                                 >
                                     Editar Rutina
                                 </button>
+                                {user.user.rol === 'administrador' && (
                                 <button
                                     onClick={() => handleDeleteRoutine(rutina.id)}
                                     className="mr-3 text-black mt-4 font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
                                 >
                                     Eliminar Rutina
                                 </button>
+                                )}
                                 <button
                                     onClick={() => handleCopyRoutine(rutina.id)}
                                     className="text-black mt-4 font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
