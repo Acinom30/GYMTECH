@@ -152,7 +152,7 @@ const ViewLatestRoutine = () => {
     };
 
     const handleBack = () => {
-        navigate('/home');
+        navigate('/homeClient');
     };
 
     return (

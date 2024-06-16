@@ -106,7 +106,7 @@ const Header = () => {
                 <nav className="bg-yellow-500 p-4 shadow-lg">
                     <div className="mx-auto p-0 flex justify-between items-center">
                         <div>
-                            <Link to='/home'>
+                            <Link to='/homeClient'>
                                 <h1 className="text-black text-2xl font-bold tracking-tight">GYMTECH</h1>
                             </Link>
                         </div>

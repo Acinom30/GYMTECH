@@ -155,7 +155,11 @@ const ViewRoutineRecord = () => {
             const filteredUsers = usersData.filter(user => {
                 const fullNameNormalized = `${user.primerNombre} ${user.segundoNombre || ''} ${user.primerApellido} ${user.segundoApellido || ''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
                 const cedula = user.cedula.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                return fullNameNormalized.includes(searchTermNormalized) || cedula.includes(searchTermNormalized);
+
+                const isAdminName = fullNameNormalized.includes('admin');
+                const isCedulaOne = cedula === '1';
+
+                return !(isAdminName && isCedulaOne) && (fullNameNormalized.includes(searchTermNormalized) || cedula.includes(searchTermNormalized));
             });
 
             if (filteredUsers.length > 0) {
@@ -185,6 +189,7 @@ const ViewRoutineRecord = () => {
                     id: doc.id,
                     ...doc.data(),
                 }));
+                
                 setClientes(usersData);
             } else {
                 setUserSelection([]);
@@ -197,11 +202,15 @@ const ViewRoutineRecord = () => {
 
     const handleSearch = () => {
         const searchTermTrimmed = searchTerm.trim();
-        if (isCedulaOrPassport(searchTermTrimmed)) {
-            setShowUserSelection(false);
-            searchByDocument();
+        if (searchTermTrimmed === "") {
+            ToastifyError("Debe ingresar un valor a buscar")
         } else {
-            searchByName();
+            if (isCedulaOrPassport(searchTermTrimmed)) {
+                setShowUserSelection(false);
+                searchByDocument();
+            } else {
+                searchByName();
+            }
         }
     };
 
@@ -348,16 +357,16 @@ const ViewRoutineRecord = () => {
                                     Editar Rutina
                                 </button>
                                 {user.user.rol === 'administrador' && (
-                                <button
-                                    onClick={() => handleDeleteRoutine(rutina.id)}
-                                    className="mr-3 text-black mt-4 font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
-                                >
-                                    Eliminar Rutina
-                                </button>
+                                    <button
+                                        onClick={() => handleDeleteRoutine(rutina.id)}
+                                        className="mr-3 text-black mt-4 font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                    >
+                                        Eliminar Rutina
+                                    </button>
                                 )}
                                 <button
                                     onClick={() => handleCopyRoutine(rutina.id)}
-                                    className="text-black mt-4 font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                    className="text-black mt-4 font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-700 hover:text-white"
                                 >
                                     Copiar
                                 </button>
@@ -445,11 +454,11 @@ const ViewRoutineRecord = () => {
                                         <div className="mt-4 flex justify-center gap-5">
                                             <button
                                                 onClick={cancelConfirmCopy}
-                                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-700 hover:text-white"
                                             >Cancelar</button>
                                             <button
                                                 onClick={confirmCopyRoutine}
-                                                className="mr-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
+                                                className="mr-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-700 hover:text-white"
                                             >Aceptar</button>
                                         </div>
                                     </div>

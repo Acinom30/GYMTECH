@@ -75,7 +75,6 @@ const EditRoutine = () => {
     }, [routineId]);
 
 
-
     const handleChangeCategoria = async (e) => {
         const categoriaId = e.target.value;
         setFormData({

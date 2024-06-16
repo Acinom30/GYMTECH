@@ -188,23 +188,23 @@ const ViewEvaluationHistory = () => {
     };
 
     const handleDeleteEvaluation = (evaluationId) => {
-        setEvaluationToDelete(evaluationId); // Almacenar el id de la evaluación que se desea eliminar
-        setConfirmationModalOpen(true); // Abrir el modal de confirmación
+        setEvaluationToDelete(evaluationId);
+        setConfirmationModalOpen(true); 
     };
 
     const confirmDeleteEvaluation = async () => {
         try {
             await deleteDoc(doc(db, 'valoraciones', evaluationToDelete));
-            setConfirmationModalOpen(false); // Cerrar el modal después de eliminar
-            fetchEvaluationData(userID); // Volver a cargar los datos después de eliminar
+            setConfirmationModalOpen(false);
+            fetchEvaluationData(userID);
         } catch (error) {
             console.error("Error deleting evaluation: ", error);
         }
     };
 
     const cancelDeleteEvaluation = () => {
-        setConfirmationModalOpen(false); // Cerrar el modal sin realizar ninguna acción
-        setEvaluationToDelete(null); // Limpiar el estado del id de evaluación a eliminar
+        setConfirmationModalOpen(false); 
+        setEvaluationToDelete(null); 
     };
 
     const handleShowDetails = (index) => {

@@ -23,27 +23,27 @@ const ViewLatestEvaluation = () => {
                 const q = query(
                     valoracionesRef,
                     where('usuario', '==', doc(db, 'usuarios', userId)),
-                    orderBy('fechaValoracion', 'desc') 
+                    orderBy('fechaValoracion', 'desc')
                 );
                 const querySnapshot = await getDocs(q);
 
                 if (!querySnapshot.empty) {
                     const valoraciones = querySnapshot.docs.map(doc => doc.data());
                     setEvaluationData(valoraciones);
-                    setLatestEvaluation(valoraciones[0]); 
-                    setSecondLatestEvaluation(valoraciones[1] || null); 
-                    setNoEvaluations(false); 
+                    setLatestEvaluation(valoraciones[0]);
+                    setSecondLatestEvaluation(valoraciones[1] || null);
+                    setNoEvaluations(false);
                 } else {
-                    setNoEvaluations(true); 
+                    setNoEvaluations(true);
                 }
             } catch (error) {
                 console.error("Error fetching evaluation data: ", error);
-                setNoEvaluations(true); 
+                setNoEvaluations(true);
             }
         };
 
         fetchEvaluationData();
-    }, [user.user.rol]); 
+    }, [user.user.rol]);
 
     const formatAttributeName = (name) => {
         return name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
@@ -68,14 +68,15 @@ const ViewLatestEvaluation = () => {
                 {noEvaluations ? (
                     <p className="text-center text-gray-500">No hay valoraciones disponibles.</p>
                 ) : (
-                    <div className={`grid ${secondLatestEvaluation ? 'grid-cols-2 gap-4' : 'grid-cols-1 justify-center'}`}>
+                    <div className="grid grid-cols-2 gap-4">
                         {latestEvaluation && (
-                            <div className={`bg-white shadow-md rounded-md p-4 mb-4 ${!secondLatestEvaluation ? 'mx-auto' : ''}`}>
+                            <div className="bg-white shadow-md rounded-md p-4">
                                 <h2 className="text-xl font-bold mb-2">Última valoración:</h2>
                                 <ul>
                                     {Object.entries(latestEvaluation)
-                                        .filter(([key]) => !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales'].includes(key))
-                                        .sort(([keyA], [keyB]) => sortFields(keyA, keyB))
+                                        .filter(([key, value]) =>
+                                            !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales', 'showDetails', 'id'].includes(key) && value !== ''
+                                        ).sort(([keyA], [keyB]) => sortFields(keyA, keyB))
                                         .map(([key, value]) => (
                                             <li key={key}>
                                                 <span className="font-semibold">{formatAttributeName(key)}:</span> {value.toString()}
@@ -85,12 +86,13 @@ const ViewLatestEvaluation = () => {
                             </div>
                         )}
                         {secondLatestEvaluation && (
-                            <div className="bg-white shadow-md rounded-md p-4 mb-4">
+                            <div className="bg-white shadow-md rounded-md p-4">
                                 <h2 className="text-xl font-bold mb-2">Penúltima valoración:</h2>
                                 <ul>
                                     {Object.entries(secondLatestEvaluation)
-                                        .filter(([key]) => !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales'].includes(key))
-                                        .sort(([keyA], [keyB]) => sortFields(keyA, keyB))
+                                        .filter(([key, value]) =>
+                                            !['usuario', 'tipoPersona', 'valoracionFisica', 'diasSemana', 'lesionesActuales', 'showDetails', 'id'].includes(key) && value !== ''
+                                        ).sort(([keyA], [keyB]) => sortFields(keyA, keyB))
                                         .map(([key, value]) => (
                                             <li key={key}>
                                                 <span className="font-semibold">{formatAttributeName(key)}:</span> {value.toString()}
