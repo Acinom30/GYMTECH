@@ -8,7 +8,6 @@ import bcrypt from 'bcryptjs';
 import Header from '../general/navigationMenu';
 import { useNavigate } from 'react-router-dom';
 
-
 const UserUpdate = () => {
     const location = useLocation();
     const clientToUpdate = location.state?.client || {};
@@ -23,6 +22,7 @@ const UserUpdate = () => {
         fechaNacimiento: clientToUpdate.fechaNacimiento || '',
         telefono: clientToUpdate.telefono || '',
         email: clientToUpdate.email || '',
+        estado: clientToUpdate.estado || 'ACTIVO',
         rol: clientToUpdate.rol || '',
         observaciones: clientToUpdate.observaciones || '',
         resetPassword: 'no',
@@ -85,6 +85,7 @@ const UserUpdate = () => {
             fechaNacimiento: '',
             telefono: '',
             email: '',
+            estado: 'ACTIVO',
             rol: '',
             observaciones: '',
             resetPassword: ''
@@ -174,6 +175,31 @@ const UserUpdate = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
+                                <label className="block font-semibold">Estado</label>
+                                <div>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name="estado"
+                                            value="ACTIVO"
+                                            checked={formData.estado === 'ACTIVO'}
+                                            onChange={handleChange}
+                                            className="mr-2"
+                                        />
+                                        Activo
+                                    </label>
+                                    <label className="ml-4">
+                                        <input
+                                            type="radio"
+                                            name="estado"
+                                            value="INACTIVO"
+                                            checked={formData.estado === 'INACTIVO'}
+                                            onChange={handleChange}
+                                            className="mr-2"
+                                        />
+                                        Inactivo
+                                    </label>
+                                </div>
                                 <label className="block font-semibold">Restablecer contraseña por defecto</label>
                                 <select
                                     name="resetPassword"
@@ -220,23 +246,29 @@ const UserUpdate = () => {
                                         Entrenador
                                     </label>
                                 </div>
-                                <label htmlFor="observaciones" className="block font-semibold">Observaciones/Enfermedades</label>
+                                <label htmlFor="observaciones" className="block font-semibold">Observaciones</label>
                                 <textarea
                                     id="observaciones"
                                     name="observaciones"
                                     value={formData.observaciones}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-200 rounded-md px-4 py-2"
+                                    className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
                             </div>
                         </div>
-                        <div className="flex justify-center md:justify-end">
-                            <Link to="/viewListClients" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                type="submit"
+                                className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                            >
+                                Actualizar
+                            </button>
+                            <Link
+                                to="/viewListClients"
+                                className="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
+                            >
                                 Cancelar
                             </Link>
-                            <button type="submit" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
-                                Guardar
-                            </button>
                         </div>
                     </form>
                 </div>
