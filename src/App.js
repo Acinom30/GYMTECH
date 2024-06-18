@@ -13,7 +13,7 @@ import UserUpdate from './components/user/userUpdate';
 import AddExercise from './components/exercises/addExercise';
 import EditExercise from './components/exercises/editExercise';
 import ExercisesList from './components/exercises/exerciseList';
-import CustomerRegistration from './components/customers/CustomerRegistration';
+import CustomerRegistration from './components/Customers/CustomerRegistration';
 import EditRoutine from './components/routine/editRoutine';
 import EditEvaluation from './components/evaluations/editEvaluation'
 import VerRutina from './components/routine/viewRoutine';
@@ -25,7 +25,7 @@ import EditCategory from './components/category/editCategory';
 import ViewEvaluationHistory from './components/evaluations/viewEvaluationHistory';
 import ViewRoutineRecord from './components/routine/viewRoutineRecord';
 import ChangePassword from './components/user/changePassword';
-import HomeClient from './components/general/homeClient'
+import HomeClient from './components/general/homeClient';
 
 function App() {
   return (

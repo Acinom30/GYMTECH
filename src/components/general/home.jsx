@@ -28,7 +28,17 @@ const Home = () => {
             ToastifyError('Usuario no encontrado.');
         } else {
             const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setResults(prevResults => [...prevResults, ...users.filter(user => !prevResults.some(r => r.id === user.id))]);
+            const activeUsers = users.filter(user => user.estado !== 'INACTIVO');
+            const inactiveUsers = users.filter(user => user.estado === 'INACTIVO');
+
+            if (inactiveUsers.length > 0) {
+                ToastifyError('El usuario está inactivo.');
+            }
+
+            setResults(prevResults => [
+                ...prevResults,
+                ...activeUsers.filter(user => !prevResults.some(r => r.id === user.id))
+            ]);
         }
     }
 
@@ -38,6 +48,10 @@ const Home = () => {
 
     const handleVerRutina = (id) => {
         navigate(`/rutina`, { state: { clientId: id } });
+    };
+
+    const handleClearSearch = () => {
+        setSearchTerm('');
     };
 
     return (
@@ -64,6 +78,14 @@ const Home = () => {
                 >
                     Agregar
                 </button>
+                {searchTerm && (
+                    <button
+                        onClick={handleClearSearch}
+                        className='ml-2 py-2 px-4 bg-gray-400 text-white font-bold rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50'
+                    >
+                        Limpiar
+                    </button>
+                )}
             </div>
             <br />
             <div className='mt-8 px-8'>

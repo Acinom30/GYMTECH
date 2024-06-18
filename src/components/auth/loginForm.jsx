@@ -36,6 +36,12 @@ const LoginForm = () => {
     } else {
       const userDocSnapshot = querySnapshot.docs[0];
       const userData = userDocSnapshot.data();
+
+      if (userData.estado === 'INACTIVO') {
+        ToastifyError('El usuario está inactivo.');
+        return;
+      }
+
       const isMatch = await bcrypt.compare(contraseña, userData.contrasena);
       const tempPassword = bcrypt.hashSync('1234', 10); 
       const isMatchTempPassword = await bcrypt.compare(contraseña, tempPassword);
