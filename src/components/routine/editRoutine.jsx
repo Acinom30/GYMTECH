@@ -75,7 +75,6 @@ const EditRoutine = () => {
     }, [routineId]);
 
 
-
     const handleChangeCategoria = async (e) => {
         const categoriaId = e.target.value;
         setFormData({
@@ -162,8 +161,6 @@ const EditRoutine = () => {
         setEjercicioSeleccionado(ejercicio);
         handleDeleteExercise(index);
     };
-
-
 
     const obtenerEjerciciosSeleccionado = async (categoriaId) => {
         const ejerciciosRef = collection(db, "ejercicios");

@@ -126,12 +126,14 @@ const SelectUserRoutine = () => {
                                                     >
                                                         Editar Rutina
                                                     </button>
+                                                    {user.user.rol === 'administrador' && (
                                                     <button
                                                         onClick={() => handleDeleteRoutine(rutina.id)}
                                                         className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
                                                     >
                                                         Eliminar Rutina
                                                     </button>
+                                                    )}
                                                 </div>
                                             </li>
                                         ))}

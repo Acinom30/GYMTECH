@@ -1,24 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { collection, getDoc, getDocs, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDoc, getDocs, orderBy, query, where, doc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
+import { formatDate } from '../js/general'
+import { useUser } from '../../userContext';
+import RoutinePdfDocument from '../pdf/routinePdfDocument';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 
 const ViewRoutineRecord = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { clientId } = location.state || {};
+    const { user } = useUser();
+    const [ejerciciosPorDia, setEjerciciosPorDia] = useState({});
 
+
+    const [IDValoracionMasReciente, setIDValoracionMasReciente] = useState(null);
     const [rutinas, setRutinas] = useState([]);
     const [showModal, setShowModal] = useState(false);
-
     const [selectedClient, setSelectedClient] = useState(null);
     const [expandedRoutines, setExpandedRoutines] = useState({});
     const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [rutinaToDelete, setRutinaToDelete] = useState(null);
-    const [ejerciciosPorDia, setEjerciciosPorDia] = useState({});
+    const [copyModalOpen, setCopyModalOpen] = useState(false);
+    const [clientes, setClientes] = useState([]);
+    const [selectedClientForCopy, setSelectedClientForCopy] = useState(null);
+    const [rutinaToCopy, setRutinaToCopy] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [noEvaluations, setNoEvaluations] = useState(false);
+    const [userSelection, setUserSelection] = useState([]);
+    const [showUserSelection, setShowUserSelection] = useState(false);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [showConfirmCopy, setShowConfirmCopy] = useState(false);
+    const [fechaCambio, setFechaCambio] = useState(null);
+    const [selectedRoutine, setSelectedRoutine] = useState(null);
+    const [isRoutineSelected, setIsRoutineSelected] = useState(false);
+    const [printModalOpen, setPrintModalOpen] = useState(false);
+    const [routineToPrint, setRoutineToPrint] = useState(null);
+    const [ejercicioPorDiaRutina, setEjercicioPorDiaRutina] = useState(null);
 
     const handleDeleteRoutine = (rutinaId) => {
         setRutinaToDelete(rutinaId);
@@ -29,6 +52,7 @@ const ViewRoutineRecord = () => {
         try {
             await deleteDoc(doc(db, 'rutinas', rutinaToDelete));
             setRutinas(prevRutinas => prevRutinas.filter(rutina => rutina.id !== rutinaToDelete));
+            setEjerciciosPorDia({});
             setShowModal(false);
             setSelectedClient(null);
             setConfirmationModalOpen(false);
@@ -43,10 +67,8 @@ const ViewRoutineRecord = () => {
         setRutinaToDelete(null);
     };
 
-    const obtenerEjercicio = async (id) => {
-        const ejercicioRef = doc(db, 'ejercicios', id);
-        const ejercicioSnapshot = await getDoc(ejercicioRef);
-        return ejercicioSnapshot.exists() ? ejercicioSnapshot.data() : null;
+    const handleSearchTermChange = (e) => {
+        setSearchTerm(e.target.value);
     };
 
     useEffect(() => {
@@ -71,23 +93,25 @@ const ViewRoutineRecord = () => {
                         const rutina = doc.data();
                         const ejerciciosPorDiaTemp = {};
 
-                        await Promise.all(
-                            rutina.ejercicios.map(async (ejercicio) => {
-                                const urlEjercicio = ejercicio.url;
-                                const ejercicioConURL = { ...ejercicio, url: urlEjercicio };
-                                const dia = ejercicioConURL.dia;
-                                if (!ejerciciosPorDiaTemp[dia]) {
-                                    ejerciciosPorDiaTemp[dia] = [];
+                        Promise.all(rutina.ejercicios.map(async (ejercicio) => {
+                            const ejercicioData = await obtenerEjercicio(ejercicio.id);
+                            const urlEjercicio = ejercicioData ? ejercicioData.url : null;
+                            return { ...ejercicio, url: urlEjercicio };
+                        })).then((ejerciciosConURL) => {
+
+                            ejerciciosConURL.forEach((ejercicio) => {
+                                if (!ejerciciosPorDiaTemp[ejercicio.dia]) {
+                                    ejerciciosPorDiaTemp[ejercicio.dia] = [];
                                 }
-                                ejerciciosPorDiaTemp[dia].push(ejercicioConURL);
-
-                            })
-                        );
-
+                                ejerciciosPorDiaTemp[ejercicio.dia].push(ejercicio);
+                            });
+                            setEjerciciosPorDia(ejerciciosPorDiaTemp);
+                        }).catch((error) => {
+                            console.error("Error obteniendo las URLs de los ejercicios:", error);
+                        });
                         return { id: doc.id, ...rutina, ejerciciosPorDia: ejerciciosPorDiaTemp };
                     })
                 );
-
                 setRutinas(rutinasList);
             } catch (error) {
                 ToastifyError("Error obteniendo las rutinas y los datos del cliente");
@@ -103,7 +127,14 @@ const ViewRoutineRecord = () => {
         navigate('/editRoutine', { state: { routineId, clientId: selectedClient.id } });
     };
 
-    const toggleExpand = (id) => {
+    const toggleExpand = async (id) => {
+        const rutinaRef = doc(db, "rutinas", id);
+        const snapshotRutina = await getDoc(rutinaRef);
+        if (snapshotRutina.exists()) {
+            const rutinaData = snapshotRutina.data();
+            setSelectedRoutine(rutinaData);
+        }
+
         setExpandedRoutines(prev => ({
             ...prev,
             [id]: !prev[id]
@@ -114,6 +145,170 @@ const ViewRoutineRecord = () => {
         navigate('/selectUserRoutine');
     };
 
+    const handleCopyRoutine = (rutinaId) => {
+        setRutinaToCopy(rutinaId);
+        setCopyModalOpen(true);
+    };
+
+    const searchByName = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, 'usuarios'));
+            const usersData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            const searchTermNormalized = searchTerm.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+            const filteredUsers = usersData.filter(user => {
+                const fullNameNormalized = `${user.primerNombre} ${user.segundoNombre || ''} ${user.primerApellido} ${user.segundoApellido || ''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const cedula = user.cedula.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+                const isAdminName = fullNameNormalized.includes('admin');
+                const isCedulaOne = cedula === '1';
+
+                return !(isAdminName && isCedulaOne) && (fullNameNormalized.includes(searchTermNormalized) || cedula.includes(searchTermNormalized));
+            });
+
+            if (filteredUsers.length > 0) {
+                setUserSelection(filteredUsers);
+                setShowUserSelection(true);
+                setClientes(filteredUsers);
+            } else {
+                setUserSelection([]);
+                setShowUserSelection(false);
+                setClientes([]);
+            }
+        } catch (error) {
+            console.error('Error searching user: ', error);
+        }
+    };
+
+    const searchByDocument = async () => {
+        try {
+            const qUser = query(
+                collection(db, 'usuarios'),
+                where('cedula', '==', searchTerm)
+            );
+            const querySnapshotUser = await getDocs(qUser);
+
+            if (!querySnapshotUser.empty) {
+                const usersData = querySnapshotUser.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+
+                setClientes(usersData);
+            } else {
+                setUserSelection([]);
+            }
+        } catch (error) {
+            console.error('Error searching user: ', error);
+            setNoEvaluations(true);
+        }
+    };
+
+    const handleSearch = () => {
+        const searchTermTrimmed = searchTerm.trim();
+        if (searchTermTrimmed === "") {
+            ToastifyError("Debe ingresar un valor a buscar")
+        } else {
+            if (isCedulaOrPassport(searchTermTrimmed)) {
+                setShowUserSelection(false);
+                searchByDocument();
+            } else {
+                searchByName();
+            }
+        }
+    };
+
+    const isCedulaOrPassport = (str) => {
+        const cedulaOrPassportRegex = /^[0-9]{7,10}$|^[a-zA-Z]{1}[0-9]{6}[a-zA-Z]{1}$/;
+        return cedulaOrPassportRegex.test(str);
+    };
+
+
+    const confirmCopyRoutine = async () => {
+        try {
+            setShowConfirmationModal(true);
+            const rutinaRef = doc(db, 'rutinas', rutinaToCopy);
+            const rutinaDoc = await getDoc(rutinaRef);
+
+            if (rutinaDoc.exists()) {
+                const userRef = doc(db, "usuarios", selectedClientForCopy.id);
+                const valoracionesRef = collection(db, "valoraciones");
+
+                const q = query(valoracionesRef, where("usuario", "==", userRef));
+
+                let fechaActual = formatDate(new Date());
+
+                const snapshot = await getDocs(q);
+                const valoraciones = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                if (fechaCambio === null || fechaCambio === '') {
+                    ToastifyError("Debe colocar una fecha de cambio");
+                    return;
+                }
+
+                if (valoraciones.length > 0) {
+                    const valoracionMasReciente = valoraciones.reduce((max, val) => {
+                        const fechaMax = new Date(max.fechaValoracion);
+                        const fechaVal = new Date(val.fechaValoracion);
+                        return fechaVal > fechaMax ? val : max;
+                    });
+                    setIDValoracionMasReciente(valoracionMasReciente.id);
+
+
+
+                    const newRutina = { ...rutinaDoc.data(), clientId: userRef, fechaCreacion: fechaActual, fechaCambio: fechaCambio, valoracion: valoracionMasReciente.id };
+                    await addDoc(collection(db, 'rutinas'), newRutina);
+                } else {
+                    const newRutina = { ...rutinaDoc.data(), clientId: userRef, fechaCreacion: fechaActual, fechaCambio: fechaCambio, valoracion: null };
+                    await addDoc(collection(db, 'rutinas'), newRutina);
+                }
+                setCopyModalOpen(false);
+                setSelectedClientForCopy(null);
+                navigate('/selectUserRoutine')
+                ToastifySuccess("Rutina copiada exitosamente.");
+            }
+        } catch (error) {
+            ToastifyError("Error al copiar la rutina. Por favor, inténtalo de nuevo más tarde.");
+        }
+    };
+
+    const obtenerEjercicio = async (id) => {
+        const ejercicioRef = doc(db, 'ejercicios', id);
+        const ejercicioSnapshot = await getDoc(ejercicioRef);
+        return ejercicioSnapshot.exists() ? ejercicioSnapshot.data() : null;
+    };
+
+    const cancelCopyRoutine = () => {
+        setCopyModalOpen(false);
+        setSelectedClientForCopy(null);
+    };
+
+
+    const confirmCopy = () => {
+        setShowConfirmCopy(true);
+    };
+
+    const cancelConfirmCopy = () => {
+        setShowConfirmCopy(false);
+    };
+
+    const handleFechaCambioEdit = (event) => {
+        setFechaCambio(event.target.value);
+    };
+
+    const handlePrintRoutine = (routine) => {
+        setRoutineToPrint(routine);
+        setEjercicioPorDiaRutina(routine.ejerciciosPorDia);
+        setPrintModalOpen(true);
+    };
+
+    const confirmPrintRoutine = () => {
+        setPrintModalOpen(false);
+    };
 
     return (
         <div className="container mx-auto">
@@ -131,7 +326,7 @@ const ViewRoutineRecord = () => {
             </h1>
             {rutinas.length > 0 ? (
                 <ul className='w-3/4 mx-auto'>
-                    {rutinas.map(rutina => (
+                    {rutinas.map((rutina) => (
                         <li key={rutina.id} className="mb-8">
                             <div className="justify-center bg-white p-4 rounded shadow">
                                 <p><strong>Fecha de Creación:</strong> {rutina.fechaCreacion}</p>
@@ -171,52 +366,184 @@ const ViewRoutineRecord = () => {
                                         ))}
                                     </>
                                 )}
-                                <button
-                                    onClick={() => toggleExpand(rutina.id)}
-                                    className="mr-3 mt-4 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white"
-                                >
-                                    {expandedRoutines[rutina.id] ? 'Ver menos' : 'Ver más'}
-                                </button>
-                                <button
-                                    onClick={() => handleEditRoutine(rutina.id)}
-                                    className="mr-3 mt-4 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white"
-                                >
-                                    Editar Rutina
-                                </button>
-                                <button
-                                    onClick={() => handleDeleteRoutine(rutina.id)}
-                                    className="text-black mt-4 font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
-                                >
-                                    Eliminar Rutina
-                                </button>
+                                <div className="flex items-center justify-between mt-4">
+                                    <div className="flex">
+                                        <button
+                                            onClick={() => toggleExpand(rutina.id)}
+                                            className="mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white"
+                                        >
+                                            {expandedRoutines[rutina.id] ? 'Ver menos' : 'Ver más'}
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditRoutine(rutina.id)}
+                                            className="mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white"
+                                        >
+                                            Editar Rutina
+                                        </button>
+                                        {user.user.rol === 'administrador' && (
+                                            <button
+                                                onClick={() => handleDeleteRoutine(rutina.id)}
+                                                className="mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                            >
+                                                Eliminar Rutina
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="flex">
+                                        <button
+                                            onClick={() => handleCopyRoutine(rutina.id)}
+                                            className="mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-700 hover:text-white"
+                                        >
+                                            Copiar
+                                        </button>
+                                        <button
+                                            onClick={() => handlePrintRoutine(rutina)}
+                                            className="mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-700 hover:text-white"
+                                        >
+                                            Imprimir
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </li>
                     ))}
                 </ul>
             ) : (
                 <p className="text-center">No hay rutinas disponibles para mostrar.</p>
-            )}
-            {confirmationModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                    <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
-                        <h2 className="text-xl font-bold mb-4">Confirmar eliminación</h2>
-                        <p>¿Estás seguro de que deseas eliminar esta rutina?</p>
-                        <div className="mt-4 flex justify-center gap-5">
+            )
+            }
+            {
+                confirmationModalOpen && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                        <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+                            <h2 className="text-xl font-bold mb-4">Confirmar eliminación</h2>
+                            <p>¿Estás seguro de que deseas eliminar esta rutina?</p>
+                            <div className="mt-4 flex justify-center gap-5">
+                                <button
+                                    onClick={confirmDeleteRoutine}
+                                    className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                >Eliminar</button>
+                                <button
+                                    onClick={cancelDeleteRoutine}
+                                    className="mr-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
+                                >Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+            {printModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg">
+                        <h2 className="text-xl font-semibold mb-4">Confirmar Impresión</h2>
+                        <p>¿Desea imprimir esta rutina de {selectedClient?.primerNombre} {selectedClient?.segundoNombre}?</p>
+                        <div className="mt-4 flex justify-end">
                             <button
-                                onClick={confirmDeleteRoutine}
-                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
-                            >Eliminar</button>
-                            <button
-                                onClick={cancelDeleteRoutine}
+                                onClick={() => setPrintModalOpen(false)}
                                 className="mr-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
-                            >Cancelar</button>
+                                >
+                                Cancelar
+                            </button>
+                            {printModalOpen && (
+                                <PDFDownloadLink
+                                document={<RoutinePdfDocument routine={routineToPrint} ejerciciosPorDia={ejercicioPorDiaRutina}/>}
+                                fileName={`Rutina_${selectedClient?.primerNombre}${selectedClient?.segundoNombre ? '_' + selectedClient?.segundoNombre : ''}_${selectedClient?.primerApellido}.pdf`}
+                                >
+                                {({ loading }) => (
+                                    <button
+                                        onClick={confirmPrintRoutine}
+                                        className="mr-3 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-700 hover:text-white"
+                                        >
+                                        {loading ? 'Imprimir' : 'Imprimir'}
+                                    </button>
+                                )}
+                            </PDFDownloadLink>
+                            )}
+                            
                         </div>
                     </div>
                 </div>
             )}
-        </div>
-    );
+            {copyModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+                        <h2 className="text-xl font-bold mb-4">Copiar Rutina</h2>
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={handleSearchTermChange}
+                            className="w-full p-2 border border-gray-300 rounded mb-4"
+                            placeholder="Buscar por nombre o cédula"
+                        />
+                        <button
+                            onClick={handleSearch}
+                            className="w-full text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white mb-4"
+                        >
+                            Buscar
+                        </button>
+                        <ul className="max-h-40 overflow-y-auto">
+                            {clientes.map(cliente => (
+                                <li
+                                    key={cliente.id}
+                                    onClick={() => setSelectedClientForCopy(cliente)}
+                                    className={`cursor-pointer p-2 border-b border-gray-300 ${selectedClientForCopy?.id === cliente.id ? 'bg-gray-300' : ''}`}
+                                >
+                                    {cliente.primerNombre} {cliente.segundoNombre} {cliente.primerApellido} {cliente.segundoApellido} - {cliente.cedula}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="mt-4 flex justify-center gap-5">
+                            <button
+                                onClick={confirmCopy}
+                                className={`text-black font-bold py-2 px-4 rounded-full  border ${!selectedClientForCopy
+                                    ? 'bg-gray-400 border-gray-400 cursor-not-allowed'
+                                    : 'focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border-green-700 hover:bg-green-700 hover:text-white'
+                                    }`}
+                                disabled={!selectedClientForCopy}
+                            >
+                                Copiar
+                            </button>
+                            <button
+                                onClick={cancelCopyRoutine}
+                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white"
+                            >Cancelar</button>
 
+                            {showConfirmCopy && (
+                                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                                    <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+                                        <h2 className="text-xl font-bold mb-4">Confirmar la copia</h2>
+                                        <p>¿Estás seguro de que deseas copiar la rutina de {selectedClient?.primerNombre} {selectedClient?.segundoNombre} {selectedClient?.primerApellido} {selectedClient?.segundoApellido} a {selectedClientForCopy.primerNombre} {selectedClientForCopy.segundoNombre} {selectedClientForCopy.primerApellido} {selectedClientForCopy.segundoApellido}</p>
+                                        <h2 className="text-xl font-bold mb-4">Seleccione fecha de cambio:</h2>
+                                        <div className="mt-4">
+                                            <input
+                                                type="date"
+                                                id="fechaCambio"
+                                                name="fechaCambio"
+                                                value={fechaCambio}
+                                                onChange={handleFechaCambioEdit}
+                                                className="w-50 bg-gray-200 rounded-md px-4 py-3 text-center"
+                                            />
+                                        </div>
+                                        <div className="mt-4 flex justify-center gap-5">
+                                            <button
+                                                onClick={cancelConfirmCopy}
+                                                className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-700 hover:text-white"
+                                            >Cancelar</button>
+                                            <button
+                                                onClick={confirmCopyRoutine}
+                                                className="mr-5 text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-700 hover:text-white"
+                                            >Aceptar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )
+            }
+        </div >
+    );
 };
 
 export default ViewRoutineRecord;

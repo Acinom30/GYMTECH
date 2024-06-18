@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { db } from '../../firebase/config';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { formatDate } from '../js/general';
 
 const EditEvaluation = () => {
     const location = useLocation();
@@ -14,16 +15,11 @@ const EditEvaluation = () => {
     const [cliente, setCliente] = useState()
     const navigate = useNavigate();
 
-
-    const formatDate = (date) => {
-        return new Date(date).toISOString().split('T')[0];
-    };
-
     const [formData, setFormData] = useState({
         objetivo: '',
         diasSemana: '',
         peso: '',
-        fechaValoracion: formatDate(new Date()),
+        //fechaValoracion: formatDate(new Date()),
         lesionesActuales: '',
         tipoPersona: '',
 
@@ -136,7 +132,7 @@ const EditEvaluation = () => {
         const dataWithUserRef = {
             ...formData,
             usuario: usuarioRef,
-            fechaValoracion: new Date().toISOString().split('T')[0],
+            //fechaValoracion: formatDate(new Date),
 
         };
 
@@ -585,11 +581,11 @@ const EditEvaluation = () => {
                         </div>
 
                         <div className="flex justify-center md:justify-end">
-                            <Link to="/selectUserEvaluation" className="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                            <Link to="/selectUserEvaluation" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                                 Cancelar
                             </Link>
-                            <button onClick={handleSubmit} type="button" className="bg-yellow-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded ml-4">
-                                Guardar
+                            <button onClick={handleSubmit} type="button" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
+                                Actualizar
                             </button>
                         </div>
                     </form>
