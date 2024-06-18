@@ -3,9 +3,7 @@ import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { useUser } from '../../userContext'
@@ -13,7 +11,6 @@ import { useUser } from '../../userContext'
 const CategoriesList = () => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
     const { user } = useUser();
 
     useEffect(() => {

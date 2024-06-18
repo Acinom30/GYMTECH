@@ -4,8 +4,9 @@ import { db } from '../../firebase/config';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 import bcrypt from 'bcryptjs';
-import { doc, setDoc, addDoc, collection } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, where, getDocs, query } from 'firebase/firestore';
 import Header from '../general/navigationMenu';
+import { formatDate } from '../js/general';
 
 const UserForm = ({ initialData, isUpdate }) => {
     const [formData, setFormData] = useState({
@@ -15,11 +16,14 @@ const UserForm = ({ initialData, isUpdate }) => {
         primerApellido: '',
         segundoApellido: '',
         fechaNacimiento: '',
+        altura: '',
         telefono: '',
         email: '',
         rol: '',
         observaciones: '',
-        resetPassword: 'no',
+        estado: 'ACTIVO',
+        fechaRegistro: formatDate(new Date)
+
     });
 
     const navigate = useNavigate();
@@ -46,7 +50,8 @@ const UserForm = ({ initialData, isUpdate }) => {
             !formData.primerApellido ||
             !formData.fechaNacimiento ||
             !formData.telefono ||
-            !formData.rol
+            !formData.rol ||
+            !formData.altura
         ) {
             ToastifyError("Por favor, complete todos los campos obligatorios");
             return;
@@ -59,19 +64,29 @@ const UserForm = ({ initialData, isUpdate }) => {
         }
 
         try {
+            const cedulaQuery = query(collection(db, 'usuarios'), where('cedula', '==', formData.cedula));
+            const querySnapshot = await getDocs(cedulaQuery);
+            if (!querySnapshot.empty && (!isUpdate || (isUpdate && initialData.cedula !== formData.cedula))) {
+                ToastifyError('Ya existe un usuario con esa cédula');
+                return;
+            }
             if (isUpdate) {
+                const { id, ...formDataWithoutId } = formData; // Extrae el campo id de formData
                 const userRef = doc(db, "usuarios", initialData.id);
                 if (formData.resetPassword === 'si') {
-                    const hashedPassword = bcrypt.hashSync('12345678', 10);
-                    const { resetPassword, ...formDataWithoutReset } = formData;
+                    const hashedPassword = bcrypt.hashSync('1234', 10);
+                    const { resetPassword, ...formDataWithoutReset } = formDataWithoutId;
                     await setDoc(userRef, { ...formDataWithoutReset, contrasena: hashedPassword }, { merge: true });
                 } else {
-                    const { resetPassword, ...formDataWithoutReset } = formData;
+                    const { resetPassword, ...formDataWithoutReset } = formDataWithoutId;
                     await setDoc(userRef, formDataWithoutReset, { merge: true });
                 }
+
                 ToastifySuccess("Se ha actualizado el cliente correctamente");
             } else {
-                await addDoc(collection(db, "usuarios"), formData);
+                const hashedPassword = bcrypt.hashSync('1234', 10);
+                const registerUser = collection(db, "usuarios");
+                await addDoc(registerUser, { ...formData, contrasena: hashedPassword });
                 ToastifySuccess("Se ha agregado el cliente correctamente");
             }
             navigate('/viewListClients');
@@ -145,6 +160,17 @@ const UserForm = ({ initialData, isUpdate }) => {
                                 />
                             </div>
                             <div className="flex flex-col space-y-4">
+                                <div className="flex flex-col space-y-4">
+                                    <label htmlFor="altura" className="block font-semibold">Altura *</label>
+                                    <input
+                                        type="number"
+                                        id="altura"
+                                        name="altura"
+                                        value={formData.altura}
+                                        onChange={handleChange}
+                                        className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
+                                    />
+                                </div>
                                 <label htmlFor="telefono" className="block font-semibold">Teléfono *</label>
                                 <input
                                     type="number"
@@ -175,6 +201,31 @@ const UserForm = ({ initialData, isUpdate }) => {
                                             <option value="no">No</option>
                                             <option value="si">Sí</option>
                                         </select>
+                                        <label className="block font-semibold">Estado *</label>
+                                        <div>
+                                            <label>
+                                                <input
+                                                    type="radio"
+                                                    name="estado"
+                                                    value="ACTIVO"
+                                                    checked={formData.estado === 'ACTIVO'}
+                                                    onChange={handleChange}
+                                                    className="mr-2"
+                                                />
+                                                Activo
+                                            </label>
+                                            <label className="ml-4">
+                                                <input
+                                                    type="radio"
+                                                    name="estado"
+                                                    value="INACTIVO"
+                                                    checked={formData.estado === 'INACTIVO'}
+                                                    onChange={handleChange}
+                                                    className="mr-2"
+                                                />
+                                                Inactivo
+                                            </label>
+                                        </div>
                                     </>
                                 )}
 

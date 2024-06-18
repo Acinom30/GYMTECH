@@ -5,7 +5,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 import { db } from '../../firebase/config';
-import { useUser } from '../../userContext'; 
+import { useUser } from '../../userContext';
 import ToastifyError from '../ui/toastify/toastifyError';
 
 const LoginForm = () => {
@@ -35,9 +35,16 @@ const LoginForm = () => {
       return;
     } else {
       const userDocSnapshot = querySnapshot.docs[0];
-      const userId = userDocSnapshot.id;
       const userData = userDocSnapshot.data();
       const isMatch = await bcrypt.compare(contraseña, userData.contrasena);
+      const tempPassword = bcrypt.hashSync('1234', 10); 
+      const isMatchTempPassword = await bcrypt.compare(contraseña, tempPassword);
+
+      if (isMatchTempPassword && isMatch) {
+        ToastifyError('Debe actualizar su contraseña temporal');
+        return;
+      }
+
       if (!isMatch) {
         ToastifyError('La contraseña no coincide');
         return;

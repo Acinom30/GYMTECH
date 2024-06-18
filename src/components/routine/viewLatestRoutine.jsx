@@ -19,6 +19,7 @@ const ViewLatestRoutine = () => {
     const [showRoutine, setShowRoutine] = useState(false);
     const [ejerciciosPorDia, setEjerciciosPorDia] = useState({});
     const [showButton, setShowButton] = useState(true)
+    const [userData, setUserData] = useState(null)
     const [showPrintButton, setPrintButton] = useState(true)
 
     const navigate = useNavigate();
@@ -30,6 +31,7 @@ const ViewLatestRoutine = () => {
                 const qUser = query(collection(db, 'usuarios'), where("cedula", "==", user.user.cedula));
                 const querySnapshotUser = await getDocs(qUser);
                 const userDocSnapshot = querySnapshotUser.docs[0];
+                setUserData(userDocSnapshot.data())
                 const userId = userDocSnapshot.id;
                 const routinesRef = collection(db, 'rutinas');
                 const q = query(
@@ -152,7 +154,11 @@ const ViewLatestRoutine = () => {
     };
 
     const handleBack = () => {
-        navigate('/homeClient');
+        if (user.user.rol === "administrador" || user.user.rol === "entrenador")
+            navigate('/home');
+        else {
+            navigate('/homeClient');
+        }
     };
 
     return (
@@ -173,11 +179,11 @@ const ViewLatestRoutine = () => {
                     )}
                     <PDFDownloadLink
                         document={<RoutinePdfDocument routine={routineData[currentRoutineIndex]} ejerciciosPorDia={ejerciciosPorDia} />}
-                        fileName="routine.pdf"
+                        fileName={`Rutina_${userData.primerNombre}${userData.segundoNombre ? '_' + userData.segundoNombre : ''}_${userData.primerApellido}.pdf`}
                     >
                         {({ loading }) => (
                             <button className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white">
-                                {loading ? 'Generando PDF...' : 'Descargar PDF'}
+                                {loading ? 'Descargar PDF' : 'Descargar PDF'}
                             </button>
                         )}
                     </PDFDownloadLink>

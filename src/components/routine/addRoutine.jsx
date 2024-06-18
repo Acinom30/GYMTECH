@@ -206,7 +206,7 @@ const AddRoutine = () => {
     };
 
     const handleSaveRoutine = async () => {
-        if(rutina.length === 0) {
+        if (rutina.length === 0) {
             ToastifyError("Debe ingresar ejercicios a la rutina")
             return;
         }
@@ -301,8 +301,6 @@ const AddRoutine = () => {
     const handleOptionChange = (event) => {
         setSeleccionFechaCambio(event.target.value);
     };
-
-    
 
     const handleColorSelection = (color) => {
         setSelectedColor(color);
@@ -615,20 +613,20 @@ const AddRoutine = () => {
                                     <div className="flex justify-center">
                                         <PDFDownloadLink
                                             document={<RoutinePdfDocument routine={rutinaDescarga} ejerciciosPorDia={ejerciciosPorDia} />}
-                                            fileName="routine.pdf"
+                                            fileName={`Rutina_${client?.primerNombre}${client?.segundoNombre ? '_' + client?.segundoNombre : ''}_${client?.primerApellido}.pdf`}
                                         >
                                             {({ loading }) => (
-                                                <button 
-                                                onClick={() => {
-                                                    navigate('/selectUserRoutine');
-                                                }}
-                                                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-5"
-                                                aria-label={loading ? 'Generando PDF...' : 'Descargar PDF'}         
-                                                                             
+                                                <button
+                                                    onClick={() => {
+                                                        navigate('/selectUserRoutine');
+                                                    }}
+                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-5"
+                                                    aria-label={loading ? 'Descargar PDF' : 'Descargar PDF'}
+
                                                 >
-                                                {loading ? 'Generando PDF...' : 'Descargar PDF'}
-                                                
-                                            </button>
+                                                    {loading ? 'Generando PDF...' : 'Descargar PDF'}
+
+                                                </button>
                                             )}
                                         </PDFDownloadLink>
                                         <button

@@ -162,8 +162,6 @@ const EditRoutine = () => {
         handleDeleteExercise(index);
     };
 
-
-
     const obtenerEjerciciosSeleccionado = async (categoriaId) => {
         const ejerciciosRef = collection(db, "ejercicios");
         const q = query(ejerciciosRef, where('categoria', '==', categoriaId));

@@ -187,7 +187,7 @@ const AssignEvaluation = () => {
               {/* ----------------Columna izquierda------------------ */}
               <div className="flex flex-col space-y-4">
                 <label className="block font-semibold">Objetivo *</label>
-                <input
+                <textarea
                   type="text"
                   id="objetivo"
                   name="objetivo"
