@@ -85,6 +85,33 @@ const AssignEvaluation = () => {
     });
   };
 
+  const handleChangeDiasSemana = (event) => {
+    const { name, value } = event.target;
+    if (value === '') {
+      setFormData({
+        ...formData,
+        [name]: ''
+      });
+      return;
+    }
+    const numericValue = Number(value);
+
+    if (numericValue >= 1 && numericValue < 7) {
+      setFormData({
+        ...formData,
+        [name]: numericValue
+      });
+    } else {
+      if (value !== '') {
+        ToastifyError('La cantidad de días no puede ser mayor que 6 y debe ser positivo');
+      }
+      setFormData({
+        ...formData,
+        [name]: ''
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -201,7 +228,7 @@ const AssignEvaluation = () => {
                   id="diasSemana"
                   name="diasSemana"
                   value={formData.diasSemana}
-                  onChange={handleChangeNumber}
+                  onChange={handleChangeDiasSemana}
                   className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                 />
                 <label className="block font-semibold">Peso *</label>

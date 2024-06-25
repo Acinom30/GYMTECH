@@ -4,6 +4,7 @@ import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
 import { Link } from 'react-router-dom';
 import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css'; 
 import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { useUser } from '../../userContext'

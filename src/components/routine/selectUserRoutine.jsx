@@ -95,7 +95,7 @@ const SelectUserRoutine = () => {
     return (
         <>
             <Header />
-            <h1 className="text-3xl font-bold text-center mb-4">Rutinas</h1>
+            <h1 className="text-3xl font-bold text-center mb-4">Usuarios</h1>
             <ViewClientList
                 clients={clients}
                 handlePrimaryAction={handleEvaluation}

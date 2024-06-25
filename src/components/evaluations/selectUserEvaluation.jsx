@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import ViewClientList from '../general/viewClientList';
 import { useUser } from '../../userContext';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
+import 'react-confirm-alert/src/react-confirm-alert.css'; 
+
 
 const SelectUserEvaluation = () => {
     const navigate = useNavigate();
