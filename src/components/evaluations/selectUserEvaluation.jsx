@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { collection, getDocs, orderBy, query, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Header from '../general/navigationMenu';
@@ -7,6 +7,8 @@ import ViewClientList from '../general/viewClientList';
 import { useUser } from '../../userContext';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import 'react-confirm-alert/src/react-confirm-alert.css'; 
+import { calculateDays } from '../js/general';
+
 
 
 const SelectUserEvaluation = () => {
@@ -18,7 +20,36 @@ const SelectUserEvaluation = () => {
     const [showModal, setShowModal] = useState(false);
     const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [valoracionToDelete, setValoracionToDelete] = useState(null);
+    const [clientsWithEvaluations, setClientsWithEvaluations] = useState({});
+
     const { user } = useUser();
+
+    useEffect(() => {
+        const fetchEvaluation = async () => {
+            const evaluationRef = collection(db, 'valoraciones');
+            const evaluationsSnapshot = await getDocs(evaluationRef);            
+            const evaluationData = {};
+            evaluationsSnapshot.docs.forEach(doc => {
+                const valoracion = doc.data();
+                
+                if (valoracion.usuario && valoracion.usuario.id) {
+                    const clientId = valoracion.usuario.id;
+                    if (!evaluationData[clientId]) {
+                        evaluationData[clientId] = [];
+                    }
+                    evaluationData[clientId].push({
+                        id: doc.id,
+                        ...valoracion
+                    });
+                } else {
+                    console.log("No se encontró usuario.id para la valoración:", doc.id);
+                }
+            });
+            setClientsWithEvaluations(evaluationData);
+        };
+    
+        fetchEvaluation();
+    }, []);
 
 
     const handleDeleteEvaluation = async (valoracionId) => {
@@ -43,17 +74,7 @@ const SelectUserEvaluation = () => {
         setConfirmationModalOpen(false);
         setValoracionToDelete(null);
     };
-
-
-    const calculateDays = (client) => {
-        if (client && client.fechaRegistro) {
-            const fechaRegistroDate = new Date(client.fechaRegistro);
-            const currentDate = new Date();
-            const differenceInTime = currentDate.getTime() - fechaRegistroDate.getTime();
-            return differenceInTime / (1000 * 3600 * 24);
-        }
-        return null;
-    };
+    
 
     const handleClickAdd = () => {
         navigate('/assignEvaluation', { state: { client: selectedClient } });
@@ -100,7 +121,7 @@ const SelectUserEvaluation = () => {
     return (
         <>
             <Header />
-            <h1 className="text-3xl font-bold text-center mb-4">Valoraciones</h1>
+            <h1 className="text-3xl font-bold text-center mb-4">Usuarios</h1>
             <ViewClientList
                 clients={clients}
                 handlePrimaryAction={handleAddEvent}
@@ -110,6 +131,9 @@ const SelectUserEvaluation = () => {
                 handleTertiaryAction={handleRecordEvent}
                 tertiaryActionLabel="Historial"
                 user={user}
+                clientsWithObjects={clientsWithEvaluations}
+                tipo="valoraciones"
+
             />
             {confirmationModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">

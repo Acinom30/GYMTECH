@@ -43,3 +43,13 @@ export const calcularEdad = (fechaNacimiento) => {
     const edad = new Date(diferenciaFechas);
     return Math.abs(edad.getUTCFullYear() - 1970);
 };
+
+export const calculateDays = (client) => {
+    if (client && client.fechaRegistro) {
+        const fechaRegistroDate = new Date(client.fechaRegistro);
+        const currentDate = new Date();
+        const differenceInTime = currentDate.getTime() - fechaRegistroDate.getTime();
+        return differenceInTime / (1000 * 3600 * 24);
+    }
+    return null;
+};

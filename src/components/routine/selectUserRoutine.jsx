@@ -7,6 +7,7 @@ import ToastifyError from '../ui/toastify/toastifyError';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { useUser } from '../../userContext';
 import ViewClientList from '../general/viewClientList';
+import { calculateDays } from '../js/general';
 
 const SelectUserRoutine = () => {
     const navigate = useNavigate();
@@ -17,22 +18,36 @@ const SelectUserRoutine = () => {
     const [modalType, setModalType] = useState(null);
     const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [rutinaToDelete, setRutinaToDelete] = useState(null);
+    const [clientsWithRoutines, setClientsWithRoutines] = useState({});
+
     const { user } = useUser();
+
+    useEffect(() => {
+        const fetchRoutines = async () => {
+            const rutinasRef = collection(db, 'rutinas');
+            const rutinasSnapshot = await getDocs(rutinasRef);
+            const routinesData = {};
+            rutinasSnapshot.docs.forEach(doc => {
+                const rutina = doc.data();
+                if (rutina.clientId) {
+                    const clientId = rutina.clientId.id;
+                    if (!routinesData[clientId]) {
+                        routinesData[clientId] = [];
+                    }
+                    routinesData[clientId].push(rutina);
+                }
+            });
+            setClientsWithRoutines(routinesData);
+        };
+
+        fetchRoutines();
+    }, []);
 
     const handleEvaluation = (client) => {
         setSelectedClient(client);
         setModalType('1');
     };
 
-    const calculateDays = (client) => {
-        if (client && client.fechaRegistro) {
-            const fechaRegistroDate = new Date(client.fechaRegistro);
-            const currentDate = new Date();
-            const differenceInTime = currentDate.getTime() - fechaRegistroDate.getTime();
-            return differenceInTime / (1000 * 3600 * 24);
-        }
-        return null;
-    };
 
     const handleClick = () => {
         navigate('/addRoutine', { state: { client: selectedClient } });
@@ -105,6 +120,8 @@ const SelectUserRoutine = () => {
                 handleTertiaryAction={handleHistory}
                 tertiaryActionLabel='Historial'
                 user={user}
+                clientsWithObjects={clientsWithRoutines}
+                tipo="rutinas"
             />
             {modalType === '2' && showModal && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
@@ -127,12 +144,12 @@ const SelectUserRoutine = () => {
                                                         Editar Rutina
                                                     </button>
                                                     {user.user.rol === 'administrador' && (
-                                                    <button
-                                                        onClick={() => handleDeleteRoutine(rutina.id)}
-                                                        className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
-                                                    >
-                                                        Eliminar Rutina
-                                                    </button>
+                                                        <button
+                                                            onClick={() => handleDeleteRoutine(rutina.id)}
+                                                            className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                                                        >
+                                                            Eliminar Rutina
+                                                        </button>
                                                     )}
                                                 </div>
                                             </li>

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { db } from '../../firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const ViewClientList = ({
   handlePrimaryAction,
@@ -11,6 +11,8 @@ const ViewClientList = ({
   tertiaryActionLabel,
   user,
   fetchClients,
+  clientsWithObjects,
+  tipo,
 }) => {
   const isMounted = useRef(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,13 +22,25 @@ const ViewClientList = ({
     isMounted.current = true;
     const fetchFilteredClients = async () => {
       if (fetchClients) {
-        await fetchClients(); 
+        await fetchClients();
       }
-      const querySnapshot = await getDocs(collection(db, 'usuarios'));
-      const clientsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      let clientsData = [];
+      if (tipo === "usuarios") {
+        const querySnapshot = await getDocs(collection(db, 'usuarios'));
+        clientsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      } else {
+        if (tipo === "rutinas" || tipo === "valoraciones") {
+          const q = query(collection(db, 'usuarios'), where('estado', '==', 'ACTIVO'));
+          const querySnapshot = await getDocs(q);
+          clientsData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+        }
+      }
       const filteredClients = clientsData.filter(client => {
         const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const fullName = normalize(`${client.primerNombre} ${client.primerApellido}`).toLowerCase();
@@ -42,6 +56,29 @@ const ViewClientList = ({
       isMounted.current = false;
     };
   }, [searchTerm, fetchClients]);
+
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
+
+  const getStatusIndicator = (client) => {
+    const sizeClass = "text-base";
+    switch (tipo) {
+      case 'usuarios':
+        return client.estado === 'ACTIVO' ? (
+          <span className={`text-green-500 ${sizeClass}`}>✔</span>
+        ) : (
+          <span className={`text-red-500 ${sizeClass}`}>✘</span>
+        );
+      default:
+        return clientsWithObjects[client.id] && clientsWithObjects[client.id].length > 0 ? (
+          <span className={`text-green-500 ${sizeClass}`}>✔</span>
+        ) : (
+          <span className={`text-red-500 ${sizeClass}`}>✘</span>
+        );
+    }
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -66,7 +103,7 @@ const ViewClientList = ({
             <th className="w-1/4 px-4 py-2">Nombre</th>
             <th className="w-1/4 px-4 py-2">Apellidos</th>
             <th className="w-1/4 px-4 py-2">Cédula</th>
-            <th className="w-1/4 px-4 py-2">Acciones</th>
+            <th className="w-1/4 px-4 py-2">Acciones sobre {capitalizeFirstLetter(tipo)}</th>
           </tr>
         </thead>
         <tbody>
@@ -76,9 +113,15 @@ const ViewClientList = ({
                 <>
                   <td className="border px-4 py-2">{client.primerNombre} {client.segundoNombre}</td>
                   <td className="border px-4 py-2">{client.primerApellido} {client.segundoApellido}</td>
-                  <td className="border px-4 py-2">{client.cedula}</td>
+                  <td className="border px-4 py-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-grow text-center">{client.cedula}</div>
+                      <div>{getStatusIndicator(client)}</div>
+                    </div>
+                  </td>
                   <td className="border px-4 py-2">
                     <div className="inline-flex gap-5">
+
                       <button
                         onClick={() => handlePrimaryAction(client)}
                         className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-gray-500 hover:text-white"
@@ -88,18 +131,18 @@ const ViewClientList = ({
                       <button
                         onClick={() => handleSecondaryAction(client)}
                         className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white"
-                        >
+                      >
                         {secondaryActionLabel}
                       </button>
-                        <button
-                          onClick={() => handleTertiaryAction(client)}
-                          className={`text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 ${tertiaryActionLabel === 'Eliminar' &&  user.user.rol === 'administrador' 
-                              ? "text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
-                              : "text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white"
-                            }`}
-                        >
-                          {tertiaryActionLabel}
-                        </button>
+                      <button
+                        onClick={() => handleTertiaryAction(client)}
+                        className={`text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 ${tertiaryActionLabel === 'Eliminar' && user.user.rol === 'administrador'
+                          ? "text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                          : "text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white"
+                          }`}
+                      >
+                        {tertiaryActionLabel}
+                      </button>
                     </div>
                   </td>
                 </>
