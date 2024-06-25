@@ -47,7 +47,7 @@ const LoginForm = () => {
       const isMatchTempPassword = await bcrypt.compare(contraseña, tempPassword);
 
       if (isMatchTempPassword && isMatch) {
-        ToastifyError('Debe actualizar su contraseña temporal');
+        ToastifyError('Vaya a "Registrar" para actualizar su contraseña');
         return;
       }
 

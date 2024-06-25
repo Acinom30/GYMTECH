@@ -147,9 +147,9 @@ const EditRoutine = () => {
         const ejercicioData = ejercicioSnapshot.data();
         const ejercicioSeleccionado = await obtenerEjerciciosSeleccionado(ejercicioData.categoria);
         setEjercicios(ejercicioSeleccionado);
-        console.log(ejercicio);
-        console.log(ejercicio.nombre)
-        console.log(ejercicio.observaciones)
+        //console.log(ejercicio);
+        //console.log(ejercicio.nombre)
+        //console.log(ejercicio.observaciones)
 
         setFormData({
             ejercicio: ejercicio.id,
