@@ -25,7 +25,7 @@ import EditCategory from './components/category/editCategory';
 import ViewEvaluationHistory from './components/evaluations/viewEvaluationHistory';
 import ViewRoutineRecord from './components/routine/viewRoutineRecord';
 import ChangePassword from './components/user/changePassword';
-import HomeClient from './components/general/homeClient'
+import HomeClient from './components/general/homeClient';
 
 function App() {
   return (

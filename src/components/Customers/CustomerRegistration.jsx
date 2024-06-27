@@ -35,9 +35,18 @@ const CustomerRegistration = () => {
             const userDocRef = userDocSnapshot.ref;
             const userData = userDocSnapshot.data();
 
+            const tempPasswordCompare = bcrypt.hashSync('1234', 10);
+            const isMatchTempPassword = await bcrypt.compare(tempPassword, tempPasswordCompare);
+
+
             const isMatch = await bcrypt.compare(tempPassword, userData.contrasena);
             if (!isMatch) {
                 ToastifyError('Contraseña temporal incorrecta.');
+                return;
+            }
+
+            if (!isMatchTempPassword && isMatch) {
+                ToastifyError('El usuario ya registró su cuenta');
                 return;
             }
 

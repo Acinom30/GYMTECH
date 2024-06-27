@@ -75,7 +75,6 @@ const EditRoutine = () => {
     }, [routineId]);
 
 
-
     const handleChangeCategoria = async (e) => {
         const categoriaId = e.target.value;
         setFormData({
@@ -148,9 +147,9 @@ const EditRoutine = () => {
         const ejercicioData = ejercicioSnapshot.data();
         const ejercicioSeleccionado = await obtenerEjerciciosSeleccionado(ejercicioData.categoria);
         setEjercicios(ejercicioSeleccionado);
-        console.log(ejercicio);
-        console.log(ejercicio.nombre)
-        console.log(ejercicio.observaciones)
+        //console.log(ejercicio);
+        //console.log(ejercicio.nombre)
+        //console.log(ejercicio.observaciones)
 
         setFormData({
             ejercicio: ejercicio.id,
@@ -162,8 +161,6 @@ const EditRoutine = () => {
         setEjercicioSeleccionado(ejercicio);
         handleDeleteExercise(index);
     };
-
-
 
     const obtenerEjerciciosSeleccionado = async (categoriaId) => {
         const ejerciciosRef = collection(db, "ejercicios");

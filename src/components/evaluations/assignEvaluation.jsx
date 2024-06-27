@@ -7,14 +7,11 @@ import { Link } from 'react-router-dom';
 import { db } from '../../firebase/config';
 import { addDoc, collection, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { formatDate } from '../js/general';
 
 
 const AssignEvaluation = () => {
   const navigate = useNavigate();
-
-  const formatDate = (date) => {
-    return new Date(date).toISOString().split('T')[0];
-  };
 
   const location = useLocation();
   const client = location.state?.client;
@@ -88,6 +85,33 @@ const AssignEvaluation = () => {
     });
   };
 
+  const handleChangeDiasSemana = (event) => {
+    const { name, value } = event.target;
+    if (value === '') {
+      setFormData({
+        ...formData,
+        [name]: ''
+      });
+      return;
+    }
+    const numericValue = Number(value);
+
+    if (numericValue >= 1 && numericValue < 7) {
+      setFormData({
+        ...formData,
+        [name]: numericValue
+      });
+    } else {
+      if (value !== '') {
+        ToastifyError('La cantidad de días no puede ser mayor que 6 y debe ser positivo');
+      }
+      setFormData({
+        ...formData,
+        [name]: ''
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -124,7 +148,7 @@ const AssignEvaluation = () => {
         objetivo: '',
         diasSemana: '',
         peso: '',
-        fechaValoracion: formatDate(new Date()),
+        fechaValoracion: formatDate(new Date),
         lesionesActuales: '',
         tipoPersona: '',
 
@@ -190,7 +214,7 @@ const AssignEvaluation = () => {
               {/* ----------------Columna izquierda------------------ */}
               <div className="flex flex-col space-y-4">
                 <label className="block font-semibold">Objetivo *</label>
-                <input
+                <textarea
                   type="text"
                   id="objetivo"
                   name="objetivo"
@@ -204,7 +228,7 @@ const AssignEvaluation = () => {
                   id="diasSemana"
                   name="diasSemana"
                   value={formData.diasSemana}
-                  onChange={handleChangeNumber}
+                  onChange={handleChangeDiasSemana}
                   className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                 />
                 <label className="block font-semibold">Peso *</label>

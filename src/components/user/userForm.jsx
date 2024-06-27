@@ -1,32 +1,38 @@
-import { doc, setDoc } from 'firebase/firestore';
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase/config';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import ToastifyError from '../ui/toastify/toastifyError';
 import bcrypt from 'bcryptjs';
+import { doc, setDoc, addDoc, collection, where, getDocs, query } from 'firebase/firestore';
 import Header from '../general/navigationMenu';
-import { useNavigate } from 'react-router-dom';
+import { formatDate } from '../js/general';
 
-
-const UpdateUser = () => {
-    const location = useLocation();
-    const clientToUpdate = location.state?.client || {};
-    const navigate = useNavigate();
-    
+const UserForm = ({ initialData, isUpdate }) => {
     const [formData, setFormData] = useState({
-        cedula: clientToUpdate.cedula || '',
-        primerNombre: clientToUpdate.primerNombre || '',
-        segundoNombre: clientToUpdate.segundoNombre || '',
-        primerApellido: clientToUpdate.primerApellido || '',
-        segundoApellido: clientToUpdate.segundoApellido || '',
-        fechaNacimiento: clientToUpdate.fechaNacimiento || '',
-        telefono: clientToUpdate.telefono || '',
-        email: clientToUpdate.email || '',
-        rol: clientToUpdate.rol || '',
-        observaciones: clientToUpdate.observaciones || '',
-        resetPassword: 'no',
+        cedula: '',
+        primerNombre: '',
+        segundoNombre: '',
+        primerApellido: '',
+        segundoApellido: '',
+        fechaNacimiento: '',
+        altura: '',
+        telefono: '',
+        email: '',
+        rol: '',
+        observaciones: '',
+        estado: 'ACTIVO',
+        fechaRegistro: formatDate(new Date)
+
     });
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isUpdate && initialData) {
+            setFormData({ ...initialData, resetPassword: 'no' });
+        }
+    }, [isUpdate, initialData]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -44,9 +50,8 @@ const UpdateUser = () => {
             !formData.primerApellido ||
             !formData.fechaNacimiento ||
             !formData.telefono ||
-            !formData.email ||
             !formData.rol ||
-            !formData.observaciones
+            !formData.altura
         ) {
             ToastifyError("Por favor, complete todos los campos obligatorios");
             return;
@@ -58,37 +63,36 @@ const UpdateUser = () => {
             }
         }
 
-        const userRef = doc(db, "usuarios", clientToUpdate.id);
-        if (formData.resetPassword === 'si') {
-            const hashedPassword = bcrypt.hashSync('12345678', 10);
-            try {
-                // Excluir resetPassword de los datos que se actualizan en Firestore
-                const { resetPassword, ...formDataWithoutReset } = formData;
-                await setDoc(userRef, { ...formDataWithoutReset, contrasena: hashedPassword }, { merge: true });
-            } catch (error) {
-                ToastifyError("Error al actualizar el cliente");
+        try {
+            const cedulaQuery = query(collection(db, 'usuarios'), where('cedula', '==', formData.cedula));
+            const querySnapshot = await getDocs(cedulaQuery);
+            if (!querySnapshot.empty && (!isUpdate || (isUpdate && initialData.cedula !== formData.cedula))) {
+                ToastifyError('Ya existe un usuario con esa cédula');
+                return;
             }
-        } else {
-            // Excluir resetPassword de los datos que se actualizan en Firestore
-            const { resetPassword, ...formDataWithoutReset } = formData;
-            await setDoc(userRef, formDataWithoutReset, { merge: true });
-        }
+            if (isUpdate) {
+                const { id, ...formDataWithoutId } = formData; // Extrae el campo id de formData
+                const userRef = doc(db, "usuarios", initialData.id);
+                if (formData.resetPassword === 'si') {
+                    const hashedPassword = bcrypt.hashSync('1234', 10);
+                    const { resetPassword, ...formDataWithoutReset } = formDataWithoutId;
+                    await setDoc(userRef, { ...formDataWithoutReset, contrasena: hashedPassword }, { merge: true });
+                } else {
+                    const { resetPassword, ...formDataWithoutReset } = formDataWithoutId;
+                    await setDoc(userRef, formDataWithoutReset, { merge: true });
+                }
 
-        ToastifySuccess("Se ha actualizado el cliente correctamente");
-        navigate('/viewListClients')
-        setFormData({
-            cedula: '',
-            primerNombre: '',
-            segundoNombre: '',
-            primerApellido: '',
-            segundoApellido: '',
-            fechaNacimiento: '',
-            telefono: '',
-            email: '',
-            rol: '',
-            observaciones: '',
-            resetPassword: ''
-        });
+                ToastifySuccess("Se ha actualizado el cliente correctamente");
+            } else {
+                const hashedPassword = bcrypt.hashSync('1234', 10);
+                const registerUser = collection(db, "usuarios");
+                await addDoc(registerUser, { ...formData, contrasena: hashedPassword });
+                ToastifySuccess("Se ha agregado el cliente correctamente");
+            }
+            navigate('/viewListClients');
+        } catch (error) {
+            ToastifyError("Error al procesar el cliente");
+        }
     };
 
     return (
@@ -96,11 +100,11 @@ const UpdateUser = () => {
             <Header />
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <div className="md:w-2/3 px-4 py-8">
-                    <h1 className="text-3xl font-bold mb-4">Actualizar Cliente</h1>
+                    <h1 className="text-3xl font-bold mb-4">{isUpdate ? 'Actualizar Usuario' : 'Agregar Usuario'}</h1>
                     <form className="space-y-4" onSubmit={handleSubmit}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col space-y-4">
-                                <label htmlFor="cedula" className="block font-semibold">Cédula</label>
+                                <label htmlFor="cedula" className="block font-semibold">Cédula *</label>
                                 <input
                                     type="text"
                                     id="cedula"
@@ -109,7 +113,7 @@ const UpdateUser = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-                                <label htmlFor="primerNombre" className="block font-semibold">Primer Nombre</label>
+                                <label htmlFor="primerNombre" className="block font-semibold">Primer Nombre *</label>
                                 <input
                                     type="text"
                                     id="primerNombre"
@@ -127,7 +131,7 @@ const UpdateUser = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-                                <label htmlFor="primerApellido" className="block font-semibold">Primer Apellido</label>
+                                <label htmlFor="primerApellido" className="block font-semibold">Primer Apellido *</label>
                                 <input
                                     type="text"
                                     id="primerApellido"
@@ -145,7 +149,7 @@ const UpdateUser = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-                                <label htmlFor="fechaNacimiento" className="block font-semibold">Fecha de Nacimiento</label>
+                                <label htmlFor="fechaNacimiento" className="block font-semibold">Fecha de Nacimiento *</label>
                                 <input
                                     type="date"
                                     id="fechaNacimiento"
@@ -156,7 +160,18 @@ const UpdateUser = () => {
                                 />
                             </div>
                             <div className="flex flex-col space-y-4">
-                                <label htmlFor="telefono" className="block font-semibold">Teléfono</label>
+                                <div className="flex flex-col space-y-4">
+                                    <label htmlFor="altura" className="block font-semibold">Altura *</label>
+                                    <input
+                                        type="number"
+                                        id="altura"
+                                        name="altura"
+                                        value={formData.altura}
+                                        onChange={handleChange}
+                                        className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
+                                    />
+                                </div>
+                                <label htmlFor="telefono" className="block font-semibold">Teléfono *</label>
                                 <input
                                     type="number"
                                     id="telefono"
@@ -174,17 +189,47 @@ const UpdateUser = () => {
                                     onChange={handleChange}
                                     className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
                                 />
-                                <label className="block font-semibold">Restablecer contraseña por defecto</label>
-                                <select
-                                    name="resetPassword"
-                                    value={formData.resetPassword}
-                                    onChange={handleChange}
-                                    className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
-                                >
-                                    <option value="no">No</option>
-                                    <option value="si">Sí</option>
-                                </select>
-                                <label className="block font-semibold">Rol</label>
+                                {isUpdate && (
+                                    <>
+                                        <label className="block font-semibold">Restablecer contraseña por defecto</label>
+                                        <select
+                                            name="resetPassword"
+                                            value={formData.resetPassword}
+                                            onChange={handleChange}
+                                            className="w-full max-w-md bg-gray-200 rounded-md px-4 py-2"
+                                        >
+                                            <option value="no">No</option>
+                                            <option value="si">Sí</option>
+                                        </select>
+                                        <label className="block font-semibold">Estado *</label>
+                                        <div>
+                                            <label>
+                                                <input
+                                                    type="radio"
+                                                    name="estado"
+                                                    value="ACTIVO"
+                                                    checked={formData.estado === 'ACTIVO'}
+                                                    onChange={handleChange}
+                                                    className="mr-2"
+                                                />
+                                                Activo
+                                            </label>
+                                            <label className="ml-4">
+                                                <input
+                                                    type="radio"
+                                                    name="estado"
+                                                    value="INACTIVO"
+                                                    checked={formData.estado === 'INACTIVO'}
+                                                    onChange={handleChange}
+                                                    className="mr-2"
+                                                />
+                                                Inactivo
+                                            </label>
+                                        </div>
+                                    </>
+                                )}
+
+                                <label className="block font-semibold">Rol *</label>
                                 <div>
                                     <label>
                                         <input
@@ -231,11 +276,11 @@ const UpdateUser = () => {
                             </div>
                         </div>
                         <div className="flex justify-center md:justify-end">
-                            <Link to="/viewListClients" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
+                            <button type="button" onClick={() => navigate('/viewListClients')} className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white mr-3">
                                 Cancelar
-                            </Link>
-                            <button type="submit" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-green-700 hover:bg-green-500 hover:text-white">
-                                Guardar
+                            </button>
+                            <button type="submit" className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-gray-700 hover:bg-gray-500 hover:text-white">
+                                {isUpdate ? 'Actualizar Usuario' : 'Agregar Usuario'}
                             </button>
                         </div>
                     </form>
@@ -245,4 +290,4 @@ const UpdateUser = () => {
     );
 };
 
-export default UpdateUser;
+export default UserForm;

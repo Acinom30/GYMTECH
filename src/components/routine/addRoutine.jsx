@@ -9,6 +9,7 @@ import ToastifySuccess from '../ui/toastify/toastifySuccess';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import RoutinePdfDocument from '../pdf/routinePdfDocument';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import { formatDate, calcularFechaCambio, calcularEdad } from '../js/general';
 
 
 const AddRoutine = () => {
@@ -117,21 +118,6 @@ const AddRoutine = () => {
         setMostrarVentana(!mostrarVentana);
     };
 
-    const calcularEdad = (fechaNacimiento) => {
-        if (!isValidDate(fechaNacimiento)) {
-            ToastifyError("Error al calcular la edad");
-            return;
-        }
-
-        const diferenciaFechas = Date.now() - fechaNacimiento.getTime();
-        const edad = new Date(diferenciaFechas);
-        return Math.abs(edad.getUTCFullYear() - 1970);
-    };
-
-    const isValidDate = (date) => {
-        return date instanceof Date && !isNaN(date);
-    }
-
     const handleChangeCategoria = async (e) => {
         const categoriaId = e.target.value;
         setFormData({
@@ -220,7 +206,7 @@ const AddRoutine = () => {
     };
 
     const handleSaveRoutine = async () => {
-        if(rutina.length === 0) {
+        if (rutina.length === 0) {
             ToastifyError("Debe ingresar ejercicios a la rutina")
             return;
         }
@@ -229,7 +215,6 @@ const AddRoutine = () => {
                 ToastifyError("Selecciona una fecha de cambio")
                 return;
             }
-            
             const fechaCambio = calcularFechaCambio(seleccionFechaCambio);
             const rutinaRef = collection(db, "rutinas");
             const usuarioRef = doc(db, "usuarios", client.id);
@@ -237,7 +222,7 @@ const AddRoutine = () => {
                 clientId: usuarioRef,
                 valoracion: IDValoracionMasReciente,
                 ejercicios: rutina,
-                fechaCreacion: new Date().toISOString().split('T')[0],
+                fechaCreacion: formatDate(new Date()),
                 fechaCambio: fechaCambio,
             });
             await obtenerRutinaRecienGuardada();
@@ -315,29 +300,6 @@ const AddRoutine = () => {
 
     const handleOptionChange = (event) => {
         setSeleccionFechaCambio(event.target.value);
-    };
-
-    const calcularFechaCambio = (opcion) => {
-        let fechaCambio = new Date();
-
-        switch (opcion) {
-            case '1 mes':
-                fechaCambio.setMonth(fechaCambio.getMonth() + 1);
-                break;
-            case '1 mes y medio':
-                fechaCambio.setMonth(fechaCambio.getMonth() + 1);
-                fechaCambio.setDate(fechaCambio.getDate() + 15);
-                break;
-            case '2 meses':
-                fechaCambio.setMonth(fechaCambio.getMonth() + 2);
-                break;
-            default:
-                console.error('Selección de fecha de cambio inválida');
-                return null;
-        }
-
-        const formattedDate = fechaCambio.toISOString().split('T')[0];
-        return formattedDate;
     };
 
     const handleColorSelection = (color) => {
@@ -651,20 +613,20 @@ const AddRoutine = () => {
                                     <div className="flex justify-center">
                                         <PDFDownloadLink
                                             document={<RoutinePdfDocument routine={rutinaDescarga} ejerciciosPorDia={ejerciciosPorDia} />}
-                                            fileName="routine.pdf"
+                                            fileName={`Rutina_${client?.primerNombre}${client?.segundoNombre ? '_' + client?.segundoNombre : ''}_${client?.primerApellido}.pdf`}
                                         >
                                             {({ loading }) => (
-                                                <button 
-                                                onClick={() => {
-                                                    navigate('/selectUserRoutine');
-                                                }}
-                                                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-5"
-                                                aria-label={loading ? 'Generando PDF...' : 'Descargar PDF'}         
-                                                                             
+                                                <button
+                                                    onClick={() => {
+                                                        navigate('/selectUserRoutine');
+                                                    }}
+                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-5"
+                                                    aria-label={loading ? 'Descargar PDF' : 'Descargar PDF'}
+
                                                 >
-                                                {loading ? 'Generando PDF...' : 'Descargar PDF'}
-                                                
-                                            </button>
+                                                    {loading ? 'Generando PDF...' : 'Descargar PDF'}
+
+                                                </button>
                                             )}
                                         </PDFDownloadLink>
                                         <button

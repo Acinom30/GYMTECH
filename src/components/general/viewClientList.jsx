@@ -2,16 +2,26 @@ import React, { useRef, useEffect, useState } from 'react';
 import { db } from '../../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 
-
-
-const ViewClientList = ({ handlePrimaryAction, primaryActionLabel, handleSecondaryAction, secondaryActionLabel, handleTertiaryAction, tertiaryActionLabel, user }) => {
+const ViewClientList = ({
+  handlePrimaryAction,
+  primaryActionLabel,
+  handleSecondaryAction,
+  secondaryActionLabel,
+  handleTertiaryAction,
+  tertiaryActionLabel,
+  user,
+  fetchClients,
+}) => {
   const isMounted = useRef(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [clients, setClients] = useState([]);
 
   useEffect(() => {
     isMounted.current = true;
-    const fetchClients = async () => {
+    const fetchFilteredClients = async () => {
+      if (fetchClients) {
+        await fetchClients(); 
+      }
       const querySnapshot = await getDocs(collection(db, 'usuarios'));
       const clientsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -27,11 +37,11 @@ const ViewClientList = ({ handlePrimaryAction, primaryActionLabel, handleSeconda
       setClients(filteredClients);
     };
 
-    fetchClients();
+    fetchFilteredClients();
     return () => {
       isMounted.current = false;
     };
-  }, [searchTerm]);
+  }, [searchTerm, fetchClients]);
 
   return (
     <div className="overflow-x-auto">
@@ -54,7 +64,7 @@ const ViewClientList = ({ handlePrimaryAction, primaryActionLabel, handleSeconda
         <thead>
           <tr>
             <th className="w-1/4 px-4 py-2">Nombre</th>
-            <th className="w-1/4 px-4 py-2">Apellido</th>
+            <th className="w-1/4 px-4 py-2">Apellidos</th>
             <th className="w-1/4 px-4 py-2">Cédula</th>
             <th className="w-1/4 px-4 py-2">Acciones</th>
           </tr>
@@ -64,8 +74,8 @@ const ViewClientList = ({ handlePrimaryAction, primaryActionLabel, handleSeconda
             <tr key={client.id} className='text-center'>
               {client.cedula !== '1' && (
                 <>
-                  <td className="border px-4 py-2">{client.primerNombre}</td>
-                  <td className="border px-4 py-2">{client.primerApellido}</td>
+                  <td className="border px-4 py-2">{client.primerNombre} {client.segundoNombre}</td>
+                  <td className="border px-4 py-2">{client.primerApellido} {client.segundoApellido}</td>
                   <td className="border px-4 py-2">{client.cedula}</td>
                   <td className="border px-4 py-2">
                     <div className="inline-flex gap-5">
@@ -81,14 +91,15 @@ const ViewClientList = ({ handlePrimaryAction, primaryActionLabel, handleSeconda
                         >
                         {secondaryActionLabel}
                       </button>
-                      {handleTertiaryAction && user.user.rol === 'administrador' && (
                         <button
                           onClick={() => handleTertiaryAction(client)}
-                          className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
-                          >
+                          className={`text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 ${tertiaryActionLabel === 'Eliminar' &&  user.user.rol === 'administrador' 
+                              ? "text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
+                              : "text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-blue-700 hover:bg-gray-500 hover:text-white"
+                            }`}
+                        >
                           {tertiaryActionLabel}
                         </button>
-                      )}
                     </div>
                   </td>
                 </>

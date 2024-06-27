@@ -95,7 +95,7 @@ const SelectUserRoutine = () => {
     return (
         <>
             <Header />
-            <h1 className="text-3xl font-bold text-center mb-4">Rutinas</h1>
+            <h1 className="text-3xl font-bold text-center mb-4">Usuarios</h1>
             <ViewClientList
                 clients={clients}
                 handlePrimaryAction={handleEvaluation}
@@ -126,12 +126,14 @@ const SelectUserRoutine = () => {
                                                     >
                                                         Editar Rutina
                                                     </button>
+                                                    {user.user.rol === 'administrador' && (
                                                     <button
                                                         onClick={() => handleDeleteRoutine(rutina.id)}
                                                         className="text-black font-bold py-2 px-4 rounded-full focus:outline-none shadow-md transition-transform duration-300 transform hover:scale-105 border border-red-700 hover:bg-red-700 hover:text-white"
                                                     >
                                                         Eliminar Rutina
                                                     </button>
+                                                    )}
                                                 </div>
                                             </li>
                                         ))}

@@ -1,54 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Link, Page, Text, View, Document, Image } from '@react-pdf/renderer';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import { styles_pdf } from '../ui/toastify/style';
+import  logo from '../../image/logo.jpg';
 
-const styles = StyleSheet.create({
-    page: {
-        padding: 30,
-    },
-    section: {
-        margin: 5,
-        padding: 5,
-    },
-    title: {
-        fontSize: 16,
-        marginBottom: 10,
-    },
-    subtitle: {
-        fontSize: 14,
-        marginBottom: 5,
-    },
-    text: {
-        fontSize: 11,
-    },
-    table: {
-        display: 'table',
-        width: 510,
-        marginBottom: 10,
-    },
-    tableRow: {
-        flexDirection: 'row',
-    },
-    tableCol: {
-        width: '29%',
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderColor: '#000',
-        padding: 5,
-    },
-    colorCol: {
-        width: '13%',
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderColor: '#000',
-        padding: 5,
-    },
-    tableCell: {
-        margin: 'auto',
-        fontSize: 10,
-    },
-});
+
+const styles = styles_pdf;
 
 const RoutinePdfDocument = ({ routine, ejerciciosPorDia }) => {
     const [userData, setUserData] = useState(null);
@@ -73,13 +31,10 @@ const RoutinePdfDocument = ({ routine, ejerciciosPorDia }) => {
 
         const fetchEvaluationData = async () => {
             if (routine.valoracion !== null) {
-                console.log("Entró if")
                 const evaluationRef = doc(db, 'valoraciones', routine.valoracion);
                 try {
                     const evaluationSnapshot = await getDoc(evaluationRef);
                     if (evaluationSnapshot.exists()) {
-                        console.log("Entró if snap")
-                        console.log(evaluationSnapshot.data())
                         setEvaluationData(evaluationSnapshot.data());
                     } else {
                         console.error('No such document!');
@@ -101,6 +56,7 @@ const RoutinePdfDocument = ({ routine, ejerciciosPorDia }) => {
     return (
         <Document>
             <Page style={styles.page}>
+                <Image style={styles.logo} src={logo} /> { }
                 <View style={styles.section}>
                     <Text style={styles.title}>Rutina - {userData.primerNombre} {userData.segundoNombre} {userData.primerApellido} {userData.segundoApellido}</Text>
                     {evaluationData ? (
@@ -116,7 +72,7 @@ const RoutinePdfDocument = ({ routine, ejerciciosPorDia }) => {
                         <View style={styles.section}>
                             <Text style={styles.text}>Sin valoración</Text>
                             <Text style={styles.text}>Fecha de Cambio: {routine.fechaCambio}</Text>
-F
+                            F
                         </View>
                     )}
                 </View>

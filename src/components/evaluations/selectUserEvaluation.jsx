@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import ViewClientList from '../general/viewClientList';
 import { useUser } from '../../userContext';
 import ToastifySuccess from '../ui/toastify/toastifySuccess';
+import 'react-confirm-alert/src/react-confirm-alert.css'; 
+
 
 const SelectUserEvaluation = () => {
     const navigate = useNavigate();
@@ -14,9 +16,10 @@ const SelectUserEvaluation = () => {
     const [modalType, setModalType] = useState(null);
     const [valoraciones, setValoraciones] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const { user } = useUser();
     const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [valoracionToDelete, setValoracionToDelete] = useState(null);
+    const { user } = useUser();
+
 
     const handleDeleteEvaluation = async (valoracionId) => {
         setShowModal(false)
@@ -89,6 +92,11 @@ const SelectUserEvaluation = () => {
         navigate('/editEvaluation', { state: { valoracionId, clientId: selectedClient.id } });
     };
 
+    const handleRecordEvent = (client) => {
+        setSelectedClient(client);
+        navigate('/viewEvaluationHistory',{ state: { clientId: client.id } })
+    }
+
     return (
         <>
             <Header />
@@ -99,6 +107,8 @@ const SelectUserEvaluation = () => {
                 primaryActionLabel="Agregar"
                 handleSecondaryAction={handleEditEvent}
                 secondaryActionLabel="Editar"
+                handleTertiaryAction={handleRecordEvent}
+                tertiaryActionLabel="Historial"
                 user={user}
             />
             {confirmationModalOpen && (
@@ -125,7 +135,7 @@ const SelectUserEvaluation = () => {
                         <h2 className="text-xl font-bold mb-4">Últimas Evaluaciones de {selectedClient.primerNombre} {selectedClient.primerApellido}</h2>
                         <ul>
                             {valoraciones.length > 0 ? (
-                                valoraciones.map(valoracion => (
+                                valoraciones.slice(0, 2).map(valoracion => (
                                     <li key={valoracion.id} className="mb-2">
                                         <div className="bg-white p-4 rounded shadow">
                                             <p><strong>Fecha de Valoración:</strong> {valoracion.fechaValoracion}</p>
